@@ -5,62 +5,44 @@ using static GameManagerScript;
 
 public class PlayerScript : MonoBehaviour
 {
-    private PlayerIndex m_playerIndex;
 
-    private Color m_playerColor;
-    private bool m_initialized = false;
+    #region events
 
-    private Animator m_anim;
-    private bool m_inAnimation;
-
-    private BallScript m_Ball;
-
-    private Quaternion m_initialRotation;
-    private Vector3 m_initialPosition;
-
-    private Vector3 m_initialScale;
-
-    private bool isGamePaused;
-
-
-    [SerializeField] private float RegularKickSpeed = 2;
-    [SerializeField] private float PowerKickSpeed = 2;
-    [SerializeField] private float UpKickSpeed = 2;
-    [SerializeField] private float AutoPlaySequenceSpeed = 2;
-
-
-    [SerializeField] private SpriteRenderer Body;
-
-    //private float m_touchSensetivity = 15f;
-
-
-    private Touch theTouch;
-    private Vector2 touchStartPosition, touchEndPosition;
-
-    private bool m_autoPlay = false;
-
-
+    #endregion
+    #region enums
     public enum KickType
     {
         Regular = 0,
         Up = 1,
         Power = 2
     }
+
+    #endregion
+    #region serialized 
+    [SerializeField] private float RegularKickSpeed = 2;
+    [SerializeField] private float PowerKickSpeed = 2;
+    [SerializeField] private float UpKickSpeed = 2;
+    [SerializeField] private float AutoPlaySequenceSpeed = 2;
+    [SerializeField] private SpriteRenderer Body;
+
+
+    #endregion
+    #region private
+
+    private bool m_initialized = false;
+    private Animator m_anim;
+    private bool m_inAnimation;
+    private Quaternion m_initialRotation;
+    private Vector3 m_initialPosition;
+    private Vector3 m_initialScale;
+    private bool isGamePaused;
     private KickType m_curKickType;
-
     private int m_autoPlayDifficult = 100;
-
     private bool m_currentlyInTurn = true;
 
+    private PlayerArgs m_args;
 
-    // Start is called before the first frame update
-
-    // bool AnimatorIsPlaying()
-    // {
-    //     return m_anim.GetCurrentAnimatorStateInfo(0).length >
-    //            m_anim.GetCurrentAnimatorStateInfo(0).normalizedTime;
-    // }
-
+    #endregion
 
 
     public void Init(PlayerArgs args)
@@ -75,14 +57,11 @@ public class PlayerScript : MonoBehaviour
             m_initialPosition = gameObject.transform.localPosition;
             m_initialScale = gameObject.transform.localScale;
 
-            m_Ball = args.Ball;
-            m_playerIndex = args.PlayerIndex;
-            m_playerColor = args.Color;
+            m_args = args;
             SetPlayerIndexSettings();
 
             m_anim.speed = 1;
 
-            m_autoPlay = args.AutoPlay;
             m_initialized = true;
             this.gameObject.SetActive(true);
 
@@ -93,7 +72,7 @@ public class PlayerScript : MonoBehaviour
     void UpdateColor()
     {
         //update player colors
-        Body.color = m_playerColor;
+        Body.color = m_args.Color;
 
     }
 
@@ -113,7 +92,7 @@ public class PlayerScript : MonoBehaviour
         {
             if (!m_inAnimation)
             {
-                if (!m_autoPlay)
+                if (!m_args.AutoPlay)
                 {
                     GetPlayerInputFromKeyboard();
                     //GetPlayerInputFromTouch();
@@ -129,9 +108,9 @@ public class PlayerScript : MonoBehaviour
 
     void GetPlayerInputFromKeyboard()
     {
-        if (m_playerIndex == PlayerIndex.First)
+        if (m_args.PlayerIndex == PlayerIndex.First)
         {
-            if (Input.GetKeyDown(KeyCode.D))
+            if (Input.GetKeyDown(KeyCode.A))
             {
                 OnKickPlay(KickType.Up);
             }
@@ -139,19 +118,14 @@ public class PlayerScript : MonoBehaviour
             {
                 OnKickPlay(KickType.Regular);
             }
-            else if (Input.GetKeyDown(KeyCode.A))
+            else if (Input.GetKeyDown(KeyCode.D))
             {
                 OnKickPlay(KickType.Power);
-            }
-            else
-            {
-                //print("Idle PlayerIndex.First");
-                //PlayIdle();
             }
         }
         else
         {
-            if (Input.GetKeyDown(KeyCode.RightArrow))
+            if (Input.GetKeyDown(KeyCode.LeftArrow))
             {
                 OnKickPlay(KickType.Up);
             }
@@ -159,15 +133,11 @@ public class PlayerScript : MonoBehaviour
             {
                 OnKickPlay(KickType.Regular);
             }
-            else if (Input.GetKeyDown(KeyCode.LeftArrow))
+            else if (Input.GetKeyDown(KeyCode.RightArrow))
             {
                 OnKickPlay(KickType.Power);
             }
-            else
-            {
-                //PlayIdle();
 
-            }
         }
 
     }
@@ -176,10 +146,7 @@ public class PlayerScript : MonoBehaviour
     {
         if (!m_inAnimation)
         {
-            //print("Idle");
             m_anim.speed = 1;
-            //m_anim.enabled = true;
-            //m_inAnimation = true;
             m_anim.Play("Idle", -1, 0f);
         }
 
@@ -193,7 +160,7 @@ public class PlayerScript : MonoBehaviour
             if (rnd <= m_autoPlayDifficult)
             {
                 //print("AUTOPLAYER PLAY");
-                if (m_Ball.BallInHitBounds(false))//check lower hit bounds
+                if (m_args.Ball.BallInHitBounds(false))//check lower hit bounds
                 {
                     kickType = RandomKick();
                     OnKickPlay(kickType);
@@ -264,7 +231,7 @@ public class PlayerScript : MonoBehaviour
     {
         if (m_currentlyInTurn)
         {
-            m_Ball.OnHitPlay(m_curKickType);
+            m_args.Ball.OnHitPlay(m_curKickType);
 
         }
 
@@ -335,6 +302,6 @@ public class PlayerScript : MonoBehaviour
     public void StartTurn()
     {
         m_currentlyInTurn = true;
-        m_Ball.OnNewBallInScene();
+        m_args.Ball.OnNewBallInScene();
     }
 }

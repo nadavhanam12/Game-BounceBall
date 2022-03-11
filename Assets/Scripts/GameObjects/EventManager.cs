@@ -18,7 +18,6 @@ public static class EventManager
     // Adds a delegate to get called for a specific event
     public static void AddHandler(EVENT evnt, Action action)
     {
-        var y = eventTable;
         if (!eventTable.ContainsKey(evnt)) eventTable[evnt] = action;
         else eventTable[evnt] += action;
     }

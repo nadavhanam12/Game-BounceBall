@@ -8,23 +8,8 @@ using static PlayerScript;
 
 public class BallScript : MonoBehaviour
 {
-    private bool m_initialized = false;
+    #region events
 
-    private bool m_isBallInPlay;
-    private Animator m_anim;
-    private ParticleSystem m_particles;
-    private bool m_inAnimation;
-    //private Rigidbody m_rigidBody;
-    private float m_curVelocity;
-    [SerializeField] private float m_startVelocityY = 1;
-    [SerializeField] private float m_startVelocityX = 1;
-    [SerializeField] private float m_fixedPositionX = 2;
-    [SerializeField] private float m_maxVelocityY;
-    private float curY;
-    private float curX;
-    private Quaternion m_initialRotation;
-    private Vector3 m_initialPosition;
-    private Vector3 m_initialScale;
 
     public delegate void onBallLost(PlayerIndex index);
     public onBallLost m_onBallLost;
@@ -32,29 +17,49 @@ public class BallScript : MonoBehaviour
     public delegate void onBallHit(PlayerIndex index, KickType kickType);
     public onBallHit m_onBallHit;
 
+    #endregion
 
-    [SerializeField] private float BallRegularHitAnimSpeed = 5f;
+    #region const
+
+    const float m_speedEmitTrail = 0;
+    const int ParticlesToEmit = 100;
+    const float m_startVelocityY = 0.2f;
+    const float m_startVelocityX = 0.3f;
+    const float m_fixedPositionX = -12f;
+    const float m_maxVelocityY = 100;
+    const float m_velocityMultiplier = 0.001f;
+
+    #endregion
+
+    #region serialized private
+    [SerializeField] private float BallRegularHitAnimSpeed;
+
+    [SerializeField] private float m_gravity;
+    [SerializeField] private float BallRegularHitPower;
+    [SerializeField] private float BallSpecialHitPower;
+    [SerializeField] private float m_ballReflectPower;
+
+    #endregion
 
 
-    [SerializeField] private float m_gravity = 4;
-    [SerializeField] private float BallRegularHitPower = 2;
-    [SerializeField] private float BallSpecialHitPower = 2;
-    [SerializeField] private float m_ballReflectPower = 1;
-    [SerializeField] private int ParticlesToEmit = 100;
+    #region private
 
-    [SerializeField] private float m_speedEmitTrail = 1;
+    private bool m_initialized = false;
 
+    private bool m_isBallInPlay;
+    private Animator m_anim;
+    private ParticleSystem m_particles;
+    private bool m_inAnimation;
+    private float m_curVelocity;
+    private float curY;
+    private float curX;
+    private Quaternion m_initialRotation;
+    private Vector3 m_initialPosition;
+    private Vector3 m_initialScale;
 
-    private float HitUpperBound2;
-    private float HitUpperBound;
-    private float HitLowerBound;
-
-    private float GameUpperBound;
-    private float GameLowerBound;
+    private BallArgs m_args;
 
     private bool isGamePaused;
-
-    private PlayerIndex m_ballIndex;
 
     private List<Sprite> m_ballSprites;
 
@@ -63,6 +68,11 @@ public class BallScript : MonoBehaviour
 
     private TrailRenderer m_curBallTrail;
     private bool m_isTrailEmmiting = false;
+
+
+
+    #endregion
+
 
 
     public void Init(BallArgs args)
@@ -86,15 +96,8 @@ public class BallScript : MonoBehaviour
             m_initialScale = gameObject.transform.localScale;
 
             m_curVelocity = 0;
+            m_args = args;
 
-            HitUpperBound2 = args.HitUpperBound2;
-            HitUpperBound = args.HitUpperBound;
-            HitLowerBound = args.HitLowerBound;
-
-            GameUpperBound = args.GameUpperBound;
-            GameLowerBound = args.GameLowerBound;
-
-            m_ballIndex = args.BallIndex;
 
             m_ballSprites = args.BallTextures;
 
@@ -134,11 +137,9 @@ public class BallScript : MonoBehaviour
         {
             if (m_isBallInPlay)
             {
-                //m_rigidBody.AddForce(Physics.gravity * m_rigidBody.mass);
-                //m_rigidBody.AddForce(new Vector3(0, 9.8f, 0), ForceMode.Force);
                 if (Math.Abs(m_curVelocity) < m_maxVelocityY)
                 {
-                    m_curVelocity -= m_gravity * 0.001f;
+                    m_curVelocity -= m_gravity * m_velocityMultiplier;
                 }
 
                 curY = this.gameObject.transform.localPosition.y;
@@ -175,14 +176,14 @@ public class BallScript : MonoBehaviour
 
     private void CheckBounds()
     {
-        if (this.gameObject.transform.position.y < GameLowerBound)
+        if (this.gameObject.transform.position.y < m_args.GameLowerBound)
         {
             m_isBallInPlay = false;
             this.gameObject.SetActive(false);
-            m_onBallLost(m_ballIndex);
+            m_onBallLost(m_args.BallIndex);
 
         }
-        else if (this.gameObject.transform.position.y > GameUpperBound)
+        else if (this.gameObject.transform.position.y > m_args.GameUpperBound)
         {
             Vector3 curPos = this.gameObject.transform.localPosition;
             curPos.y -= 0.1f;
@@ -219,12 +220,10 @@ public class BallScript : MonoBehaviour
                 isSpecial = false;
             }
 
-
-
             ApplyHitPhysics(isSpecial);
             ApplyHitVisuals(isSpecial, true);
 
-            m_onBallHit(m_ballIndex, kickType);
+            m_onBallHit(m_args.BallIndex, kickType);
 
         }
     }
@@ -240,19 +239,6 @@ public class BallScript : MonoBehaviour
     private void ApplyHitPhysics(bool isSpecial)
     {
         float kickPower = isSpecial ? BallSpecialHitPower : BallRegularHitPower;
-        // if (BallInHitBounds())
-        // {
-
-        // if ((-1) * m_curVelocity > 0.9f * kickPower * 0.1f)
-        // {
-        //     m_curVelocity = kickPower * 0.1f * 0.5f;
-        // }
-        // else
-        // {
-        //     m_curVelocity += kickPower * 0.1f;
-        // }
-
-        //}
 
         if (isSpecial)
         {
@@ -307,13 +293,13 @@ public class BallScript : MonoBehaviour
         bool InXBound = true;
         if (isUpperHit)
         {
-            UnderUpperBound = (y <= HitUpperBound2);
-            AboveLowerBound = (y >= HitUpperBound);
+            UnderUpperBound = (y <= m_args.HitUpperBound2);
+            AboveLowerBound = (y >= m_args.HitUpperBound);
         }
         else
         {
-            UnderUpperBound = (y <= HitUpperBound);
-            AboveLowerBound = (y >= HitLowerBound);
+            UnderUpperBound = (y <= m_args.HitUpperBound);
+            AboveLowerBound = (y >= m_args.HitLowerBound);
         }
         //InXBound = x <= m_fixedPositionX + 2;
 
@@ -343,8 +329,6 @@ public class BallScript : MonoBehaviour
         }
         */
         return "BallRegularHit1";
-
-
     }
 
 

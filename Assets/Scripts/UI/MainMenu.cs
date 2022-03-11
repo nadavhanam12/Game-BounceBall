@@ -8,30 +8,49 @@ using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
+    #region events
+
+
+    #endregion
+
+    #region serialized
 
     [SerializeField] private GameObject m_StartGame;
     [SerializeField] private GameObject m_gameOption;
-    private GameManagerScript m_gameManager;
     [SerializeField] private GameObject m_gameScenePrefab;
+    [SerializeField] private RawImage m_background;
+    [SerializeField] private GameObject m_BallOnePlayer;
+    [SerializeField] private GameObject m_BallTwoPlayer;
+    [SerializeField] private GameObject m_BallTurns;
+
+
+
+
+    #endregion
+
+    #region private
+    private GameManagerScript m_gameManager;
     private GameObject m_gameActiveScene;
     private GameArgs m_gameArgs;
-    [SerializeField] private RawImage m_background;
     private Texture2D[] backgroundsList;
     private Animator m_anim;
 
     private Vector3 m_posBallOnePlayer;
     private Vector3 m_posBallTwoPlayer;
     private Vector3 m_posBallTurns;
-    [SerializeField] private GameObject m_BallOnePlayer;
-    [SerializeField] private GameObject m_BallTwoPlayer;
-    [SerializeField] private GameObject m_BallTurns;
-
-    [SerializeField] private GameObject m_BallImage;
-    private const string backgroundsPath = "BackGround";
+    const string backgroundsPath = "BackGround";
     private int m_highMove = 150;
     private float m_timeToTween = 1f;
     private GameObject m_userBallChoosen = null;
     private float m_inputDelay = 0.0f;
+
+
+    #endregion
+
+
+
+
+
 
     void Awake()
     {
