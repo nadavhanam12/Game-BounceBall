@@ -22,4 +22,6 @@ public class PlayerArgs
     [HideInInspector] public int CurCombo;
     [HideInInspector] public ComboData CurComboData;
 
+    [HideInInspector] public GameBounds Bounds;
+
 }

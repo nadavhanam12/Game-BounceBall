@@ -23,6 +23,7 @@ public class GameCanvasScript : MonoBehaviour
     public OnTouchKickPower m_OnTouchKickPower;
 
 
+
     #endregion
 
     #region public
@@ -37,7 +38,6 @@ public class GameCanvasScript : MonoBehaviour
     [SerializeField] CheerScript CheerObject;
     [SerializeField] RawImage Background;
 
-
     [SerializeField] SequenceMenuUI SequenceMenuUI;
     #endregion
 
@@ -49,7 +49,6 @@ public class GameCanvasScript : MonoBehaviour
     private bool isGamePaused;
     private bool m_initialized;
     private Animator m_anim;
-
 
 
     #endregion
@@ -69,11 +68,15 @@ public class GameCanvasScript : MonoBehaviour
         ScoreUIDelta.SetGamePause(isGamePaused);
 
     }
-    public void OnKickPower() { m_OnTouchKickPower(); }
-    public void OnKickRegular() { m_OnTouchKickRegular(); }
-    public void OnKickUp() { m_OnTouchKickUp(); }
-
+    public void OnKickPowerInput() { m_OnTouchKickPower(); }
+    public void OnKickRegularInput() { m_OnTouchKickRegular(); }
+    public void OnKickUpInput() { m_OnTouchKickUp(); }
+    public void OnMoveRightInputPressed() { EventManager.Broadcast(EVENT.EventOnRightPressed); }
+    public void OnMoveLeftInputPressed() { EventManager.Broadcast(EVENT.EventOnLeftPressed); }
+    public void OnMoveRightInputReleased() { EventManager.Broadcast(EVENT.EventOnRightReleased); }
+    public void OnMoveLeftInputReleased() { EventManager.Broadcast(EVENT.EventOnLeftReleased); }
     public void OnRestart() { EventManager.Broadcast(EVENT.EventOnRestart); }
+
 
     public void Init(GameCanvasArgs args)
     {

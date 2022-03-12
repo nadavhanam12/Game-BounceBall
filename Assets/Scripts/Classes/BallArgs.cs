@@ -5,11 +5,7 @@ using static GameManagerScript;
 
 public class BallArgs
 {
-    public float HitUpperBound2;
-    public float HitUpperBound;
-    public float HitLowerBound;
-    public float GameUpperBound;
-    public float GameLowerBound;
+    public GameBounds Bounds;
 
     public PlayerIndex BallIndex;
 

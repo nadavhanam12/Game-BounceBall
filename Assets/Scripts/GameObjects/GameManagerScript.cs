@@ -22,7 +22,7 @@ public class GameManagerScript : MonoBehaviour
 
     #region Refs
 
-    [SerializeField] private GameBounds m_gameBounds;
+    [SerializeField] private GameBoundsData m_gameBoundsData;
     [SerializeField] private GameObject m_playerContainer1;
     [SerializeField] private GameObject m_playerContainer2;
     private GameCanvasScript m_gameCanvas;
@@ -37,14 +37,15 @@ public class GameManagerScript : MonoBehaviour
 
     #endregion
 
-    #region public
+    #region serialized
+    [SerializeField] private int m_matchTime;
+    [SerializeField] private float m_countDownDelay = 1f;
 
     #endregion
 
     #region private
 
-    [SerializeField] private int m_matchTime;
-    [SerializeField] private float m_countDownDelay = 1f;
+    private GameBounds m_gameBounds;
     private PlayerArgs m_playerData1;
     private PlayerArgs m_playerData2;
     private Dictionary<KickType, int> m_scoreDictionary;
@@ -59,22 +60,15 @@ public class GameManagerScript : MonoBehaviour
 
 
 
+
     #endregion
-
-
-
-
-
-
-
-
-
-
 
     public void SetGameArgs(GameArgs gameArgs)
     {
         m_gameArgs = gameArgs;
     }
+
+
 
     void Start()
     {
@@ -109,7 +103,8 @@ public class GameManagerScript : MonoBehaviour
         m_playerData2.PlayerScript.PlayIdle();
 
 
-        Invoke("StartCountdown", m_countDownDelay);
+        //Invoke("StartCountdown", m_countDownDelay);
+        Invoke("FinishGameCountdown", m_countDownDelay);
 
 
     }
@@ -130,7 +125,7 @@ public class GameManagerScript : MonoBehaviour
     public void FinishGameCountdown()
     {
         EventManager.Broadcast(EVENT.EventStartGameScene);
-        m_gameBounds.gameObject.SetActive(false);
+        m_gameBoundsData.gameObject.SetActive(false);
         InitGameMood();
         SetGamePause(false);
         StartCoroutine(UpdateScores());
@@ -140,13 +135,14 @@ public class GameManagerScript : MonoBehaviour
     private void Init()
     {
         InitData();
+        InitPlayersData();
         InitPlayersAndBalls();
         InitPlayers();
         InitBalls();
         InitListeners();
 
         InitGameCanvas();
-        InitSequenceManager();
+        //InitSequenceManager();
 
 
         SetGamePause(true);
@@ -154,6 +150,14 @@ public class GameManagerScript : MonoBehaviour
         //Invoke("InitGameMood", 1f);
 
         //SetGamePause(false);
+
+
+
+
+    }
+
+    void InitPlayersData()
+    {
         m_playerData1.CurScore = 0;
         m_playerData2.CurScore = 0;
         m_playerData1.CurCombo = 0;
@@ -162,8 +166,8 @@ public class GameManagerScript : MonoBehaviour
         m_playerData1.CurComboData = m_comboDataContainer.InitPlayerCombo();
         m_playerData2.CurComboData = m_comboDataContainer.InitPlayerCombo();
 
-
-
+        m_playerData1.Bounds = m_gameBounds;
+        m_playerData1.Bounds = m_gameBounds;
     }
 
     private void InitData()
@@ -175,6 +179,10 @@ public class GameManagerScript : MonoBehaviour
         m_playersDataContainer = GetComponentInChildren<PlayersDataContainer>();
         m_playerData1 = m_playersDataContainer.PlayerData1;
         m_playerData2 = m_playersDataContainer.PlayerData2;
+
+
+        m_gameBounds = m_gameBoundsData.GenerateBounds(Camera.main);
+
 
     }
     private void InitSequenceManager()
@@ -264,6 +272,8 @@ public class GameManagerScript : MonoBehaviour
         m_gameCanvas.m_OnTouchKickUp = m_playerData1.PlayerScript.OnTouchKickUp;
 
 
+
+
     }
     private void InitPlayers()
     {
@@ -298,12 +308,10 @@ public class GameManagerScript : MonoBehaviour
 
     private BallArgs GenerateBallArgs()
     {
+        Camera cam = Camera.main;
         BallArgs ballArgs = new BallArgs();
-        ballArgs.HitUpperBound2 = m_gameBounds.m_hitUpperBound2.transform.localPosition.y;
-        ballArgs.HitUpperBound = m_gameBounds.m_hitUpperBound.transform.localPosition.y;
-        ballArgs.HitLowerBound = m_gameBounds.m_hitLowerBound.transform.localPosition.y;
-        ballArgs.GameUpperBound = m_gameBounds.m_gameUpperBound.transform.localPosition.y;
-        ballArgs.GameLowerBound = m_gameBounds.m_gameLowerBound.transform.localPosition.y;
+        ballArgs.Bounds = m_gameBounds;
+
         ballArgs.BallTextures = m_ballTextures;
         return ballArgs;
     }

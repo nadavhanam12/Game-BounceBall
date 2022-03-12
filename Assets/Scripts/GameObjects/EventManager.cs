@@ -5,8 +5,22 @@ using System;
 
 public enum EVENT
 {
-    EventStartApp, EventMainMenu, EventButtonClick, EventStartGameScene, EventCombo, EventNormalKick, EventPowerKick, EventUpKick,
-    EventOnRestart, EventOnTimeOver, EventOnBallLost, EventOnCountdownEnds
+    EventStartApp,
+    EventMainMenu,
+    EventButtonClick,
+    EventStartGameScene,
+    EventCombo,
+    EventNormalKick,
+    EventPowerKick,
+    EventUpKick,
+    EventOnRestart,
+    EventOnTimeOver,
+    EventOnBallLost,
+    EventOnCountdownEnds,
+    EventOnRightPressed,
+    EventOnLeftPressed,
+    EventOnRightReleased,
+    EventOnLeftReleased,
 }; // ... Other events
 
 public static class EventManager

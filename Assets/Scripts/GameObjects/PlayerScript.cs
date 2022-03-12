@@ -24,6 +24,9 @@ public class PlayerScript : MonoBehaviour
     [SerializeField] private float UpKickSpeed = 2;
     [SerializeField] private float AutoPlaySequenceSpeed = 2;
     [SerializeField] private SpriteRenderer Body;
+    [SerializeField] private GameObject m_hitZone;
+    [SerializeField] private float m_hitZoneRadius = 2;
+    [SerializeField] private float m_movingSpeed;
 
 
     #endregion
@@ -41,8 +44,18 @@ public class PlayerScript : MonoBehaviour
     private bool m_currentlyInTurn = true;
 
     private PlayerArgs m_args;
+    private bool isRunning = false;
+    private bool m_runRightFromTouch = false;
+    private bool m_runLeftFromTouch = false;
 
     #endregion
+
+    void OnDrawGizmosSelected()
+    {
+        // Draw a yellow sphere at the transform's position
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(m_hitZone.transform.position, m_hitZoneRadius);
+    }
 
 
     public void Init(PlayerArgs args)
@@ -57,16 +70,50 @@ public class PlayerScript : MonoBehaviour
             m_initialPosition = gameObject.transform.localPosition;
             m_initialScale = gameObject.transform.localScale;
 
+            m_hitZone.gameObject.SetActive(false);
+
             m_args = args;
             SetPlayerIndexSettings();
 
             m_anim.speed = 1;
+
+            InitListeners();
 
             m_initialized = true;
             this.gameObject.SetActive(true);
 
         }
 
+    }
+    void OnDestroy()
+    {
+        RemoveListeners();
+    }
+
+    void InitListeners()
+    {
+        EventManager.AddHandler(EVENT.EventOnRightPressed, ToogleRunRightFromTouch);
+        EventManager.AddHandler(EVENT.EventOnRightReleased, ToogleRunRightFromTouch);
+        EventManager.AddHandler(EVENT.EventOnLeftPressed, ToogleRunLeftFromTouch);
+        EventManager.AddHandler(EVENT.EventOnLeftReleased, ToogleRunLeftFromTouch);
+
+    }
+    void RemoveListeners()
+    {
+        EventManager.RemoveHandler(EVENT.EventOnRightPressed, ToogleRunRightFromTouch);
+        EventManager.RemoveHandler(EVENT.EventOnRightReleased, ToogleRunRightFromTouch);
+        EventManager.RemoveHandler(EVENT.EventOnLeftPressed, ToogleRunLeftFromTouch);
+        EventManager.RemoveHandler(EVENT.EventOnLeftReleased, ToogleRunLeftFromTouch);
+
+    }
+
+    private void ToogleRunLeftFromTouch()
+    {
+        m_runLeftFromTouch = !m_runLeftFromTouch;
+    }
+    private void ToogleRunRightFromTouch()
+    {
+        m_runRightFromTouch = !m_runRightFromTouch;
     }
 
     void UpdateColor()
@@ -90,23 +137,23 @@ public class PlayerScript : MonoBehaviour
     {
         if ((!isGamePaused))
         {
-            if (!m_inAnimation)
+            //if (!m_inAnimation)
+            //{
+            if (!m_args.AutoPlay)
             {
-                if (!m_args.AutoPlay)
-                {
-                    GetPlayerInputFromKeyboard();
-                    //GetPlayerInputFromTouch();
-                }
-                else
-                {
-                    AutoPlay();
-                }
+                GetPlayerKickFromKeyboard();
+                GetPlayerMovement();
             }
+            else
+            {
+                AutoPlay();
+            }
+            //}
         }
 
     }
 
-    void GetPlayerInputFromKeyboard()
+    void GetPlayerKickFromKeyboard()
     {
         if (m_args.PlayerIndex == PlayerIndex.First)
         {
@@ -123,24 +170,82 @@ public class PlayerScript : MonoBehaviour
                 OnKickPlay(KickType.Power);
             }
         }
-        else
-        {
-            if (Input.GetKeyDown(KeyCode.LeftArrow))
-            {
-                OnKickPlay(KickType.Up);
-            }
-            else if (Input.GetKeyDown(KeyCode.DownArrow))
-            {
-                OnKickPlay(KickType.Regular);
-            }
-            else if (Input.GetKeyDown(KeyCode.RightArrow))
-            {
-                OnKickPlay(KickType.Power);
-            }
-
-        }
 
     }
+    void GetPlayerMovement()
+    {
+        if (m_args.PlayerIndex == PlayerIndex.First)
+        {
+            if (Input.GetKey(KeyCode.Z) || Input.GetKey(KeyCode.LeftArrow) || m_runLeftFromTouch)
+            {
+                OnMoveX(Vector3.left);
+            }
+            else if (Input.GetKey(KeyCode.X) || Input.GetKey(KeyCode.RightArrow) || m_runRightFromTouch)
+            {
+                OnMoveX(Vector3.right);
+            }
+            else if (isRunning)
+            {
+                //m_anim.SetBool("Running", true);
+                isRunning = false;
+                m_anim.SetTrigger("Idle Triger");
+            }
+        }
+    }
+
+
+    public void OnMoveX(Vector3 direction)
+    {
+        if (CheckPlayerInBounds(direction))
+        {
+            if (!isRunning)
+            {
+                isRunning = true;
+                m_anim.SetTrigger("Running Triger");
+            }
+            SpinPlayerToDirection(direction);
+            transform.Translate(direction * m_movingSpeed, Space.World);
+        }
+    }
+
+    void SpinPlayerToDirection(Vector3 direction)
+    {
+        if ((direction == Vector3.left) && (transform.localScale.x > 0))
+        {
+            Vector3 scale = transform.localScale;
+            scale.x *= -1;
+            transform.localScale = scale;
+
+        }
+        else if ((direction == Vector3.right) && (transform.localScale.x < 0))
+        {
+            Vector3 scale = transform.localScale;
+            scale.x *= -1;
+            transform.localScale = scale;
+        }
+    }
+
+    private bool CheckPlayerInBounds(Vector3 direction)
+    {
+        bool inBounds;
+        if (direction == Vector3.left)
+        {
+            inBounds = transform.position.x - 2 > m_args.Bounds.GameLeftBound;
+        }
+        else
+        {
+            inBounds = transform.position.x + 2 < m_args.Bounds.GameRightBound;
+        }
+        //print("leftFromRightBounds: " + leftFromRightBounds);
+        //print("rightFromLeftBounds: " + rightFromLeftBounds);
+        //print("transform.position.x: " + transform.position.x);
+        //print("m_args.Bounds.GameLeftBound: " + m_args.Bounds.GameLeftBound);
+
+        return inBounds;
+    }
+
+
+
 
     public void PlayIdle()
     {
@@ -160,7 +265,7 @@ public class PlayerScript : MonoBehaviour
             if (rnd <= m_autoPlayDifficult)
             {
                 //print("AUTOPLAYER PLAY");
-                if (m_args.Ball.BallInHitBounds(false))//check lower hit bounds
+                if (BallInHitZone())//check lower hit bounds
                 {
                     kickType = RandomKick();
                     OnKickPlay(kickType);
@@ -220,9 +325,10 @@ public class PlayerScript : MonoBehaviour
 
         gameObject.transform.localRotation = m_initialRotation;
         gameObject.transform.localPosition = m_initialPosition;
-        gameObject.transform.localScale = m_initialScale;
+        //gameObject.transform.localScale = m_initialScale;
 
         m_inAnimation = false;
+        isRunning = false;
         PlayIdle();
     }
 
@@ -231,10 +337,37 @@ public class PlayerScript : MonoBehaviour
     {
         if (m_currentlyInTurn)
         {
-            m_args.Ball.OnHitPlay(m_curKickType);
+            if (BallInHitZone())
+            {
+                float distanceX = m_args.Ball.transform.position.x - m_hitZone.transform.position.x;
+                //print(distanceX);
+                m_args.Ball.OnHitPlay(m_curKickType, distanceX);
+
+            }
 
         }
 
+    }
+
+    private bool BallInHitZone()
+    {
+        /*if (m_args.PlayerIndex == PlayerIndex.Second)
+        {
+            return true;
+        }*/
+        Vector3 ballPosition = m_args.Ball.transform.position;
+        Vector3 hitZoneCenter = m_hitZone.transform.position;
+        ballPosition.z = 0;
+        hitZoneCenter.z = 0;
+        float distance = Vector3.Distance(hitZoneCenter, ballPosition);
+        /*if (m_args.PlayerIndex == PlayerIndex.First)
+        {
+            print("distance: " + distance);
+            print("m_hitZoneRadius: " + m_hitZoneRadius);
+            print(distance <= m_hitZoneRadius);
+        }*/
+
+        return distance <= m_hitZoneRadius;
     }
 
 
@@ -269,7 +402,7 @@ public class PlayerScript : MonoBehaviour
                 //m_anim.enabled = true;
                 m_inAnimation = true;
                 m_anim.Play(animName, -1, 0f);
-
+                ReachHitPosition();
 
                 //anim.enabled = false;
             }

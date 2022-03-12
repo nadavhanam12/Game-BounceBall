@@ -48,17 +48,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d855cda573fbcd744b7a3a6758190ae9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_startVelocityY: 0.2
-  m_startVelocityX: 0.3
-  m_fixedPositionX: -12
-  m_maxVelocityY: 100
   BallRegularHitAnimSpeed: 1
   m_gravity: 12.5
   BallRegularHitPower: 2.5
   BallSpecialHitPower: 10
   m_ballReflectPower: 0.75
-  ParticlesToEmit: 100
-  m_speedEmitTrail: 0.35
 --- !u!95 &2653304835552336404
 Animator:
   serializedVersion: 3
@@ -4856,7 +4850,7 @@ ParticleSystemRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 3
   m_RenderMode: 0
   m_SortMode: 0
   m_MinParticleSize: 0
@@ -9660,7 +9654,7 @@ ParticleSystemRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 3
   m_RenderMode: 0
   m_SortMode: 0
   m_MinParticleSize: 0

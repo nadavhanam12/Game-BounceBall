@@ -24,8 +24,7 @@ public class BallScript : MonoBehaviour
     const float m_speedEmitTrail = 0;
     const int ParticlesToEmit = 100;
     const float m_startVelocityY = 0.2f;
-    const float m_startVelocityX = 0.3f;
-    const float m_fixedPositionX = -12f;
+    const float m_startVelocityX = -0.2f;
     const float m_maxVelocityY = 100;
     const float m_velocityMultiplier = 0.001f;
 
@@ -33,7 +32,6 @@ public class BallScript : MonoBehaviour
 
     #region serialized private
     [SerializeField] private float BallRegularHitAnimSpeed;
-
     [SerializeField] private float m_gravity;
     [SerializeField] private float BallRegularHitPower;
     [SerializeField] private float BallSpecialHitPower;
@@ -50,7 +48,9 @@ public class BallScript : MonoBehaviour
     private Animator m_anim;
     private ParticleSystem m_particles;
     private bool m_inAnimation;
-    private float m_curVelocity;
+    private float m_curVelocityY;
+    private float m_curVelocityX;
+
     private float curY;
     private float curX;
     private Quaternion m_initialRotation;
@@ -68,6 +68,8 @@ public class BallScript : MonoBehaviour
 
     private TrailRenderer m_curBallTrail;
     private bool m_isTrailEmmiting = false;
+
+    private string animName = "BallRegularHitSide1";
 
 
 
@@ -95,7 +97,8 @@ public class BallScript : MonoBehaviour
             m_initialPosition = gameObject.transform.localPosition;
             m_initialScale = gameObject.transform.localScale;
 
-            m_curVelocity = 0;
+            m_curVelocityY = 0;
+            m_curVelocityX = 0;
             m_args = args;
 
 
@@ -121,7 +124,8 @@ public class BallScript : MonoBehaviour
 
         m_isBallInPlay = true;
         this.gameObject.transform.localPosition = m_initialPosition;
-        m_curVelocity = m_startVelocityY;
+        m_curVelocityY = m_startVelocityY;
+        m_curVelocityX = m_startVelocityX;
         m_isBallInPlay = true;
         m_curBallTrail.emitting = false;
         //SetBallSprite(0);
@@ -137,20 +141,26 @@ public class BallScript : MonoBehaviour
         {
             if (m_isBallInPlay)
             {
-                if (Math.Abs(m_curVelocity) < m_maxVelocityY)
+                if (Math.Abs(m_curVelocityY) < m_maxVelocityY)
                 {
-                    m_curVelocity -= m_gravity * m_velocityMultiplier;
+                    m_curVelocityY -= m_gravity * m_velocityMultiplier;
                 }
 
                 curY = this.gameObject.transform.localPosition.y;
-                curY += m_curVelocity;
-                curX = this.gameObject.transform.localPosition.x;
+                curY += m_curVelocityY;
 
-                if (curX > m_fixedPositionX)
-                {
-                    curX -= m_startVelocityX;
-                }
+                curX = this.gameObject.transform.localPosition.x;
+                curX += m_curVelocityX;
+
                 this.gameObject.transform.localPosition = new Vector3(curX, curY, m_initialPosition.z);
+                if ((m_curVelocityX >= 0) && (animName != "BallRegularHitSide1"))
+                {
+                    animName = "BallRegularHitSide1";
+                }
+                else if ((m_curVelocityX < 0) && (animName != "BallRegularHitSide2"))
+                {
+                    animName = "BallRegularHitSide2";
+                }
 
                 CheckBounds();
                 CheckEmitTrail();
@@ -160,8 +170,8 @@ public class BallScript : MonoBehaviour
 
     void CheckEmitTrail()
     {
-        //print(m_curVelocity);
-        bool inSpeedToEmit = Math.Abs(m_curVelocity) >= m_speedEmitTrail;
+        //print(m_curVelocityY);
+        bool inSpeedToEmit = Math.Abs(m_curVelocityY) >= m_speedEmitTrail;
         if ((inSpeedToEmit) && (!m_isTrailEmmiting))
         {
             m_isTrailEmmiting = true;
@@ -176,20 +186,28 @@ public class BallScript : MonoBehaviour
 
     private void CheckBounds()
     {
-        if (this.gameObject.transform.position.y < m_args.GameLowerBound)
+        if (this.gameObject.transform.position.y < m_args.Bounds.GameLowerBound)
         {
             m_isBallInPlay = false;
             this.gameObject.SetActive(false);
             m_onBallLost(m_args.BallIndex);
 
         }
-        else if (this.gameObject.transform.position.y > m_args.GameUpperBound)
+        else if (this.gameObject.transform.position.y > m_args.Bounds.GameUpperBound)
         {
             Vector3 curPos = this.gameObject.transform.localPosition;
             curPos.y -= 0.1f;
             this.gameObject.transform.localPosition = curPos;
             //this.gameObject.transform.localPosition = m_initialPosition;
-            m_curVelocity = m_curVelocity * (-1f) * m_ballReflectPower;
+            m_curVelocityY = m_curVelocityY * (-1f) * m_ballReflectPower;
+        }
+        else if (this.gameObject.transform.position.x - 2 < m_args.Bounds.GameLeftBound)
+        {
+            m_curVelocityX *= -1;
+        }
+        else if (this.gameObject.transform.position.x + 2 > m_args.Bounds.GameRightBound)
+        {
+            m_curVelocityX *= -1;
         }
 
     }
@@ -208,24 +226,23 @@ public class BallScript : MonoBehaviour
     }
 
 
-    public void OnHitPlay(KickType kickType)
+    public void OnHitPlay(KickType kickType, float distanceX)
     {
 
         bool isSpecial = true;
         bool isUpperHit = kickType == KickType.Up;
-        if (BallInHitBounds(isUpperHit))
+
+        if (kickType == KickType.Regular)
         {
-            if (kickType == KickType.Regular)
-            {
-                isSpecial = false;
-            }
-
-            ApplyHitPhysics(isSpecial);
-            ApplyHitVisuals(isSpecial, true);
-
-            m_onBallHit(m_args.BallIndex, kickType);
-
+            isSpecial = false;
         }
+
+        ApplyHitPhysics(isSpecial, distanceX);
+        ApplyHitVisuals(isSpecial, true);
+
+        m_onBallHit(m_args.BallIndex, kickType);
+
+
     }
 
 
@@ -236,25 +253,12 @@ public class BallScript : MonoBehaviour
 
     }
 
-    private void ApplyHitPhysics(bool isSpecial)
+    private void ApplyHitPhysics(bool isSpecial, float distanceX)
     {
         float kickPower = isSpecial ? BallSpecialHitPower : BallRegularHitPower;
+        m_curVelocityY = kickPower * 0.1f;
+        m_curVelocityX = distanceX * 0.05f;
 
-        if (isSpecial)
-        {
-            m_curVelocity = kickPower * 0.1f;
-        }
-        else
-        {
-            if (m_curVelocity <= 0)
-            {
-                m_curVelocity = kickPower * 0.1f;
-            }
-            else
-            {
-                m_curVelocity = kickPower * 0.1f;
-            }
-        }
 
     }
 
@@ -262,10 +266,8 @@ public class BallScript : MonoBehaviour
     {
         if (this.isActiveAndEnabled)
         {
-            string animName;
             float animSpeed;
 
-            animName = ChooseRegularHitAnimation();
             animSpeed = BallRegularHitAnimSpeed;
             m_anim.speed = animSpeed;
             //m_anim.enabled = true;
@@ -282,53 +284,6 @@ public class BallScript : MonoBehaviour
 
 
 
-    }
-
-    public bool BallInHitBounds(bool isUpperHit)
-    {
-        float y = this.gameObject.transform.position.y;
-        float x = this.gameObject.transform.position.x;
-        bool UnderUpperBound;
-        bool AboveLowerBound;
-        bool InXBound = true;
-        if (isUpperHit)
-        {
-            UnderUpperBound = (y <= m_args.HitUpperBound2);
-            AboveLowerBound = (y >= m_args.HitUpperBound);
-        }
-        else
-        {
-            UnderUpperBound = (y <= m_args.HitUpperBound);
-            AboveLowerBound = (y >= m_args.HitLowerBound);
-        }
-        //InXBound = x <= m_fixedPositionX + 2;
-
-        return (UnderUpperBound && AboveLowerBound && InXBound);
-
-    }
-
-
-    private string ChooseRegularHitAnimation()
-    {
-        /*
-        int randInt = Random.Range(1, 4);
-
-        switch (randInt)
-        {
-            case (1):
-                return "BallRegularHit1";
-
-            case (2):
-                return "BallRegularHit2";
-
-            case (3):
-                return "BallRegularHit3";
-            default:
-                return "BallRegularHit1";
-
-        }
-        */
-        return "BallRegularHit1";
     }
 
 
