@@ -257,7 +257,7 @@ public class BallScript : MonoBehaviour
     {
         float kickPower = isSpecial ? BallSpecialHitPower : BallRegularHitPower;
         m_curVelocityY = kickPower * 0.1f;
-        m_curVelocityX = distanceX * 0.05f;
+        m_curVelocityX = distanceX * 0.075f;
 
 
     }

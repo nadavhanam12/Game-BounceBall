@@ -38,7 +38,7 @@ public class PlayerScript : MonoBehaviour
     private Quaternion m_initialRotation;
     private Vector3 m_initialPosition;
     private Vector3 m_initialScale;
-    private bool isGamePaused;
+    private bool isGamePaused = true;
     private KickType m_curKickType;
     private int m_autoPlayDifficult = 100;
     private bool m_currentlyInTurn = true;
@@ -56,7 +56,10 @@ public class PlayerScript : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawSphere(m_hitZone.transform.position, m_hitZoneRadius);
     }
-
+    void Awake()
+    {
+        this.gameObject.SetActive(false);
+    }
 
     public void Init(PlayerArgs args)
     {

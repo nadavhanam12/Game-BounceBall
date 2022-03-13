@@ -22,6 +22,7 @@ public class SequenceMenuUI : MonoBehaviour
             {
                 seqRowUI.Init();
             }
+            this.gameObject.SetActive(true);
 
         }
 

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using static PlayerScript;
@@ -25,6 +26,7 @@ public class GameManagerScript : MonoBehaviour
     [SerializeField] private GameBoundsData m_gameBoundsData;
     [SerializeField] private GameObject m_playerContainer1;
     [SerializeField] private GameObject m_playerContainer2;
+    [SerializeField] private GameObject NoMenuStartPage;
     private GameCanvasScript m_gameCanvas;
     private ComboDataContainer m_comboDataContainer;
 
@@ -56,6 +58,7 @@ public class GameManagerScript : MonoBehaviour
     private GameArgs m_gameArgs;
     private PlayerIndex m_curPlayerPlay = PlayerIndex.First;
     private List<Sprite> m_ballTextures;
+    private bool m_onMobileDevice = false;
 
 
 
@@ -70,13 +73,24 @@ public class GameManagerScript : MonoBehaviour
 
 
 
-    void Start()
+    void Awake()
     {
+#if UNITY_ANDROID && !UNITY_EDITOR
+        m_onMobileDevice = true;
+#endif
 
         if (m_gameArgs == null)
         {
+            if (m_onMobileDevice)
+            {
+                // Code for Google Android Project here
+                NoMenuStartPage.gameObject.SetActive(true);
 
-            StartGameScene();
+            }
+            else
+            {
+                StartGameScene();
+            }
         }
 
 
@@ -89,7 +103,7 @@ public class GameManagerScript : MonoBehaviour
 
     public void StartGameScene()
     {
-
+        if (NoMenuStartPage.gameObject.activeInHierarchy) { NoMenuStartPage.gameObject.SetActive(false); }
         if (m_gameArgs == null)
         {
             m_gameArgs = new GameArgs(GameType.OnePlayer, null);
@@ -102,9 +116,14 @@ public class GameManagerScript : MonoBehaviour
         m_playerData1.PlayerScript.PlayIdle();
         m_playerData2.PlayerScript.PlayIdle();
 
-
-        //Invoke("StartCountdown", m_countDownDelay);
-        Invoke("FinishGameCountdown", m_countDownDelay);
+        if (m_onMobileDevice)
+        {
+            Invoke("StartCountdown", m_countDownDelay);
+        }
+        else
+        {
+            Invoke("FinishGameCountdown", m_countDownDelay);
+        }
 
 
     }
@@ -142,7 +161,7 @@ public class GameManagerScript : MonoBehaviour
         InitListeners();
 
         InitGameCanvas();
-        //InitSequenceManager();
+        InitSequenceManager();
 
 
         SetGamePause(true);
@@ -209,12 +228,12 @@ public class GameManagerScript : MonoBehaviour
     {
         m_playerData1.Ball = m_playerContainer1.GetComponentInChildren<BallScript>();
         m_playerData1.Ball.gameObject.SetActive(false);
-        m_playerData1.PlayerScript = m_playerContainer1.GetComponentInChildren<PlayerScript>();
+        m_playerData1.PlayerScript = m_playerContainer1.GetComponentInChildren<PlayerScript>(true);
         m_playerData1.PlayerScript.gameObject.SetActive(false);
 
         m_playerData2.Ball = m_playerContainer2.GetComponentInChildren<BallScript>();
         m_playerData2.Ball.gameObject.SetActive(false);
-        m_playerData2.PlayerScript = m_playerContainer2.GetComponentInChildren<PlayerScript>();
+        m_playerData2.PlayerScript = m_playerContainer2.GetComponentInChildren<PlayerScript>(true);
         m_playerData2.PlayerScript.gameObject.SetActive(false);
     }
 
