@@ -32,6 +32,7 @@ public class GameManagerScript : MonoBehaviour
 
     private PlayersDataContainer m_playersDataContainer;
     private SequenceManager m_sequenceManager;
+    private GameBallsManager m_ballsManager;
 
 
 
@@ -57,7 +58,6 @@ public class GameManagerScript : MonoBehaviour
     private bool m_isGamePause;
     private GameArgs m_gameArgs;
     private PlayerIndex m_curPlayerPlay = PlayerIndex.First;
-    private List<Sprite> m_ballTextures;
     private bool m_onMobileDevice = false;
 
 
@@ -113,8 +113,11 @@ public class GameManagerScript : MonoBehaviour
         Application.targetFrameRate = 60;
         Init();
         this.gameObject.SetActive(true);
-        m_playerData1.PlayerScript.PlayIdle();
-        m_playerData2.PlayerScript.PlayIdle();
+        //m_playerData1.PlayerScript.PlayIdle();
+        //m_playerData2.PlayerScript.PlayIdle();
+
+        m_playerData2.PlayerScript.gameObject.SetActive(false);
+
 
         if (m_onMobileDevice)
         {
@@ -154,24 +157,38 @@ public class GameManagerScript : MonoBehaviour
     private void Init()
     {
         InitData();
+        InitBallsManager();
         InitPlayersData();
-        InitPlayersAndBalls();
         InitPlayers();
-        InitBalls();
         InitListeners();
 
         InitGameCanvas();
-        InitSequenceManager();
-
+        //InitSequenceManager();
 
         SetGamePause(true);
 
         //Invoke("InitGameMood", 1f);
-
         //SetGamePause(false);
 
 
 
+
+    }
+
+    private void InitBallsManager()
+    {
+        m_ballsManager = GetComponentInChildren<GameBallsManager>();
+
+        GameBallsManagerArgs ballsManagerArgs = new GameBallsManagerArgs();
+        ballsManagerArgs.ballArgs = m_playersDataContainer.ballArgs;
+
+        ballsManagerArgs.player1Balls = m_playerContainer1.GetComponentsInChildren<BallScript>();
+        ballsManagerArgs.player2Balls = m_playerContainer2.GetComponentsInChildren<BallScript>();
+
+        m_ballsManager.GameManagerOnBallHit = onBallHit;
+        m_ballsManager.GameManagerOnTurnLost = onTurnLost;
+
+        m_ballsManager.Init(ballsManagerArgs);
 
     }
 
@@ -186,14 +203,23 @@ public class GameManagerScript : MonoBehaviour
         m_playerData2.CurComboData = m_comboDataContainer.InitPlayerCombo();
 
         m_playerData1.Bounds = m_gameBounds;
-        m_playerData1.Bounds = m_gameBounds;
+        m_playerData2.Bounds = m_gameBounds;
+
+        m_playerData1.playerStats = m_playersDataContainer.playerStats;
+        m_playerData2.playerStats = m_playersDataContainer.playerStats;
+
+        m_playersDataContainer.ballArgs.Bounds = m_gameBounds;
+
+        m_playerData1.BallsManager = m_ballsManager;
+        m_playerData2.BallsManager = m_ballsManager;
+
     }
 
     private void InitData()
     {
         m_comboDataContainer = GetComponentInChildren<ComboDataContainer>();
         m_scoreDictionary = m_comboDataContainer.m_scoreDictionary;
-        m_ballTextures = m_comboDataContainer.GetBallTextures();
+        //m_ballTextures = m_comboDataContainer.GetBallTextures();
 
         m_playersDataContainer = GetComponentInChildren<PlayersDataContainer>();
         m_playerData1 = m_playersDataContainer.PlayerData1;
@@ -201,6 +227,7 @@ public class GameManagerScript : MonoBehaviour
 
 
         m_gameBounds = m_gameBoundsData.GenerateBounds(Camera.main);
+
 
 
     }
@@ -221,20 +248,6 @@ public class GameManagerScript : MonoBehaviour
             m_playerData1.PlayerScript.StartTurn();
             m_playerData2.PlayerScript.StartTurn();
         }
-    }
-
-
-    private void InitPlayersAndBalls()
-    {
-        m_playerData1.Ball = m_playerContainer1.GetComponentInChildren<BallScript>();
-        m_playerData1.Ball.gameObject.SetActive(false);
-        m_playerData1.PlayerScript = m_playerContainer1.GetComponentInChildren<PlayerScript>(true);
-        m_playerData1.PlayerScript.gameObject.SetActive(false);
-
-        m_playerData2.Ball = m_playerContainer2.GetComponentInChildren<BallScript>();
-        m_playerData2.Ball.gameObject.SetActive(false);
-        m_playerData2.PlayerScript = m_playerContainer2.GetComponentInChildren<PlayerScript>(true);
-        m_playerData2.PlayerScript.gameObject.SetActive(false);
     }
 
     public void SwitchPlayerTurn()
@@ -288,7 +301,7 @@ public class GameManagerScript : MonoBehaviour
 
         m_gameCanvas.m_OnTouchKickRegular = m_playerData1.PlayerScript.OnTouchKickRegular;
         m_gameCanvas.m_OnTouchKickPower = m_playerData1.PlayerScript.OnTouchKickPower;
-        m_gameCanvas.m_OnTouchKickUp = m_playerData1.PlayerScript.OnTouchKickUp;
+        m_gameCanvas.m_OnTouchJump = m_playerData1.PlayerScript.OnTouchJump;
 
 
 
@@ -296,6 +309,12 @@ public class GameManagerScript : MonoBehaviour
     }
     private void InitPlayers()
     {
+        m_playerData1.PlayerScript = m_playerContainer1.GetComponentInChildren<PlayerScript>(true);
+        m_playerData1.PlayerScript.gameObject.SetActive(false);
+
+        m_playerData2.PlayerScript = m_playerContainer2.GetComponentInChildren<PlayerScript>(true);
+        m_playerData2.PlayerScript.gameObject.SetActive(false);
+
 
         m_playerData1.PlayerScript.Init(m_playerData1);
 
@@ -307,36 +326,8 @@ public class GameManagerScript : MonoBehaviour
     }
 
 
-    private void InitBalls()
-    {
 
-        BallArgs ballArgs1 = GenerateBallArgs();
-        ballArgs1.BallIndex = PlayerIndex.First;
-        m_playerData1.Ball.Init(ballArgs1);
-        m_playerData1.Ball.m_onBallLost = onBallLost;
-        m_playerData1.Ball.m_onBallHit = onBallHit;
-
-        BallArgs ballArgs2 = GenerateBallArgs();
-        ballArgs2.BallIndex = PlayerIndex.Second;
-        m_playerData2.Ball.Init(ballArgs2);
-        m_playerData2.Ball.m_onBallLost = onBallLost;
-        m_playerData2.Ball.m_onBallHit = onBallHit;
-
-
-    }
-
-    private BallArgs GenerateBallArgs()
-    {
-        Camera cam = Camera.main;
-        BallArgs ballArgs = new BallArgs();
-        ballArgs.Bounds = m_gameBounds;
-
-        ballArgs.BallTextures = m_ballTextures;
-        return ballArgs;
-    }
-
-
-    public void onBallLost(PlayerIndex ballIndex)
+    public void onTurnLost(PlayerIndex ballIndex)
     {
         PlayerArgs playerData;
         if (ballIndex == PlayerIndex.First)
@@ -351,7 +342,6 @@ public class GameManagerScript : MonoBehaviour
 
         playerData.CurComboData = m_comboDataContainer.LowerPlayerCombo(playerData.CurComboData);
         playerData.CurCombo = playerData.CurComboData.ComboRequired;
-        playerData.Ball.SetBallSprite(playerData.CurComboData.Index);
 
 
         if (m_gameArgs.GameType == GameType.TurnsGame)
@@ -360,24 +350,23 @@ public class GameManagerScript : MonoBehaviour
         }
         else
         {
-            playerData.Ball.OnNewBallInScene();
+            //playerData.Ball1.OnNewBallInScene();
+            m_ballsManager.OnNewBallInScene(PlayerIndex.First);
         }
 
     }
 
 
-    public void onBallHit(PlayerIndex playerIndex, KickType kickType)
+    public void onBallHit(PlayerIndex playerIndex, Color ballColor)
     {
         //print("onBallHit");
+        KickType kickType = KickType.Regular;
         if (playerIndex == PlayerIndex.First)
         {
             switch (kickType)
             {
                 case KickType.Power:
                     EventManager.Broadcast(EVENT.EventPowerKick);
-                    break;
-                case KickType.Up:
-                    EventManager.Broadcast(EVENT.EventUpKick);
                     break;
                 default:
                     EventManager.Broadcast(EVENT.EventNormalKick);
@@ -410,7 +399,6 @@ public class GameManagerScript : MonoBehaviour
         {
 
             m_playerData1.CurComboData = newComboData;
-            m_playerData1.Ball.SetBallSprite(m_playerData1.CurComboData.Index);
             m_gameCanvas.CheerActivate();
 
         }
@@ -455,13 +443,12 @@ public class GameManagerScript : MonoBehaviour
 
     public void TimeIsOver()
     {
-        print("Time is over");
+        //print("Time is over");
         if (!m_isGamePause)
         {
             SetGamePause(true);
+            m_ballsManager.TimeIsOver();//should turn off the balls
 
-            m_playerData1.Ball.gameObject.SetActive(false);
-            m_playerData2.Ball.gameObject.SetActive(false);
 
             if (m_playerData1.CurScore > m_playerData2.CurScore)
             {

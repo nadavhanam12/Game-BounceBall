@@ -321,8 +321,8 @@ public class SequenceRowUI : MonoBehaviour
         {
             case KickType.Regular:
                 return m_textureRegular;
-            case KickType.Up:
-                return m_textureUp;
+            /*case KickType.Up:
+                return m_textureUp;*/
             case KickType.Power:
                 return m_texturePower;
             default:
@@ -330,32 +330,6 @@ public class SequenceRowUI : MonoBehaviour
         }
     }
 
-    private void PrintCurSeq()
-    {
-        if (m_curSequence != null)
-        {
-            String strToPrint = "Sequence: ";
-            foreach (KickType kickType in m_curSequence.KickSequence)
-            {
-                switch (kickType)
-                {
-                    case (KickType.Regular):
-                        strToPrint = strToPrint + "R ";
-                        break;
-                    case (KickType.Up):
-                        strToPrint = strToPrint + "U ";
-                        break;
-                    case (KickType.Power):
-                        strToPrint = strToPrint + "P ";
-                        break;
-                    default:
-                        strToPrint = strToPrint + "DEFAULT";
-                        break;
-                }
-            }
-            print(strToPrint);
-        }
 
-    }
 
 }

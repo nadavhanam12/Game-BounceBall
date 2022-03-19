@@ -5,17 +5,15 @@ using UnityEngine;
 using static GameManagerScript;
 // using System;
 using static PlayerScript;
+using static UnityEngine.ParticleSystem;
 
 public class BallScript : MonoBehaviour
 {
     #region events
 
 
-    public delegate void onBallLost(PlayerIndex index);
+    public delegate void onBallLost(PlayerIndex index, int ballIndex);
     public onBallLost m_onBallLost;
-
-    public delegate void onBallHit(PlayerIndex index, KickType kickType);
-    public onBallHit m_onBallHit;
 
     #endregion
 
@@ -27,15 +25,12 @@ public class BallScript : MonoBehaviour
     const float m_startVelocityX = -0.2f;
     const float m_maxVelocityY = 100;
     const float m_velocityMultiplier = 0.001f;
+    const float m_hitMultiplierY = 0.1f;
+    const float m_hitMultiplierX = 0.2f;
 
     #endregion
 
     #region serialized private
-    [SerializeField] private float BallRegularHitAnimSpeed;
-    [SerializeField] private float m_gravity;
-    [SerializeField] private float BallRegularHitPower;
-    [SerializeField] private float BallSpecialHitPower;
-    [SerializeField] private float m_ballReflectPower;
 
     #endregion
 
@@ -60,16 +55,18 @@ public class BallScript : MonoBehaviour
     private BallArgs m_args;
 
     private bool isGamePaused;
-
-    private List<Sprite> m_ballSprites;
-
-    private Sprite m_curBallSprite;
-    private SpriteRenderer m_sprite;
-
     private TrailRenderer m_curBallTrail;
     private bool m_isTrailEmmiting = false;
 
     private string animName = "BallRegularHitSide1";
+
+    private SpriteRenderer m_spriteRenderer;
+    private PlayerIndex m_playerIndex;
+    private int m_ballIndex = -1;
+    private Color m_curColor = Color.white;
+
+    private Gradient m_colorGradientTrail;
+    private ColorOverLifetimeModule m_colorGradientParticles;
 
 
 
@@ -77,7 +74,7 @@ public class BallScript : MonoBehaviour
 
 
 
-    public void Init(BallArgs args)
+    public void Init(BallArgs args, PlayerIndex playerIndex, int ballIndex)
     {
         if (!m_initialized)
         {
@@ -85,8 +82,10 @@ public class BallScript : MonoBehaviour
             //print("init ballscript");
             m_anim = gameObject.GetComponent<Animator>();
             m_particles = gameObject.GetComponentInChildren<ParticleSystem>();
-            m_sprite = GetComponentInChildren<SpriteRenderer>();
+            m_colorGradientParticles = m_particles.colorOverLifetime;
+            m_spriteRenderer = GetComponentInChildren<SpriteRenderer>();
             m_curBallTrail = GetComponentInChildren<TrailRenderer>();
+            m_colorGradientTrail = m_curBallTrail.colorGradient;
             //m_rigidBody = GetComponent<Rigidbody>();
 
             this.gameObject.SetActive(false);
@@ -101,13 +100,11 @@ public class BallScript : MonoBehaviour
             m_curVelocityX = 0;
             m_args = args;
 
-
-            m_ballSprites = args.BallTextures;
-
-            SetBallSprite(0);
             m_curBallTrail.emitting = false;
             m_initialized = true;
 
+            m_playerIndex = playerIndex;
+            m_ballIndex = ballIndex;
 
             // this.gameObject.SetActive(true);
             // m_isBallInPlay = true;
@@ -119,19 +116,79 @@ public class BallScript : MonoBehaviour
 
     }
 
-    public void OnNewBallInScene()
+    public Vector3 GetPosition()
+    {
+        return transform.position;
+    }
+    public float GetVelocityX()
+    {
+        return m_curVelocityX;
+    }
+    public float GetVelocityY()
+    {
+        return m_curVelocityY;
+    }
+
+    public Color GetColor()
+    {
+        return m_curColor;
+    }
+
+    public bool IsInScene()
+    {
+        return m_isBallInPlay;
+    }
+
+    public void RemoveBallFromScene()
     {
 
-        m_isBallInPlay = true;
+        m_isBallInPlay = false;
+        this.gameObject.SetActive(false);
+
+    }
+
+
+    public void OnNewBallInScene(Color color)
+    {
+
         this.gameObject.transform.localPosition = m_initialPosition;
         m_curVelocityY = m_startVelocityY;
         m_curVelocityX = m_startVelocityX;
+        GenerateNewBall(color);
+
+    }
+    public void GenerateNewBallInScene(Color color, Vector3 pos, float velocityY, float velocityX)
+    {
+
+        this.gameObject.transform.localPosition = pos;
+        m_curVelocityY = velocityY;
+        m_curVelocityX = velocityX;
+        GenerateNewBall(color);
+
+    }
+
+
+    private void GenerateNewBall(Color color)
+    {
+        UpdateColor(color);
         m_isBallInPlay = true;
         m_curBallTrail.emitting = false;
+
         //SetBallSprite(0);
         ApplyHitVisuals(false, false);
 
         this.gameObject.SetActive(true);
+    }
+
+    private void UpdateColor(Color color)
+    {
+        if (color != m_curColor)
+        {
+            m_curColor = color;
+            m_spriteRenderer.color = m_curColor;
+            m_colorGradientParticles.color.gradient.colorKeys[0].color = m_curColor;
+            m_colorGradientTrail.colorKeys[0].color = m_curColor;
+        }
 
     }
 
@@ -143,7 +200,7 @@ public class BallScript : MonoBehaviour
             {
                 if (Math.Abs(m_curVelocityY) < m_maxVelocityY)
                 {
-                    m_curVelocityY -= m_gravity * m_velocityMultiplier;
+                    m_curVelocityY -= m_args.m_gravity * m_velocityMultiplier;
                 }
 
                 curY = this.gameObject.transform.localPosition.y;
@@ -190,7 +247,7 @@ public class BallScript : MonoBehaviour
         {
             m_isBallInPlay = false;
             this.gameObject.SetActive(false);
-            m_onBallLost(m_args.BallIndex);
+            m_onBallLost(m_playerIndex, m_ballIndex);
 
         }
         else if (this.gameObject.transform.position.y > m_args.Bounds.GameUpperBound)
@@ -199,7 +256,7 @@ public class BallScript : MonoBehaviour
             curPos.y -= 0.1f;
             this.gameObject.transform.localPosition = curPos;
             //this.gameObject.transform.localPosition = m_initialPosition;
-            m_curVelocityY = m_curVelocityY * (-1f) * m_ballReflectPower;
+            m_curVelocityY = m_curVelocityY * (-1f) * m_args.m_ballReflectPower;
         }
         else if (this.gameObject.transform.position.x - 2 < m_args.Bounds.GameLeftBound)
         {
@@ -226,11 +283,10 @@ public class BallScript : MonoBehaviour
     }
 
 
-    public void OnHitPlay(KickType kickType, float distanceX)
+    public void OnHitPlay(KickType kickType, float distanceX, Color color)
     {
-
+        UpdateColor(color);
         bool isSpecial = true;
-        bool isUpperHit = kickType == KickType.Up;
 
         if (kickType == KickType.Regular)
         {
@@ -239,9 +295,6 @@ public class BallScript : MonoBehaviour
 
         ApplyHitPhysics(isSpecial, distanceX);
         ApplyHitVisuals(isSpecial, true);
-
-        m_onBallHit(m_args.BallIndex, kickType);
-
 
     }
 
@@ -255,9 +308,9 @@ public class BallScript : MonoBehaviour
 
     private void ApplyHitPhysics(bool isSpecial, float distanceX)
     {
-        float kickPower = isSpecial ? BallSpecialHitPower : BallRegularHitPower;
-        m_curVelocityY = kickPower * 0.1f;
-        m_curVelocityX = distanceX * 0.075f;
+        float kickPower = isSpecial ? m_args.BallSpecialHitPower : m_args.BallRegularHitPower;
+        m_curVelocityY = kickPower * m_hitMultiplierY;
+        m_curVelocityX = distanceX * m_args.XAxisMultiplier * m_hitMultiplierX;
 
 
     }
@@ -266,11 +319,6 @@ public class BallScript : MonoBehaviour
     {
         if (this.isActiveAndEnabled)
         {
-            float animSpeed;
-
-            animSpeed = BallRegularHitAnimSpeed;
-            m_anim.speed = animSpeed;
-            //m_anim.enabled = true;
             m_inAnimation = true;
             //print("animName: " + animName);
             m_anim.Play(animName, -1, 0f);
@@ -282,27 +330,9 @@ public class BallScript : MonoBehaviour
             }
         }
 
-
-
     }
 
 
-    public void SetBallSprite(int indexSprite)
-    {
-        //print(indexSprite);
-        if (indexSprite != 4)
-        {
-            if (m_curBallSprite != m_ballSprites[indexSprite])
-            {
-                m_curBallSprite = m_ballSprites[indexSprite];
-                m_sprite.sprite = m_curBallSprite;
-                var textureSheet = m_particles.textureSheetAnimation;
-                textureSheet.SetSprite(0, m_curBallSprite);
 
-
-            }
-        }
-
-    }
 
 }

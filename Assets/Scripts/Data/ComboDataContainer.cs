@@ -11,7 +11,6 @@ public class ComboDataContainer : MonoBehaviour
     public Dictionary<KickType, int> m_scoreDictionary = new Dictionary<KickType, int>()
      {
         {KickType.Regular, 100},
-        {KickType.Up, 250},
         {KickType.Power, 250},
     };
 

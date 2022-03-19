@@ -66,7 +66,6 @@ public class SequenceManager : MonoBehaviour
     {
         EventManager.AddHandler(EVENT.EventNormalKick, EventAddPlayerKickRegular);
         EventManager.AddHandler(EVENT.EventPowerKick, EventAddPlayerKickPower);
-        EventManager.AddHandler(EVENT.EventUpKick, EventAddPlayerKickUp);
         //EventManager.AddHandler(EVENT.EventOnBallLost, InitSequences);
 
     }
@@ -74,7 +73,6 @@ public class SequenceManager : MonoBehaviour
     {
         EventManager.RemoveHandler(EVENT.EventNormalKick, EventAddPlayerKickRegular);
         EventManager.RemoveHandler(EVENT.EventPowerKick, EventAddPlayerKickPower);
-        EventManager.RemoveHandler(EVENT.EventUpKick, EventAddPlayerKickUp);
         EventManager.RemoveHandler(EVENT.EventOnBallLost, InitSequences);
     }
     void OnDestroy()
@@ -83,7 +81,6 @@ public class SequenceManager : MonoBehaviour
     }
 
     private void EventAddPlayerKickRegular() { this.AddPlayerKick(KickType.Regular); }
-    private void EventAddPlayerKickUp() { this.AddPlayerKick(KickType.Up); }
     private void EventAddPlayerKickPower() { this.AddPlayerKick(KickType.Power); }
 
 

@@ -17,8 +17,8 @@ public class GameCanvasScript : MonoBehaviour
     public TimeIsOver m_onTimeIsOver;
     public delegate void OnTouchKickRegular();
     public OnTouchKickRegular m_OnTouchKickRegular;
-    public delegate void OnTouchKickUp();
-    public OnTouchKickUp m_OnTouchKickUp;
+    public delegate void OnTouchJump();
+    public OnTouchJump m_OnTouchJump;
     public delegate void OnTouchKickPower();
     public OnTouchKickPower m_OnTouchKickPower;
 
@@ -54,12 +54,6 @@ public class GameCanvasScript : MonoBehaviour
     #endregion
 
 
-
-
-
-
-
-
     public void SetGamePause(bool isPause)
     {
         isGamePaused = isPause;
@@ -70,7 +64,7 @@ public class GameCanvasScript : MonoBehaviour
     }
     public void OnKickPowerInput() { m_OnTouchKickPower(); }
     public void OnKickRegularInput() { m_OnTouchKickRegular(); }
-    public void OnKickUpInput() { m_OnTouchKickUp(); }
+    public void OnJumpInput() { m_OnTouchJump(); }
     public void OnMoveRightInputPressed() { EventManager.Broadcast(EVENT.EventOnRightPressed); }
     public void OnMoveLeftInputPressed() { EventManager.Broadcast(EVENT.EventOnLeftPressed); }
     public void OnMoveRightInputReleased() { EventManager.Broadcast(EVENT.EventOnRightReleased); }

@@ -7,8 +7,6 @@ using static GameManagerScript;
 public class PlayerArgs
 {
     public string Name;
-    [HideInInspector] public BallScript Ball;
-
     public PlayerIndex PlayerIndex;
 
     public Color Color = Color.red;
@@ -23,5 +21,7 @@ public class PlayerArgs
     [HideInInspector] public ComboData CurComboData;
 
     [HideInInspector] public GameBounds Bounds;
+    [HideInInspector] public GameBallsManager BallsManager;
+    [HideInInspector] public PlayerStats playerStats;
 
 }

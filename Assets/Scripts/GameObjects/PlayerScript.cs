@@ -13,21 +13,13 @@ public class PlayerScript : MonoBehaviour
     public enum KickType
     {
         Regular = 0,
-        Up = 1,
-        Power = 2
+        Power = 1,
     }
 
     #endregion
     #region serialized 
-    [SerializeField] private float RegularKickSpeed = 2;
-    [SerializeField] private float PowerKickSpeed = 2;
-    [SerializeField] private float UpKickSpeed = 2;
-    [SerializeField] private float AutoPlaySequenceSpeed = 2;
     [SerializeField] private SpriteRenderer Body;
     [SerializeField] private GameObject m_hitZone;
-    [SerializeField] private float m_hitZoneRadius = 2;
-    [SerializeField] private float m_movingSpeed;
-
 
     #endregion
     #region private
@@ -45,17 +37,22 @@ public class PlayerScript : MonoBehaviour
 
     private PlayerArgs m_args;
     private bool isRunning = false;
+    private bool isJumping = false;
+    private bool isJumpingUp = false;
+    private bool isJumpingDown = false;
     private bool m_runRightFromTouch = false;
     private bool m_runLeftFromTouch = false;
 
+
+
     #endregion
 
-    void OnDrawGizmosSelected()
+    /*void OnDrawGizmosSelected()
     {
-        // Draw a yellow sphere at the transform's position
+
         Gizmos.color = Color.red;
         Gizmos.DrawSphere(m_hitZone.transform.position, m_hitZoneRadius);
-    }
+    }*/
     void Awake()
     {
         this.gameObject.SetActive(false);
@@ -69,9 +66,9 @@ public class PlayerScript : MonoBehaviour
             //m_anim.enabled = false;
             m_inAnimation = false;
 
-            m_initialRotation = gameObject.transform.localRotation;
-            m_initialPosition = gameObject.transform.localPosition;
-            m_initialScale = gameObject.transform.localScale;
+            m_initialRotation = gameObject.transform.rotation;
+            m_initialPosition = gameObject.transform.position;
+            m_initialScale = gameObject.transform.lossyScale;
 
             m_hitZone.gameObject.SetActive(false);
 
@@ -95,28 +92,36 @@ public class PlayerScript : MonoBehaviour
 
     void InitListeners()
     {
-        EventManager.AddHandler(EVENT.EventOnRightPressed, ToogleRunRightFromTouch);
-        EventManager.AddHandler(EVENT.EventOnRightReleased, ToogleRunRightFromTouch);
-        EventManager.AddHandler(EVENT.EventOnLeftPressed, ToogleRunLeftFromTouch);
-        EventManager.AddHandler(EVENT.EventOnLeftReleased, ToogleRunLeftFromTouch);
+        EventManager.AddHandler(EVENT.EventOnRightPressed, ToogleRunRightOn);
+        EventManager.AddHandler(EVENT.EventOnRightReleased, ToogleRunRightOff);
+        EventManager.AddHandler(EVENT.EventOnLeftPressed, ToogleRunLeftOn);
+        EventManager.AddHandler(EVENT.EventOnLeftReleased, ToogleRunLeftOff);
 
     }
     void RemoveListeners()
     {
-        EventManager.RemoveHandler(EVENT.EventOnRightPressed, ToogleRunRightFromTouch);
-        EventManager.RemoveHandler(EVENT.EventOnRightReleased, ToogleRunRightFromTouch);
-        EventManager.RemoveHandler(EVENT.EventOnLeftPressed, ToogleRunLeftFromTouch);
-        EventManager.RemoveHandler(EVENT.EventOnLeftReleased, ToogleRunLeftFromTouch);
+        EventManager.RemoveHandler(EVENT.EventOnRightPressed, ToogleRunRightOn);
+        EventManager.RemoveHandler(EVENT.EventOnRightReleased, ToogleRunRightOff);
+        EventManager.RemoveHandler(EVENT.EventOnLeftPressed, ToogleRunLeftOn);
+        EventManager.RemoveHandler(EVENT.EventOnLeftReleased, ToogleRunLeftOff);
 
     }
 
-    private void ToogleRunLeftFromTouch()
+    private void ToogleRunLeftOn()
     {
-        m_runLeftFromTouch = !m_runLeftFromTouch;
+        m_runLeftFromTouch = true;
     }
-    private void ToogleRunRightFromTouch()
+    private void ToogleRunLeftOff()
     {
-        m_runRightFromTouch = !m_runRightFromTouch;
+        m_runLeftFromTouch = false;
+    }
+    private void ToogleRunRightOn()
+    {
+        m_runRightFromTouch = true;
+    }
+    private void ToogleRunRightOff()
+    {
+        m_runRightFromTouch = false;
     }
 
     void UpdateColor()
@@ -146,6 +151,7 @@ public class PlayerScript : MonoBehaviour
             {
                 GetPlayerKickFromKeyboard();
                 GetPlayerMovement();
+                GetJump();
             }
             else
             {
@@ -156,19 +162,66 @@ public class PlayerScript : MonoBehaviour
 
     }
 
+    private void GetJump()
+    {
+        if (isJumping)
+        {
+            if (isJumpingUp)
+            {
+                if (transform.position.y < m_args.playerStats.m_maxHeight)
+                {//apply move up
+                    //print("jump up");
+                    /*transform.position.y += m_jumpPower;
+                    transform.position = transform.position;*/
+                    transform.Translate(Vector3.up * m_args.playerStats.m_jumpSpeed, Space.World);
+
+                }
+                else
+                {
+                    isJumpingUp = false;
+                    isJumpingDown = true;
+                }
+            }
+            else if (isJumpingDown)
+            {
+                if (transform.position.y > m_initialPosition.y)
+                {//apply move down
+                 // print("jump down");
+                    transform.Translate(Vector3.down * m_args.playerStats.m_jumpSpeed, Space.World);
+                    if (transform.position.y < m_initialPosition.y)
+                    {
+                        Vector3 curPos = transform.position;
+                        curPos.y = m_initialPosition.y;
+                        transform.position = curPos;
+                    }
+                }
+                else
+                {
+                    isJumpingDown = false;
+                }
+            }
+            else
+            {//stop jumping
+                //print("jump stop");
+                isJumping = false;
+            }
+        }
+
+    }
+
     void GetPlayerKickFromKeyboard()
     {
         if (m_args.PlayerIndex == PlayerIndex.First)
         {
             if (Input.GetKeyDown(KeyCode.A))
             {
-                OnKickPlay(KickType.Up);
+                OnJump();
             }
-            else if (Input.GetKeyDown(KeyCode.S))
+            else if (Input.GetKeyDown(KeyCode.D))
             {
                 OnKickPlay(KickType.Regular);
             }
-            else if (Input.GetKeyDown(KeyCode.D))
+            else if (Input.GetKeyDown(KeyCode.S))
             {
                 OnKickPlay(KickType.Power);
             }
@@ -187,11 +240,11 @@ public class PlayerScript : MonoBehaviour
             {
                 OnMoveX(Vector3.right);
             }
-            else if (isRunning)
+            else
             {
                 //m_anim.SetBool("Running", true);
-                isRunning = false;
-                m_anim.SetTrigger("Idle Triger");
+                //print("Idle Trigger");
+                AnimSetTrigger("Idle Trigger");
             }
         }
     }
@@ -201,13 +254,19 @@ public class PlayerScript : MonoBehaviour
     {
         if (CheckPlayerInBounds(direction))
         {
-            if (!isRunning)
-            {
-                isRunning = true;
-                m_anim.SetTrigger("Running Triger");
-            }
+            AnimSetTrigger("Running Trigger");
             SpinPlayerToDirection(direction);
-            transform.Translate(direction * m_movingSpeed, Space.World);
+            transform.Translate(direction * m_args.playerStats.m_movingSpeed, Space.World);
+        }
+    }
+
+    void AnimSetTrigger(string triggerName)
+    {
+        //if (!m_inAnimation)
+        if (true)
+        {
+            //m_anim.ResetTrigger(triggerName);
+            m_anim.SetTrigger(triggerName);
         }
     }
 
@@ -247,18 +306,6 @@ public class PlayerScript : MonoBehaviour
         return inBounds;
     }
 
-
-
-
-    public void PlayIdle()
-    {
-        if (!m_inAnimation)
-        {
-            m_anim.speed = 1;
-            m_anim.Play("Idle", -1, 0f);
-        }
-
-    }
     void AutoPlay()
     {
         if (m_currentlyInTurn)
@@ -267,8 +314,9 @@ public class PlayerScript : MonoBehaviour
             KickType kickType;
             if (rnd <= m_autoPlayDifficult)
             {
+                Vector3[] ballsPositions = m_args.BallsManager.GetBallsPosition(m_args.PlayerIndex);
                 //print("AUTOPLAYER PLAY");
-                if (BallInHitZone())//check lower hit bounds
+                if (BallInHitZone(ballsPositions[0]))//check lower hit bounds
                 {
                     kickType = RandomKick();
                     OnKickPlay(kickType);
@@ -307,15 +355,15 @@ public class PlayerScript : MonoBehaviour
 
     public void Win()
     {
-        m_anim.speed = 1;
-        m_anim.Play("Win", -1, 0f);
+        /*m_anim.speed = 1;
+        m_anim.Play("Win", -1, 0f);*/
 
     }
 
     public void Lose()
     {
-        m_anim.speed = 1;
-        m_anim.Play("Lose", -1, 0f);
+        /*m_anim.speed = 1;
+        m_anim.Play("Lose", -1, 0f);*/
 
     }
 
@@ -323,16 +371,16 @@ public class PlayerScript : MonoBehaviour
 
     public void FinishAnimation()
     {
-        //print("finishAnimation");
-        m_anim.speed = 1;
+        /*print("finishAnimation");
 
-        gameObject.transform.localRotation = m_initialRotation;
-        gameObject.transform.localPosition = m_initialPosition;
+        //gameObject.transform.localRotation = m_initialRotation;
+        //gameObject.transform.localPosition = m_initialPosition;
         //gameObject.transform.localScale = m_initialScale;
-
+        //m_anim.SetTrigger("Idle Trigger");
         m_inAnimation = false;
         isRunning = false;
-        PlayIdle();
+        AnimSetTrigger("Idle Trigger");*/
+
     }
 
 
@@ -340,11 +388,20 @@ public class PlayerScript : MonoBehaviour
     {
         if (m_currentlyInTurn)
         {
-            if (BallInHitZone())
+            int ballIndex = -1;
+            Vector3[] ballsPositions = m_args.BallsManager.GetBallsPosition(m_args.PlayerIndex);
+            if (BallInHitZone(ballsPositions[0]))
             {
-                float distanceX = m_args.Ball.transform.position.x - m_hitZone.transform.position.x;
-                //print(distanceX);
-                m_args.Ball.OnHitPlay(m_curKickType, distanceX);
+                ballIndex = 0;
+                float distanceX = ballsPositions[ballIndex].x - m_hitZone.transform.position.x;
+                m_args.BallsManager.OnHitPlay(m_args.PlayerIndex, ballIndex, m_curKickType, distanceX);
+
+            }
+            else if (BallInHitZone(ballsPositions[1]))
+            {
+                ballIndex = 1;
+                float distanceX = ballsPositions[ballIndex].x - m_hitZone.transform.position.x;
+                m_args.BallsManager.OnHitPlay(m_args.PlayerIndex, ballIndex, m_curKickType, distanceX);
 
             }
 
@@ -352,13 +409,12 @@ public class PlayerScript : MonoBehaviour
 
     }
 
-    private bool BallInHitZone()
+    private bool BallInHitZone(Vector3 ballPosition)
     {
         /*if (m_args.PlayerIndex == PlayerIndex.Second)
         {
             return true;
         }*/
-        Vector3 ballPosition = m_args.Ball.transform.position;
         Vector3 hitZoneCenter = m_hitZone.transform.position;
         ballPosition.z = 0;
         hitZoneCenter.z = 0;
@@ -370,45 +426,51 @@ public class PlayerScript : MonoBehaviour
             print(distance <= m_hitZoneRadius);
         }*/
 
-        return distance <= m_hitZoneRadius;
+        return distance <= m_args.playerStats.m_hitZoneRadius;
     }
+
+
 
 
     public void OnKickPlay(KickType kickType)
     {
         if (!isGamePaused)
         {
-            if (!m_inAnimation)
+            //if (!m_inAnimation)
+            if (true)
             {
+                m_inAnimation = true;
+
                 m_curKickType = kickType;
-                string animName;
-                float animSpeed;
+                string triggerName;
                 switch (kickType)
                 {
-                    case (KickType.Up):
-                        animName = "KickUp";
-                        animSpeed = UpKickSpeed;
-                        break;
-
                     case (KickType.Power):
-                        animName = "KickPower";
-                        animSpeed = PowerKickSpeed;
+                        triggerName = "KickReg Trigger";
                         break;
 
                     default:
-                        animName = "KickRegular";
-                        animSpeed = RegularKickSpeed;
+                        triggerName = "KickPower Trigger";
                         break;
                 }
                 //print(animName);
-                m_anim.speed = animSpeed;
-                //m_anim.enabled = true;
-                m_inAnimation = true;
-                m_anim.Play(animName, -1, 0f);
+                //AnimSetTrigger(triggerName);
+                m_anim.ResetTrigger(triggerName);
+                m_anim.SetTrigger(triggerName);
                 ReachHitPosition();
 
                 //anim.enabled = false;
             }
+        }
+    }
+
+    private void OnJump()
+    {
+        //print("jump");
+        if (!isJumping)
+        {
+            isJumping = true;
+            isJumpingUp = true;
         }
     }
 
@@ -422,9 +484,9 @@ public class PlayerScript : MonoBehaviour
     {
         OnKickPlay(KickType.Regular);
     }
-    public void OnTouchKickUp()
+    public void OnTouchJump()
     {
-        OnKickPlay(KickType.Up);
+        OnJump();
     }
     public void OnTouchKickPower()
     {
@@ -438,6 +500,8 @@ public class PlayerScript : MonoBehaviour
     public void StartTurn()
     {
         m_currentlyInTurn = true;
-        m_args.Ball.OnNewBallInScene();
+        m_args.BallsManager.OnNewBallInScene(m_args.PlayerIndex);
     }
+
+
 }
