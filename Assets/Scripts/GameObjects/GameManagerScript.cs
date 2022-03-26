@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -106,8 +107,8 @@ public class GameManagerScript : MonoBehaviour
         if (NoMenuStartPage.gameObject.activeInHierarchy) { NoMenuStartPage.gameObject.SetActive(false); }
         if (m_gameArgs == null)
         {
-            m_gameArgs = new GameArgs(GameType.OnePlayer, null);
-            //m_gameArgs = new GameArgs(GameType.TurnsGame, null);
+            //m_gameArgs = new GameArgs(GameType.OnePlayer, null);
+            m_gameArgs = new GameArgs(GameType.TurnsGame, null);
             //print("No GameType Provided- GameType=TwoPlayer");
         }
         Application.targetFrameRate = 60;
@@ -115,9 +116,6 @@ public class GameManagerScript : MonoBehaviour
         this.gameObject.SetActive(true);
         //m_playerData1.PlayerScript.PlayIdle();
         //m_playerData2.PlayerScript.PlayIdle();
-
-        m_playerData2.PlayerScript.gameObject.SetActive(false);
-
 
         if (m_onMobileDevice)
         {
@@ -182,9 +180,20 @@ public class GameManagerScript : MonoBehaviour
         GameBallsManagerArgs ballsManagerArgs = new GameBallsManagerArgs();
         ballsManagerArgs.ballArgs = m_playersDataContainer.ballArgs;
 
-        ballsManagerArgs.player1Balls = m_playerContainer1.GetComponentsInChildren<BallScript>();
-        ballsManagerArgs.player2Balls = m_playerContainer2.GetComponentsInChildren<BallScript>();
-
+        ballsManagerArgs.player1Balls = m_playerContainer1.GetComponentsInChildren<BallScript>().ToList();
+        if (ballsManagerArgs.player1Balls.Count < 2)
+        {
+            var otherBall = Instantiate(ballsManagerArgs.player1Balls[0]);
+            otherBall.transform.parent = ballsManagerArgs.player1Balls[0].transform.parent;
+            ballsManagerArgs.player1Balls.Add(otherBall);
+        }
+        ballsManagerArgs.player2Balls = m_playerContainer2.GetComponentsInChildren<BallScript>().ToList();
+        if (ballsManagerArgs.player2Balls.Count < 2)
+        {
+            var otherBall = Instantiate(ballsManagerArgs.player2Balls[0]);
+            otherBall.transform.parent = ballsManagerArgs.player2Balls[0].transform.parent;
+            ballsManagerArgs.player2Balls.Add(otherBall);
+        }
         m_ballsManager.GameManagerOnBallHit = onBallHit;
         m_ballsManager.GameManagerOnTurnLost = onTurnLost;
 

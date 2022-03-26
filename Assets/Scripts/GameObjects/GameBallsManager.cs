@@ -75,7 +75,7 @@ public class GameBallsManager : MonoBehaviour
 
     public void OnBallLost(PlayerIndex playerIndex, int ballIndex)
     {
-        BallScript[] balls = m_args.player2Balls;
+        List<BallScript> balls = m_args.player2Balls;
         if (playerIndex == PlayerIndex.First)
         {
             balls = m_args.player1Balls;
@@ -96,7 +96,7 @@ public class GameBallsManager : MonoBehaviour
     //update the game manager for score and combo
     public void OnHitPlay(PlayerIndex playerIndex, int ballIndex, KickType kickType, float distanceX)
     {
-        BallScript[] balls = m_args.player2Balls;
+        List<BallScript> balls = m_args.player2Balls;
         if (playerIndex == PlayerIndex.First)
         {
             balls = m_args.player1Balls;
@@ -108,16 +108,19 @@ public class GameBallsManager : MonoBehaviour
         Color color1 = ball.GetColor();
         Color color2 = GenerateRandomColor();
 
-        int rnd = Random.Range(0, 10);
-        if (rnd <= 4)
+        if (FlipDistance())
         {
-            Color temp = color1;
-            color1 = color2;
-            color2 = temp;
+            distanceX *= (-1);
         }
         otherBall.GenerateNewBallInScene(color2, ball.GetPosition(), ball.GetVelocityY(), ball.GetVelocityX());
-        ball.OnHitPlay(kickType, distanceX, color1);
-        otherBall.OnHitPlay(kickType, (-1) * distanceX, color2);
+        ball.OnHitPlay(kickType, distanceX, color1, true);
+        otherBall.OnHitPlay(kickType, (-1) * distanceX, color2, false);
+    }
+
+    bool FlipDistance()
+    {
+        int rnd = Random.Range(0, 10);
+        return rnd <= 4;
     }
 
     private Color GenerateRandomColor()
@@ -146,7 +149,7 @@ public class GameBallsManager : MonoBehaviour
     //should start new turn
     public void OnNewBallInScene(PlayerIndex playerIndex)
     {
-        BallScript[] balls = m_args.player2Balls;
+        List<BallScript> balls = m_args.player2Balls;
         if (playerIndex == PlayerIndex.First)
         {
             balls = m_args.player1Balls;
@@ -161,7 +164,7 @@ public class GameBallsManager : MonoBehaviour
     //return the balls position
     public Vector3[] GetBallsPosition(PlayerIndex playerIndex)
     {
-        BallScript[] balls = m_args.player2Balls;
+        List<BallScript> balls = m_args.player2Balls;
         if (playerIndex == PlayerIndex.First)
         {
             balls = m_args.player1Balls;

@@ -55,7 +55,7 @@ public class PlayerScript : MonoBehaviour
     }*/
     void Awake()
     {
-        this.gameObject.SetActive(false);
+        //this.gameObject.SetActive(false);
     }
 
     public void Init(PlayerArgs args)
@@ -155,7 +155,7 @@ public class PlayerScript : MonoBehaviour
             }
             else
             {
-                AutoPlay();
+                AutoPlayGeneral();
             }
             //}
         }
@@ -211,41 +211,35 @@ public class PlayerScript : MonoBehaviour
 
     void GetPlayerKickFromKeyboard()
     {
-        if (m_args.PlayerIndex == PlayerIndex.First)
+        if (Input.GetKeyDown(KeyCode.D))
         {
-            if (Input.GetKeyDown(KeyCode.A))
-            {
-                OnJump();
-            }
-            else if (Input.GetKeyDown(KeyCode.D))
-            {
-                OnKickPlay(KickType.Regular);
-            }
-            else if (Input.GetKeyDown(KeyCode.S))
-            {
-                OnKickPlay(KickType.Power);
-            }
+            OnJump();
+        }
+        else if (Input.GetKeyDown(KeyCode.S))
+        {
+            OnKickPlay(KickType.Regular);
+        }
+        else if (Input.GetKeyDown(KeyCode.A))
+        {
+            OnKickPlay(KickType.Power);
         }
 
     }
     void GetPlayerMovement()
     {
-        if (m_args.PlayerIndex == PlayerIndex.First)
+        if (Input.GetKey(KeyCode.Z) || Input.GetKey(KeyCode.LeftArrow) || m_runLeftFromTouch)
         {
-            if (Input.GetKey(KeyCode.Z) || Input.GetKey(KeyCode.LeftArrow) || m_runLeftFromTouch)
-            {
-                OnMoveX(Vector3.left);
-            }
-            else if (Input.GetKey(KeyCode.X) || Input.GetKey(KeyCode.RightArrow) || m_runRightFromTouch)
-            {
-                OnMoveX(Vector3.right);
-            }
-            else
-            {
-                //m_anim.SetBool("Running", true);
-                //print("Idle Trigger");
-                AnimSetTrigger("Idle Trigger");
-            }
+            OnMoveX(Vector3.left);
+        }
+        else if (Input.GetKey(KeyCode.X) || Input.GetKey(KeyCode.RightArrow) || m_runRightFromTouch)
+        {
+            OnMoveX(Vector3.right);
+        }
+        else
+        {
+            //m_anim.SetBool("Running", true);
+            //print("Idle Trigger");
+            AnimSetTrigger("Idle Trigger");
         }
     }
 
@@ -306,30 +300,15 @@ public class PlayerScript : MonoBehaviour
         return inBounds;
     }
 
-    void AutoPlay()
+    void AutoPlayGeneral()
     {
         if (m_currentlyInTurn)
         {
             int rnd = Random.Range(0, 100);
-            KickType kickType;
             if (rnd <= m_autoPlayDifficult)
             {
-                Vector3[] ballsPositions = m_args.BallsManager.GetBallsPosition(m_args.PlayerIndex);
-                //print("AUTOPLAYER PLAY");
-                if (BallInHitZone(ballsPositions[0]))//check lower hit bounds
-                {
-                    kickType = RandomKick();
-                    OnKickPlay(kickType);
-
-                }
-
-                /*else if (m_Ball.BallInHitBounds(true))//check upper hit bounds
-                {
-                    kickType = RandomKick();
-                    OnKickPlay(kickType);
-
-                }*/
-
+                AutoPlayKick();
+                AutoPlayMovement();
             }
         }
         else
@@ -342,29 +321,43 @@ public class PlayerScript : MonoBehaviour
 
     }
 
-
-    private KickType RandomKick()
+    void AutoPlayKick()
     {
-        int rndKick = Random.Range(0, 100);
-        if (rndKick <= 33)
-        { return KickType.Power; }
-        else
-        { return KickType.Regular; }
+        Vector3[] ballsPositions = m_args.BallsManager.GetBallsPosition(m_args.PlayerIndex);
+        //print("AUTOPLAYER PLAY");
+        if (BallInHitZone(ballsPositions[0]) || BallInHitZone(ballsPositions[1]))
+        {
+            OnKickPlay(KickType.Regular);
+        }
+    }
+
+    void AutoPlayMovement()
+    {
+        Vector3[] ballsPositions = m_args.BallsManager.GetBallsPosition(m_args.PlayerIndex);
+        Vector3 ballsTransform = ballsPositions[0];
+        Vector3 playerTransform = gameObject.transform.position;
+        float deltaX = ballsTransform.x - playerTransform.x;
+        if (Mathf.Abs(deltaX) > 1f)
+        {
+            if (deltaX > 0)
+            {
+                OnMoveX(Vector3.right);
+            }
+            else
+            {
+                OnMoveX(Vector3.left);
+            }
+        }
 
     }
 
+
     public void Win()
     {
-        /*m_anim.speed = 1;
-        m_anim.Play("Win", -1, 0f);*/
-
     }
 
     public void Lose()
     {
-        /*m_anim.speed = 1;
-        m_anim.Play("Lose", -1, 0f);*/
-
     }
 
 

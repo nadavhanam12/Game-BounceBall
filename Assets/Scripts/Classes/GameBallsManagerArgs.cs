@@ -5,8 +5,8 @@ using static GameManagerScript;
 
 public class GameBallsManagerArgs
 {
-    public BallScript[] player1Balls;
-    public BallScript[] player2Balls;
+    public List<BallScript> player1Balls;
+    public List<BallScript> player2Balls;
 
     public BallArgs ballArgs;
 

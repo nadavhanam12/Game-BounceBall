@@ -20,7 +20,7 @@ public class BallScript : MonoBehaviour
     #region const
 
     const float m_speedEmitTrail = 0;
-    const int ParticlesToEmit = 100;
+    const int ParticlesToEmit = 500;
     const float m_startVelocityY = 0.2f;
     const float m_startVelocityX = -0.2f;
     const float m_maxVelocityY = 100;
@@ -65,10 +65,6 @@ public class BallScript : MonoBehaviour
     private int m_ballIndex = -1;
     private Color m_curColor = Color.white;
 
-    private Gradient m_colorGradientTrail;
-    private ColorOverLifetimeModule m_colorGradientParticles;
-
-
 
     #endregion
 
@@ -82,10 +78,8 @@ public class BallScript : MonoBehaviour
             //print("init ballscript");
             m_anim = gameObject.GetComponent<Animator>();
             m_particles = gameObject.GetComponentInChildren<ParticleSystem>();
-            m_colorGradientParticles = m_particles.colorOverLifetime;
             m_spriteRenderer = GetComponentInChildren<SpriteRenderer>();
             m_curBallTrail = GetComponentInChildren<TrailRenderer>();
-            m_colorGradientTrail = m_curBallTrail.colorGradient;
             //m_rigidBody = GetComponent<Rigidbody>();
 
             this.gameObject.SetActive(false);
@@ -160,7 +154,7 @@ public class BallScript : MonoBehaviour
     public void GenerateNewBallInScene(Color color, Vector3 pos, float velocityY, float velocityX)
     {
 
-        this.gameObject.transform.localPosition = pos;
+        this.gameObject.transform.position = pos;
         m_curVelocityY = velocityY;
         m_curVelocityX = velocityX;
         GenerateNewBall(color);
@@ -186,8 +180,10 @@ public class BallScript : MonoBehaviour
         {
             m_curColor = color;
             m_spriteRenderer.color = m_curColor;
-            m_colorGradientParticles.color.gradient.colorKeys[0].color = m_curColor;
-            m_colorGradientTrail.colorKeys[0].color = m_curColor;
+            /*m_colorGradientParticles.color.gradient.colorKeys[0].color = m_curColor;
+            m_colorGradientTrail.colorKeys[0].color = m_curColor;*/
+            var particlesMain = m_particles.main;
+            particlesMain.startColor = m_curColor;
         }
 
     }
@@ -232,13 +228,13 @@ public class BallScript : MonoBehaviour
         if ((inSpeedToEmit) && (!m_isTrailEmmiting))
         {
             m_isTrailEmmiting = true;
-            m_curBallTrail.emitting = m_isTrailEmmiting;
         }
         else if ((!inSpeedToEmit) && (m_isTrailEmmiting))
         {
             m_isTrailEmmiting = false;
-            m_curBallTrail.emitting = m_isTrailEmmiting;
         }
+        m_curBallTrail.emitting = m_isTrailEmmiting;
+
     }
 
     private void CheckBounds()
@@ -283,7 +279,7 @@ public class BallScript : MonoBehaviour
     }
 
 
-    public void OnHitPlay(KickType kickType, float distanceX, Color color)
+    public void OnHitPlay(KickType kickType, float distanceX, Color color, bool burstParticles)
     {
         UpdateColor(color);
         bool isSpecial = true;
@@ -294,7 +290,7 @@ public class BallScript : MonoBehaviour
         }
 
         ApplyHitPhysics(isSpecial, distanceX);
-        ApplyHitVisuals(isSpecial, true);
+        ApplyHitVisuals(isSpecial, burstParticles);
 
     }
 
@@ -310,7 +306,9 @@ public class BallScript : MonoBehaviour
     {
         float kickPower = isSpecial ? m_args.BallSpecialHitPower : m_args.BallRegularHitPower;
         m_curVelocityY = kickPower * m_hitMultiplierY;
-        m_curVelocityX = distanceX * m_args.XAxisMultiplier * m_hitMultiplierX;
+        //m_curVelocityX = distanceX * m_args.XAxisMultiplier * m_hitMultiplierX;
+        float multiX = (distanceX >= 0) ? 1 : -1;
+        m_curVelocityX = multiX * m_args.XAxisMultiplier * m_hitMultiplierX;
 
 
     }
