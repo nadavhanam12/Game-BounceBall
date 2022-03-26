@@ -32,7 +32,6 @@ public class PlayerScript : MonoBehaviour
     private Vector3 m_initialScale;
     private bool isGamePaused = true;
     private KickType m_curKickType;
-    private int m_autoPlayDifficult = 100;
     private bool m_currentlyInTurn = true;
 
     private PlayerArgs m_args;
@@ -305,7 +304,7 @@ public class PlayerScript : MonoBehaviour
         if (m_currentlyInTurn)
         {
             int rnd = Random.Range(0, 100);
-            if (rnd <= m_autoPlayDifficult)
+            if (rnd <= m_args.playerStats.m_autoPlayDifficult)
             {
                 AutoPlayKick();
                 AutoPlayMovement();
@@ -337,7 +336,7 @@ public class PlayerScript : MonoBehaviour
         Vector3 ballsTransform = ballsPositions[0];
         Vector3 playerTransform = gameObject.transform.position;
         float deltaX = ballsTransform.x - playerTransform.x;
-        if (Mathf.Abs(deltaX) > 1f)
+        if (Mathf.Abs(deltaX) > m_args.playerStats.AutoPlayBallDistance)
         {
             if (deltaX > 0)
             {
@@ -439,11 +438,11 @@ public class PlayerScript : MonoBehaviour
                 switch (kickType)
                 {
                     case (KickType.Power):
-                        triggerName = "KickReg Trigger";
+                        triggerName = "KickPower Trigger";
                         break;
 
                     default:
-                        triggerName = "KickPower Trigger";
+                        triggerName = "KickReg Trigger";
                         break;
                 }
                 //print(animName);

@@ -22,7 +22,8 @@ public class BallScript : MonoBehaviour
     const float m_speedEmitTrail = 0;
     const int ParticlesToEmit = 500;
     const float m_startVelocityY = 0.2f;
-    const float m_startVelocityX = -0.2f;
+    //const float m_startVelocityX = -0.2f;
+    const float m_startVelocityX = 0f;
     const float m_maxVelocityY = 100;
     const float m_velocityMultiplier = 0.001f;
     const float m_hitMultiplierY = 0.1f;
@@ -55,7 +56,7 @@ public class BallScript : MonoBehaviour
     private BallArgs m_args;
 
     private bool isGamePaused;
-    private TrailRenderer m_curBallTrail;
+    private ParticleSystem m_curBallTrail;
     private bool m_isTrailEmmiting = false;
 
     private string animName = "BallRegularHitSide1";
@@ -77,9 +78,9 @@ public class BallScript : MonoBehaviour
 
             //print("init ballscript");
             m_anim = gameObject.GetComponent<Animator>();
-            m_particles = gameObject.GetComponentInChildren<ParticleSystem>();
+            //m_particles = gameObject.GetComponentInChildren<ParticleSystem>();
             m_spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-            m_curBallTrail = GetComponentInChildren<TrailRenderer>();
+            m_curBallTrail = GetComponentInChildren<ParticleSystem>();
             //m_rigidBody = GetComponent<Rigidbody>();
 
             this.gameObject.SetActive(false);
@@ -94,11 +95,12 @@ public class BallScript : MonoBehaviour
             m_curVelocityX = 0;
             m_args = args;
 
-            m_curBallTrail.emitting = false;
             m_initialized = true;
 
             m_playerIndex = playerIndex;
             m_ballIndex = ballIndex;
+
+            //m_hitHailo.gameObject.SetActive(false);
 
             // this.gameObject.SetActive(true);
             // m_isBallInPlay = true;
@@ -135,9 +137,12 @@ public class BallScript : MonoBehaviour
 
     public void RemoveBallFromScene()
     {
+        if (m_isBallInPlay)
+        {
+            m_isBallInPlay = false;
+            this.gameObject.SetActive(false);
+        }
 
-        m_isBallInPlay = false;
-        this.gameObject.SetActive(false);
 
     }
 
@@ -166,7 +171,6 @@ public class BallScript : MonoBehaviour
     {
         UpdateColor(color);
         m_isBallInPlay = true;
-        m_curBallTrail.emitting = false;
 
         //SetBallSprite(0);
         ApplyHitVisuals(false, false);
@@ -182,8 +186,12 @@ public class BallScript : MonoBehaviour
             m_spriteRenderer.color = m_curColor;
             /*m_colorGradientParticles.color.gradient.colorKeys[0].color = m_curColor;
             m_colorGradientTrail.colorKeys[0].color = m_curColor;*/
-            var particlesMain = m_particles.main;
-            particlesMain.startColor = m_curColor;
+            if (m_curBallTrail != null)
+            {
+                var particlesMain = m_curBallTrail.main;
+                particlesMain.startColor = m_curColor;
+            }
+
         }
 
     }
@@ -233,7 +241,7 @@ public class BallScript : MonoBehaviour
         {
             m_isTrailEmmiting = false;
         }
-        m_curBallTrail.emitting = m_isTrailEmmiting;
+        //if(m_isTrailEmmiting) m_curBallTrail.Play();
 
     }
 
@@ -321,11 +329,11 @@ public class BallScript : MonoBehaviour
             //print("animName: " + animName);
             m_anim.Play(animName, -1, 0f);
 
-            if (withParticles)
+            /*if (withParticles)
             {
-                m_particles.Emit(ParticlesToEmit);
-                //m_particles.Emit(25);
-            }
+                //m_particles.Emit(ParticlesToEmit);
+                ActivateHitHailo();
+            }*/
         }
 
     }

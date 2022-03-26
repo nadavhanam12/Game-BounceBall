@@ -564,14 +564,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3407cf656e063945bd0436ef3867865, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RegularKickSpeed: 6
-  PowerKickSpeed: 2
-  UpKickSpeed: 2
-  AutoPlaySequenceSpeed: 2
   Body: {fileID: 4720961662739862639}
   m_hitZone: {fileID: 1957018284881605022}
-  m_hitZoneRadius: 2
-  m_movingSpeed: 0
 --- !u!95 &3532957143962390775
 Animator:
   serializedVersion: 3
@@ -582,10 +576,10 @@ Animator:
   m_GameObject: {fileID: 7492209328908160068}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: d74b194e129a42148b9444e4e6a23c5b, type: 2}
+  m_Controller: {fileID: 9100000, guid: 97d417cc51f1da74981b774e25538493, type: 2}
   m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
+  m_UpdateMode: 1
+  m_ApplyRootMotion: 1
   m_LinearVelocityBlending: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1

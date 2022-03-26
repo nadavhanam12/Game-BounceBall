@@ -17,9 +17,8 @@ public class PlayerArgs
 
     [HideInInspector] public int CurScore;
 
+    [HideInInspector] public int CurComboIndex;
     [HideInInspector] public int CurCombo;
-    [HideInInspector] public ComboData CurComboData;
-
     [HideInInspector] public GameBounds Bounds;
     [HideInInspector] public GameBallsManager BallsManager;
     [HideInInspector] public PlayerStats playerStats;

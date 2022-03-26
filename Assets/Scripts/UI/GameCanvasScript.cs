@@ -39,6 +39,7 @@ public class GameCanvasScript : MonoBehaviour
     [SerializeField] RawImage Background;
 
     [SerializeField] SequenceMenuUI SequenceMenuUI;
+    [SerializeField] NextColorScript NextColorUI;
     #endregion
 
     #region private
@@ -96,6 +97,7 @@ public class GameCanvasScript : MonoBehaviour
 
             CheerObject.Init();
             SequenceMenuUI.Init();
+            NextColorUI.Init();
 
             EventManager.AddHandler(EVENT.EventOnTimeOver, () => m_onTimeIsOver());
             //m_anim.Play("FadeIn", -1, 0f);
@@ -146,5 +148,10 @@ public class GameCanvasScript : MonoBehaviour
     {
         EventManager.Broadcast(EVENT.EventOnCountdownEnds);
     }
+    public void UpdateNextBallColor(Color color)
+    {
+        NextColorUI.SetColor(color);
+    }
+
 
 }

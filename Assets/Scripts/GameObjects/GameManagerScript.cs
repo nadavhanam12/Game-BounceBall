@@ -52,8 +52,6 @@ public class GameManagerScript : MonoBehaviour
     private GameBounds m_gameBounds;
     private PlayerArgs m_playerData1;
     private PlayerArgs m_playerData2;
-    private Dictionary<KickType, int> m_scoreDictionary;
-
     private int m_curPlayersScoreDelta;
     private PlayerIndex m_curPlayerInLead;
     private bool m_isGamePause;
@@ -133,7 +131,7 @@ public class GameManagerScript : MonoBehaviour
     {
         EventManager.Broadcast(EVENT.EventStartApp);
         EventManager.AddHandler(EVENT.EventOnRestart, TimeIsOver);
-        EventManager.AddHandler(EVENT.EventCombo, OnCombo);
+        //EventManager.AddHandler(EVENT.EventCombo, OnCombo);
         EventManager.AddHandler(EVENT.EventOnCountdownEnds, FinishGameCountdown);
     }
 
@@ -154,6 +152,7 @@ public class GameManagerScript : MonoBehaviour
 
     private void Init()
     {
+        InitRefs();
         InitData();
         InitBallsManager();
         InitPlayersData();
@@ -173,29 +172,41 @@ public class GameManagerScript : MonoBehaviour
 
     }
 
+    void InitRefs()
+    {
+        m_gameCanvas = GetComponentInChildren<GameCanvasScript>();
+        m_ballsManager = GetComponentInChildren<GameBallsManager>();
+        m_comboDataContainer = GetComponentInChildren<ComboDataContainer>();
+        m_playersDataContainer = GetComponentInChildren<PlayersDataContainer>();
+        m_sequenceManager = GetComponentInChildren<SequenceManager>();
+
+
+    }
+
     private void InitBallsManager()
     {
-        m_ballsManager = GetComponentInChildren<GameBallsManager>();
 
         GameBallsManagerArgs ballsManagerArgs = new GameBallsManagerArgs();
-        ballsManagerArgs.ballArgs = m_playersDataContainer.ballArgs;
+        ballsManagerArgs.BallArgs = m_playersDataContainer.ballArgs;
 
-        ballsManagerArgs.player1Balls = m_playerContainer1.GetComponentsInChildren<BallScript>().ToList();
-        if (ballsManagerArgs.player1Balls.Count < 2)
+        ballsManagerArgs.Player1Balls = m_playerContainer1.GetComponentsInChildren<BallScript>().ToList();
+        if (ballsManagerArgs.Player1Balls.Count < 2)
         {
-            var otherBall = Instantiate(ballsManagerArgs.player1Balls[0]);
-            otherBall.transform.parent = ballsManagerArgs.player1Balls[0].transform.parent;
-            ballsManagerArgs.player1Balls.Add(otherBall);
+            BallScript curBall = ballsManagerArgs.Player1Balls[0];
+            BallScript otherBall = Instantiate(curBall, curBall.transform.parent);
+            ballsManagerArgs.Player1Balls.Add(otherBall);
         }
-        ballsManagerArgs.player2Balls = m_playerContainer2.GetComponentsInChildren<BallScript>().ToList();
-        if (ballsManagerArgs.player2Balls.Count < 2)
+        ballsManagerArgs.Player2Balls = m_playerContainer2.GetComponentsInChildren<BallScript>().ToList();
+        if (ballsManagerArgs.Player2Balls.Count < 2)
         {
-            var otherBall = Instantiate(ballsManagerArgs.player2Balls[0]);
-            otherBall.transform.parent = ballsManagerArgs.player2Balls[0].transform.parent;
-            ballsManagerArgs.player2Balls.Add(otherBall);
+            BallScript curBall = ballsManagerArgs.Player2Balls[0];
+            BallScript otherBall = Instantiate(curBall, curBall.transform.parent);
+            ballsManagerArgs.Player2Balls.Add(otherBall);
         }
         m_ballsManager.GameManagerOnBallHit = onBallHit;
         m_ballsManager.GameManagerOnTurnLost = onTurnLost;
+
+        ballsManagerArgs.GameCanvas = m_gameCanvas;
 
         m_ballsManager.Init(ballsManagerArgs);
 
@@ -205,11 +216,10 @@ public class GameManagerScript : MonoBehaviour
     {
         m_playerData1.CurScore = 0;
         m_playerData2.CurScore = 0;
-        m_playerData1.CurCombo = 0;
+        m_playerData1.CurComboIndex = -1;
+        m_playerData2.CurComboIndex = -1;
         m_playerData2.CurCombo = 0;
-
-        m_playerData1.CurComboData = m_comboDataContainer.InitPlayerCombo();
-        m_playerData2.CurComboData = m_comboDataContainer.InitPlayerCombo();
+        m_playerData2.CurCombo = 0;
 
         m_playerData1.Bounds = m_gameBounds;
         m_playerData2.Bounds = m_gameBounds;
@@ -226,11 +236,7 @@ public class GameManagerScript : MonoBehaviour
 
     private void InitData()
     {
-        m_comboDataContainer = GetComponentInChildren<ComboDataContainer>();
-        m_scoreDictionary = m_comboDataContainer.m_scoreDictionary;
-        //m_ballTextures = m_comboDataContainer.GetBallTextures();
 
-        m_playersDataContainer = GetComponentInChildren<PlayersDataContainer>();
         m_playerData1 = m_playersDataContainer.PlayerData1;
         m_playerData2 = m_playersDataContainer.PlayerData2;
 
@@ -242,7 +248,6 @@ public class GameManagerScript : MonoBehaviour
     }
     private void InitSequenceManager()
     {
-        m_sequenceManager = GetComponentInChildren<SequenceManager>();
         m_sequenceManager.Init(m_gameCanvas);
     }
     void InitGameMood()
@@ -292,8 +297,6 @@ public class GameManagerScript : MonoBehaviour
 
     private void InitGameCanvas()
     {
-        m_gameCanvas = GetComponentInChildren<GameCanvasScript>();
-
         GameCanvasArgs canvasArgs = new GameCanvasArgs();
         canvasArgs.MatchTime = m_matchTime;
         canvasArgs.PlayerColor1 = m_playerData1.Color;
@@ -349,8 +352,8 @@ public class GameManagerScript : MonoBehaviour
             playerData = m_playerData2;
         }
 
-        playerData.CurComboData = m_comboDataContainer.LowerPlayerCombo(playerData.CurComboData);
-        playerData.CurCombo = playerData.CurComboData.ComboRequired;
+        playerData.CurComboIndex = -1;
+        playerData.CurCombo = 0;
 
 
         if (m_gameArgs.GameType == GameType.TurnsGame)
@@ -366,7 +369,7 @@ public class GameManagerScript : MonoBehaviour
     }
 
 
-    public void onBallHit(PlayerIndex playerIndex, Color ballColor)
+    public void onBallHit(PlayerIndex playerIndex)
     {
         //print("onBallHit");
         KickType kickType = KickType.Regular;
@@ -383,7 +386,7 @@ public class GameManagerScript : MonoBehaviour
             }
         }
 
-        int addScore = m_scoreDictionary[kickType];
+        int addScore = m_comboDataContainer.RegularHitScore;
         PlayerArgs playerData;
         if (playerIndex == PlayerIndex.First)
         {
@@ -394,38 +397,28 @@ public class GameManagerScript : MonoBehaviour
             playerData = m_playerData2;
 
         }
-        playerData.CurScore += (addScore + playerData.CurComboData.ScoreAdded);
+
+
+        playerData.CurScore += (addScore);
+        UpdatePlayerCurCombo(playerData);
 
     }
-
-    public void OnCombo()
+    void UpdatePlayerCurCombo(PlayerArgs playerArgs)
     {
-        //if (playerIndex == PlayerIndex.First)
-        //{
-        m_playerData1.CurCombo++;
-        ComboData newComboData = m_comboDataContainer.GetComboState(m_playerData1.CurCombo);
-        if (newComboData != m_playerData1.CurComboData)
-        {
-
-            m_playerData1.CurComboData = newComboData;
+        print("playerArgs.CurCombo: " + playerArgs.CurCombo);
+        playerArgs.CurCombo++;
+        ComboData nextComboData = m_comboDataContainer.GetNextCombo(playerArgs.CurComboIndex);
+        if (playerArgs.CurCombo == nextComboData.ComboRequired)
+        {//New Combo-apply cheer and added score
+            playerArgs.CurComboIndex++;
             m_gameCanvas.CheerActivate();
-
+            playerArgs.CurScore += (nextComboData.ScoreBonus);
+            print("nextComboData.ScoreBonus: " + nextComboData.ScoreBonus);
         }
-        //print(addScore + m_curComboStatePlayer1.ScoreAdded);
-        // m_curScorePlayer1 += 100;
-        /*}
-        else
-        {
-            m_curComboPlayer2++;
-            ComboData newComboData = m_comboDataContainer.GetComboState(m_curComboPlayer2);
-            if (newComboData != m_curComboStatePlayer2)
-            {
-                m_curComboStatePlayer2 = newComboData;
-                m_ball2.SetBallSprite(m_curComboStatePlayer2.Index);
+        //Apply visual effect for combo counter
 
-            }
-        }*/
     }
+
 
     IEnumerator UpdateScores()
     {
@@ -441,7 +434,8 @@ public class GameManagerScript : MonoBehaviour
                 m_curPlayersScoreDelta *= (-1);
                 m_curPlayerInLead = PlayerIndex.Second;
             }
-
+            //print("m_playerData1.CurScore: " + m_playerData1.CurScore);
+            //print("m_playerData2.CurScore: " + m_playerData2.CurScore);
             m_gameCanvas.setScore(m_playerData1.CurScore, m_playerData2.CurScore,
              m_curPlayersScoreDelta, m_curPlayerInLead);
 

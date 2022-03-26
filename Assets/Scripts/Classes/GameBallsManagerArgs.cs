@@ -5,10 +5,12 @@ using static GameManagerScript;
 
 public class GameBallsManagerArgs
 {
-    public List<BallScript> player1Balls;
-    public List<BallScript> player2Balls;
+    public List<BallScript> Player1Balls;
+    public List<BallScript> Player2Balls;
 
-    public BallArgs ballArgs;
+    public BallArgs BallArgs;
+    public GameCanvasScript GameCanvas;
+
 
 
 

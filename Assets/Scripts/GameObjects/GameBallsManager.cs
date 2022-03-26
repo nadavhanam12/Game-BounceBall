@@ -12,14 +12,14 @@ public class GameBallsManager : MonoBehaviour
     public delegate void onTurnLost(PlayerIndex index);
     public onTurnLost GameManagerOnTurnLost;
 
-    public delegate void onBallHit(PlayerIndex index, Color ballColor);
+    public delegate void onBallHit(PlayerIndex index);
     public onBallHit GameManagerOnBallHit;
 
 
     #endregion
 
     #region serialized
-
+    [SerializeField] BallHitVisual m_ballHitVisualPrefab;
     [SerializeField] List<Color> ballColors;
 
 
@@ -32,6 +32,9 @@ public class GameBallsManager : MonoBehaviour
 
     private GameBallsManagerArgs m_args;
     private bool m_initialized = false;
+    private Queue<BallHitVisual> m_hitVisualsQueue = new Queue<BallHitVisual>();
+    private Color m_curRequiredColor;
+    private GameCanvasScript m_gameCanvas;
 
 
 
@@ -45,25 +48,35 @@ public class GameBallsManager : MonoBehaviour
             m_args = args;
 
             InitBalls();
+            InitHitBallVisuals();
             m_initialized = true;
         }
     }
-
-
+    void InitHitBallVisuals()
+    {
+        BallHitVisual curBallVisuals;
+        Vector3 ballScale = m_args.Player1Balls[0].transform.localScale;
+        for (int i = 0; i < 6; i++)
+        {
+            curBallVisuals = Instantiate(m_ballHitVisualPrefab, gameObject.transform);
+            curBallVisuals.Init(ballScale);
+            m_hitVisualsQueue.Enqueue(curBallVisuals);
+        }
+    }
     private void InitBalls()
     {
         int i = 0;
-        foreach (BallScript ball in m_args.player1Balls)
+        foreach (BallScript ball in m_args.Player1Balls)
         {
-            ball.Init(m_args.ballArgs, PlayerIndex.First, i);
+            ball.Init(m_args.BallArgs, PlayerIndex.First, i);
             ball.m_onBallLost = OnBallLost;
             i++;
         }
 
         i = 0;
-        foreach (BallScript ball in m_args.player2Balls)
+        foreach (BallScript ball in m_args.Player2Balls)
         {
-            ball.Init(m_args.ballArgs, PlayerIndex.Second, i);
+            ball.Init(m_args.BallArgs, PlayerIndex.Second, i);
             ball.m_onBallLost = OnBallLost;
             i++;
 
@@ -75,10 +88,10 @@ public class GameBallsManager : MonoBehaviour
 
     public void OnBallLost(PlayerIndex playerIndex, int ballIndex)
     {
-        List<BallScript> balls = m_args.player2Balls;
+        List<BallScript> balls = m_args.Player2Balls;
         if (playerIndex == PlayerIndex.First)
         {
-            balls = m_args.player1Balls;
+            balls = m_args.Player1Balls;
         }
         BallScript ball = balls[ballIndex];
         ball.RemoveBallFromScene();
@@ -92,29 +105,66 @@ public class GameBallsManager : MonoBehaviour
 
     }
 
+    private void EndPlayerTurn(PlayerIndex playerIndex)
+    {
+        List<BallScript> balls = m_args.Player2Balls;
+        if (playerIndex == PlayerIndex.First)
+        {
+            balls = m_args.Player1Balls;
+        }
+        BallScript ball = balls[0];
+        ball.RemoveBallFromScene();
+        BallScript otherBall = balls[1 - 1];
+        otherBall.RemoveBallFromScene();
+        GameManagerOnTurnLost(playerIndex);
+    }
+
     //Generate another ball with different color and direction
     //update the game manager for score and combo
     public void OnHitPlay(PlayerIndex playerIndex, int ballIndex, KickType kickType, float distanceX)
     {
-        List<BallScript> balls = m_args.player2Balls;
+        List<BallScript> balls = m_args.Player2Balls;
         if (playerIndex == PlayerIndex.First)
         {
-            balls = m_args.player1Balls;
+            balls = m_args.Player1Balls;
         }
         BallScript ball = balls[ballIndex];
+
+        if (m_curRequiredColor != ball.GetColor())
+        {//not correct color
+            OnBallLost(playerIndex, ballIndex);
+        }
+
+        GameManagerOnBallHit(playerIndex);
+
         BallScript otherBall = balls[1 - ballIndex];
         otherBall.RemoveBallFromScene();
 
-        Color color1 = ball.GetColor();
-        Color color2 = GenerateRandomColor();
+        Color color1 = GenerateRandomColor(Color.black);
+        Color color2 = GenerateRandomColor(color1);
+        UpdateNextBallColor(color1);
 
         if (FlipDistance())
         {
             distanceX *= (-1);
         }
+        ActivateBallHitVisual(color1, ball.GetPosition());
         otherBall.GenerateNewBallInScene(color2, ball.GetPosition(), ball.GetVelocityY(), ball.GetVelocityX());
         ball.OnHitPlay(kickType, distanceX, color1, true);
         otherBall.OnHitPlay(kickType, (-1) * distanceX, color2, false);
+    }
+    void UpdateNextBallColor(Color color)
+    {
+        m_curRequiredColor = color;
+        m_args.GameCanvas.UpdateNextBallColor(color);
+
+    }
+
+    void ActivateBallHitVisual(Color color, Vector3 position)
+    {
+        BallHitVisual hitVisual = m_hitVisualsQueue.Dequeue();
+        hitVisual.Activate(color, position);
+        m_hitVisualsQueue.Enqueue(hitVisual);
     }
 
     bool FlipDistance()
@@ -123,10 +173,15 @@ public class GameBallsManager : MonoBehaviour
         return rnd <= 4;
     }
 
-    private Color GenerateRandomColor()
+    private Color GenerateRandomColor(Color curHitColor)
     {
-        int rnd = Random.Range(0, ballColors.Count);
-        return ballColors[rnd];
+        Color choosenColor = curHitColor;
+        while (choosenColor == curHitColor)
+        {
+            int rnd = Random.Range(0, ballColors.Count);
+            choosenColor = ballColors[rnd];
+        }
+        return choosenColor;
         //return Color.yellow;
     }
 
@@ -134,12 +189,12 @@ public class GameBallsManager : MonoBehaviour
     //should turn off the balls
     public void TimeIsOver()
     {
-        foreach (BallScript ball in m_args.player1Balls)
+        foreach (BallScript ball in m_args.Player1Balls)
         {
             ball.RemoveBallFromScene();
 
         }
-        foreach (BallScript ball in m_args.player2Balls)
+        foreach (BallScript ball in m_args.Player2Balls)
         {
             ball.RemoveBallFromScene();
         }
@@ -149,14 +204,17 @@ public class GameBallsManager : MonoBehaviour
     //should start new turn
     public void OnNewBallInScene(PlayerIndex playerIndex)
     {
-        List<BallScript> balls = m_args.player2Balls;
+        List<BallScript> balls = m_args.Player2Balls;
         if (playerIndex == PlayerIndex.First)
         {
-            balls = m_args.player1Balls;
+            balls = m_args.Player1Balls;
         }
         BallScript ball = balls[0];
-        Color color = GenerateRandomColor();
+        //Color color = GenerateRandomColor(Color.black);
+        Color color = Color.white;
         ball.OnNewBallInScene(color);
+        UpdateNextBallColor(color);
+
 
     }
 
@@ -164,10 +222,10 @@ public class GameBallsManager : MonoBehaviour
     //return the balls position
     public Vector3[] GetBallsPosition(PlayerIndex playerIndex)
     {
-        List<BallScript> balls = m_args.player2Balls;
+        List<BallScript> balls = m_args.Player2Balls;
         if (playerIndex == PlayerIndex.First)
         {
-            balls = m_args.player1Balls;
+            balls = m_args.Player1Balls;
         }
 
         Vector3[] ballsPositions = new Vector3[2];
