@@ -214,6 +214,18 @@ public static class LeanTweenExt
             });
         return _tween;
     }
+    public static LTDescr MyLeanAlphaSpriteRenderer(this SpriteRenderer renderer, float to, float time)
+    {
+        var _color = renderer.color;
+        var _tween = LeanTween
+            .value(renderer.gameObject, _color.a, to, time)
+            .setOnUpdate((float _value) =>
+            {
+                _color.a = _value;
+                renderer.color = _color;
+            });
+        return _tween;
+    }
 
 
 

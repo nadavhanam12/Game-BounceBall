@@ -129,6 +129,10 @@ public class BallScript : MonoBehaviour
     {
         return m_curColor;
     }
+    public SpriteRenderer GetSprite()
+    {
+        return m_spriteRenderer;
+    }
 
     public bool IsInScene()
     {
@@ -142,9 +146,9 @@ public class BallScript : MonoBehaviour
             m_isBallInPlay = false;
             this.gameObject.SetActive(false);
         }
-
-
     }
+
+
 
 
     public void OnNewBallInScene(Color color)

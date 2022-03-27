@@ -40,6 +40,7 @@ public class GameCanvasScript : MonoBehaviour
 
     [SerializeField] SequenceMenuUI SequenceMenuUI;
     [SerializeField] NextColorScript NextColorUI;
+    [SerializeField] ComboConterUI comboConterUI;
     #endregion
 
     #region private
@@ -151,6 +152,10 @@ public class GameCanvasScript : MonoBehaviour
     public void UpdateNextBallColor(Color color)
     {
         NextColorUI.SetColor(color);
+    }
+    public void SetCombo(int curCombo)
+    {
+        comboConterUI.SetCombo(curCombo);
     }
 
 

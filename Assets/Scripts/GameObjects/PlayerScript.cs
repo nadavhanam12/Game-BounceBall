@@ -42,6 +42,7 @@ public class PlayerScript : MonoBehaviour
     private bool m_runRightFromTouch = false;
     private bool m_runLeftFromTouch = false;
 
+    private bool m_inKickColldown = false;
 
 
     #endregion
@@ -322,12 +323,24 @@ public class PlayerScript : MonoBehaviour
 
     void AutoPlayKick()
     {
-        Vector3[] ballsPositions = m_args.BallsManager.GetBallsPosition(m_args.PlayerIndex);
-        //print("AUTOPLAYER PLAY");
-        if (BallInHitZone(ballsPositions[0]) || BallInHitZone(ballsPositions[1]))
+        if (!m_inKickColldown)
         {
-            OnKickPlay(KickType.Regular);
+            Vector3[] ballsPositions = m_args.BallsManager.GetBallsPosition(m_args.PlayerIndex);
+            //print("AUTOPLAYER PLAY");
+            if (BallInHitZone(ballsPositions[0]) || BallInHitZone(ballsPositions[1]))
+            {
+                OnKickPlay(KickType.Regular);
+                StartCoroutine(AutoPlayKickCooldown());
+            }
         }
+
+    }
+
+    IEnumerator AutoPlayKickCooldown()
+    {
+        m_inKickColldown = true;
+        yield return new WaitForSeconds(m_args.playerStats.AutoPlayerKickColldown);
+        m_inKickColldown = false;
     }
 
     void AutoPlayMovement()
@@ -382,14 +395,25 @@ public class PlayerScript : MonoBehaviour
         {
             int ballIndex = -1;
             Vector3[] ballsPositions = m_args.BallsManager.GetBallsPosition(m_args.PlayerIndex);
-            if (BallInHitZone(ballsPositions[0]))
+            bool firstBallInHitZone = BallInHitZone(ballsPositions[0]);
+            bool secondBallInHitZone = BallInHitZone(ballsPositions[1]);
+            if (firstBallInHitZone && secondBallInHitZone)
+            {
+                float firstBallDistanceX = ballsPositions[0].x - m_hitZone.transform.position.x;
+                float secondBallDistanceX = ballsPositions[1].x - m_hitZone.transform.position.x;
+                ballIndex = firstBallDistanceX < secondBallDistanceX ? 0 : 1;
+                float distanceX = Mathf.Min(firstBallDistanceX, secondBallDistanceX);
+                m_args.BallsManager.OnHitPlay(m_args.PlayerIndex, ballIndex, m_curKickType, distanceX);
+
+            }
+            else if (firstBallInHitZone)
             {
                 ballIndex = 0;
                 float distanceX = ballsPositions[ballIndex].x - m_hitZone.transform.position.x;
                 m_args.BallsManager.OnHitPlay(m_args.PlayerIndex, ballIndex, m_curKickType, distanceX);
 
             }
-            else if (BallInHitZone(ballsPositions[1]))
+            else if (secondBallInHitZone)
             {
                 ballIndex = 1;
                 float distanceX = ballsPositions[ballIndex].x - m_hitZone.transform.position.x;

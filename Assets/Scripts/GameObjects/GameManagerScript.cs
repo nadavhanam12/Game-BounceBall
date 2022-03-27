@@ -354,7 +354,7 @@ public class GameManagerScript : MonoBehaviour
 
         playerData.CurComboIndex = -1;
         playerData.CurCombo = 0;
-
+        m_gameCanvas.SetCombo(playerData.CurCombo);
 
         if (m_gameArgs.GameType == GameType.TurnsGame)
         {
@@ -405,7 +405,7 @@ public class GameManagerScript : MonoBehaviour
     }
     void UpdatePlayerCurCombo(PlayerArgs playerArgs)
     {
-        print("playerArgs.CurCombo: " + playerArgs.CurCombo);
+        //print("playerArgs.CurCombo: " + playerArgs.CurCombo);
         playerArgs.CurCombo++;
         ComboData nextComboData = m_comboDataContainer.GetNextCombo(playerArgs.CurComboIndex);
         if (playerArgs.CurCombo == nextComboData.ComboRequired)
@@ -413,10 +413,10 @@ public class GameManagerScript : MonoBehaviour
             playerArgs.CurComboIndex++;
             m_gameCanvas.CheerActivate();
             playerArgs.CurScore += (nextComboData.ScoreBonus);
-            print("nextComboData.ScoreBonus: " + nextComboData.ScoreBonus);
+            //print("nextComboData.ScoreBonus: " + nextComboData.ScoreBonus);
         }
         //Apply visual effect for combo counter
-
+        m_gameCanvas.SetCombo(playerArgs.CurCombo);
     }
 
 

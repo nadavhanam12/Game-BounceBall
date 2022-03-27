@@ -357,41 +357,65 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 4525438849260048329, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: ScoreBonusList.Array.size
-      value: 4
+    - target: {fileID: 1466198537, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
+      propertyPath: m_fontColor.b
+      value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4525438849260048329, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: ScoreBonusList.Array.data[0].ScoreBonus
-      value: 300
+    - target: {fileID: 1466198537, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
+      propertyPath: m_fontColor.g
+      value: 0.5294118
       objectReference: {fileID: 0}
-    - target: {fileID: 4525438849260048329, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: ScoreBonusList.Array.data[1].ScoreBonus
-      value: 600
+    - target: {fileID: 1466198537, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4278224895
       objectReference: {fileID: 0}
-    - target: {fileID: 4525438849260048329, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: ScoreBonusList.Array.data[2].ScoreBonus
-      value: 900
+    - target: {fileID: 1466198537, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
+      propertyPath: m_fontColorGradient.topLeft.b
+      value: 0.015686275
       objectReference: {fileID: 0}
-    - target: {fileID: 4525438849260048329, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: ScoreBonusList.Array.data[3].ScoreBonus
-      value: 1200
+    - target: {fileID: 1466198537, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
+      propertyPath: m_fontColorGradient.topLeft.g
+      value: 0.48235297
       objectReference: {fileID: 0}
-    - target: {fileID: 4525438849260048329, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: ScoreBonusList.Array.data[0].ComboRequired
-      value: 3
+    - target: {fileID: 1466198537, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
+      propertyPath: m_fontColorGradient.topLeft.r
+      value: 0.9725491
       objectReference: {fileID: 0}
-    - target: {fileID: 4525438849260048329, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: ScoreBonusList.Array.data[1].ComboRequired
+    - target: {fileID: 1466198537, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
+      propertyPath: m_fontColorGradient.topRight.b
+      value: 0.015686275
+      objectReference: {fileID: 0}
+    - target: {fileID: 1466198537, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
+      propertyPath: m_fontColorGradient.topRight.g
+      value: 0.48235297
+      objectReference: {fileID: 0}
+    - target: {fileID: 1466198537, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
+      propertyPath: m_fontColorGradient.topRight.r
+      value: 0.9725491
+      objectReference: {fileID: 0}
+    - target: {fileID: 1466198537, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
+      propertyPath: m_fontColorGradient.bottomLeft.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1466198537, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
+      propertyPath: m_fontColorGradient.bottomLeft.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1466198537, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
+      propertyPath: m_fontColorGradient.bottomRight.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1466198537, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
+      propertyPath: m_fontColorGradient.bottomRight.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1845119460, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
+      propertyPath: ballArgs.BallRegularHitPower
       value: 6
       objectReference: {fileID: 0}
-    - target: {fileID: 4525438849260048329, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: ScoreBonusList.Array.data[2].ComboRequired
-      value: 9
-      objectReference: {fileID: 0}
-    - target: {fileID: 4525438849260048329, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: ScoreBonusList.Array.data[3].ComboRequired
-      value: 12
+    - target: {fileID: 1845119460, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
+      propertyPath: playerStats.m_autoPlayDifficult
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4525438850974878673, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
       propertyPath: m_Name
@@ -448,10 +472,6 @@ PrefabInstance:
     - target: {fileID: 4883963109009412830, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6110467729515239402, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9204333524085245365, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
       propertyPath: m_AnchorMax.x
