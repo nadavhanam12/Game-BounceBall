@@ -74,6 +74,7 @@ public class GameManagerScript : MonoBehaviour
 
     void Awake()
     {
+        Application.targetFrameRate = 60;
 #if UNITY_ANDROID && !UNITY_EDITOR
         m_onMobileDevice = true;
 #endif
@@ -109,7 +110,7 @@ public class GameManagerScript : MonoBehaviour
             m_gameArgs = new GameArgs(GameType.TurnsGame, null);
             //print("No GameType Provided- GameType=TwoPlayer");
         }
-        Application.targetFrameRate = 60;
+
         Init();
         this.gameObject.SetActive(true);
         //m_playerData1.PlayerScript.PlayIdle();

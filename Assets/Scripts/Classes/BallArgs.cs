@@ -13,6 +13,7 @@ public class BallArgs
     public float BallSpecialHitPower = 15f;
     public float XAxisMultiplier = 0.75f;
     public float m_ballReflectPower = 1f;
+    public float m_ballTimeFadeOut = 1f;
 
 
 }

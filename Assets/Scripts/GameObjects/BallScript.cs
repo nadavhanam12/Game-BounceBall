@@ -66,6 +66,7 @@ public class BallScript : MonoBehaviour
     private int m_ballIndex = -1;
     private Color m_curColor = Color.white;
 
+    private int m_curTweenId = -1;
 
     #endregion
 
@@ -139,11 +140,15 @@ public class BallScript : MonoBehaviour
         return m_isBallInPlay;
     }
 
-    public void RemoveBallFromScene()
+    public void RemoveBallFromScene(bool fadeOut = false)
     {
-        if (m_isBallInPlay)
+        m_isBallInPlay = false;
+        if (fadeOut)
         {
-            m_isBallInPlay = false;
+            FadeOut();
+        }
+        else
+        {
             this.gameObject.SetActive(false);
         }
     }
@@ -173,6 +178,11 @@ public class BallScript : MonoBehaviour
 
     private void GenerateNewBall(Color color)
     {
+        if (m_curTweenId != -1)
+        {
+            LeanTweenExt.LeanCancel(m_spriteRenderer.gameObject, m_curTweenId);
+            m_curTweenId = -1;
+        }
         UpdateColor(color);
         m_isBallInPlay = true;
 
@@ -180,23 +190,23 @@ public class BallScript : MonoBehaviour
         ApplyHitVisuals(false, false);
 
         this.gameObject.SetActive(true);
+        enabled = true;
     }
 
     private void UpdateColor(Color color)
     {
-        if (color != m_curColor)
+        m_curColor = color;
+        m_spriteRenderer.color = m_curColor;
+        /*m_colorGradientParticles.color.gradient.colorKeys[0].color = m_curColor;
+        m_colorGradientTrail.colorKeys[0].color = m_curColor;*/
+        if (m_curBallTrail != null)
         {
-            m_curColor = color;
-            m_spriteRenderer.color = m_curColor;
-            /*m_colorGradientParticles.color.gradient.colorKeys[0].color = m_curColor;
-            m_colorGradientTrail.colorKeys[0].color = m_curColor;*/
-            if (m_curBallTrail != null)
-            {
-                var particlesMain = m_curBallTrail.main;
-                particlesMain.startColor = m_curColor;
-            }
-
+            var particlesMain = m_curBallTrail.main;
+            particlesMain.startColor = m_curColor;
         }
+
+
+
 
     }
 
@@ -319,9 +329,9 @@ public class BallScript : MonoBehaviour
         float kickPower = isSpecial ? m_args.BallSpecialHitPower : m_args.BallRegularHitPower;
         m_curVelocityY = kickPower * m_hitMultiplierY;
         //m_curVelocityX = distanceX * m_args.XAxisMultiplier * m_hitMultiplierX;
-        float multiX = (distanceX >= 0) ? 1 : -1;
-        m_curVelocityX = multiX * m_args.XAxisMultiplier * m_hitMultiplierX;
-
+        m_curVelocityX = distanceX * m_args.XAxisMultiplier * m_hitMultiplierX;
+        //print(multiX + "," + m_args.XAxisMultiplier + "," + m_hitMultiplierX + "'" + m_curVelocityX);
+        //print("distanceX: " + distanceX);
 
     }
 
@@ -340,6 +350,17 @@ public class BallScript : MonoBehaviour
             }*/
         }
 
+    }
+
+    private void FadeOut()
+    {
+        LTDescr curTween =
+        LeanTweenExt.MyLeanAlphaSpriteRenderer
+        (m_spriteRenderer, 0, m_args.m_ballTimeFadeOut)
+        .setEase(LeanTweenType.easeOutSine)
+        .setOnComplete(
+            () => this.gameObject.SetActive(false));
+        m_curTweenId = curTween.id;
     }
 
 

@@ -40,7 +40,7 @@ public class GameCanvasScript : MonoBehaviour
 
     [SerializeField] SequenceMenuUI SequenceMenuUI;
     [SerializeField] NextColorScript NextColorUI;
-    [SerializeField] ComboConterUI comboConterUI;
+    [SerializeField] ComboConterUI ComboConterUI;
     #endregion
 
     #region private
@@ -99,6 +99,7 @@ public class GameCanvasScript : MonoBehaviour
             CheerObject.Init();
             SequenceMenuUI.Init();
             NextColorUI.Init();
+            ComboConterUI.Init();
 
             EventManager.AddHandler(EVENT.EventOnTimeOver, () => m_onTimeIsOver());
             //m_anim.Play("FadeIn", -1, 0f);
@@ -155,7 +156,7 @@ public class GameCanvasScript : MonoBehaviour
     }
     public void SetCombo(int curCombo)
     {
-        comboConterUI.SetCombo(curCombo);
+        ComboConterUI.SetCombo(curCombo);
     }
 
 

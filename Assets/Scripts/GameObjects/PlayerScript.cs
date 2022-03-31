@@ -391,13 +391,16 @@ public class PlayerScript : MonoBehaviour
 
     public void ReachHitPosition()
     {
+
         if (m_currentlyInTurn)
         {
             int ballIndex = -1;
             Vector3[] ballsPositions = m_args.BallsManager.GetBallsPosition(m_args.PlayerIndex);
             bool firstBallInHitZone = BallInHitZone(ballsPositions[0]);
             bool secondBallInHitZone = BallInHitZone(ballsPositions[1]);
-            if (firstBallInHitZone && secondBallInHitZone)
+            bool firstBallInPlay = m_args.BallsManager.IsBallInScene(m_args.PlayerIndex, 0);
+            bool secondBallInPlay = m_args.BallsManager.IsBallInScene(m_args.PlayerIndex, 1);
+            if (firstBallInHitZone && secondBallInHitZone && firstBallInPlay && secondBallInPlay)
             {
                 float firstBallDistanceX = ballsPositions[0].x - m_hitZone.transform.position.x;
                 float secondBallDistanceX = ballsPositions[1].x - m_hitZone.transform.position.x;
@@ -406,14 +409,14 @@ public class PlayerScript : MonoBehaviour
                 m_args.BallsManager.OnHitPlay(m_args.PlayerIndex, ballIndex, m_curKickType, distanceX);
 
             }
-            else if (firstBallInHitZone)
+            else if (firstBallInHitZone && firstBallInPlay)
             {
                 ballIndex = 0;
                 float distanceX = ballsPositions[ballIndex].x - m_hitZone.transform.position.x;
                 m_args.BallsManager.OnHitPlay(m_args.PlayerIndex, ballIndex, m_curKickType, distanceX);
 
             }
-            else if (secondBallInHitZone)
+            else if (secondBallInHitZone && secondBallInPlay)
             {
                 ballIndex = 1;
                 float distanceX = ballsPositions[ballIndex].x - m_hitZone.transform.position.x;

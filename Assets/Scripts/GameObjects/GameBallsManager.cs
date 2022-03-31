@@ -104,7 +104,7 @@ public class GameBallsManager : MonoBehaviour
 
 
     }
-    void WrongBallHit(PlayerIndex playerIndex)
+    void WrongBallHit(PlayerIndex playerIndex, int ballIndex)
     {
         //print("playerIndex: " + playerIndex);
 
@@ -113,35 +113,8 @@ public class GameBallsManager : MonoBehaviour
         {
             balls = m_args.Player1Balls;
         }
-        BallScript ball = balls[0];
-        BallScript otherBall = balls[1];
-
-        /*while (ball.GetColor().a > 40)
-        {
-
-            yield return new WaitForSeconds(m_args.playerStats.AutoPlayerKickColldown);
-        }*/
-        SpriteRenderer ballSprite = ball.GetSprite();
-        SpriteRenderer otherBallSprite = otherBall.GetSprite();
-        LeanTweenExt.MyLeanAlphaSpriteRenderer(ballSprite, 10, 2f)
-        .setEase(LeanTweenType.easeOutSine);
-        LeanTweenExt.MyLeanAlphaSpriteRenderer(otherBallSprite, 10, 2f)
-        .setEase(LeanTweenType.easeOutSine)
-        .setOnComplete(() => EndPlayerTurn(playerIndex));
-
-
-
-
-    }
-
-
-    void EndPlayerTurn(PlayerIndex playerIndex)
-    {
-        //need to pass argument here from the tween up, look for the ball to disappear
-        ball.RemoveBallFromScene();
-        otherBall.RemoveBallFromScene();
-        GameManagerOnTurnLost(playerIndex);
-        UpdateNextBallColor(Color.white);
+        BallScript ball = balls[ballIndex];
+        ball.RemoveBallFromScene(true);
     }
 
     //Generate another ball with different color and direction
@@ -157,7 +130,7 @@ public class GameBallsManager : MonoBehaviour
 
         if (m_curRequiredColor != ball.GetColor())
         {//not correct color
-            WrongBallHit(playerIndex);
+            WrongBallHit(playerIndex, ballIndex);
             return;
         }
 
@@ -176,6 +149,16 @@ public class GameBallsManager : MonoBehaviour
         }
         ActivateBallHitVisual(color1, ball.GetPosition());
         otherBall.GenerateNewBallInScene(color2, ball.GetPosition(), ball.GetVelocityY(), ball.GetVelocityX());
+
+        //ignore from distanceX
+        if (distanceX >= 0)
+        {
+            distanceX = 1;
+        }
+        else
+        {
+            distanceX = -1;
+        }
         ball.OnHitPlay(kickType, distanceX, color1, true);
         otherBall.OnHitPlay(kickType, (-1) * distanceX, color2, false);
     }
@@ -258,6 +241,16 @@ public class GameBallsManager : MonoBehaviour
         ballsPositions[0] = balls[0].gameObject.transform.position;
         ballsPositions[1] = balls[1].gameObject.transform.position;
         return ballsPositions;
+    }
+
+    public bool IsBallInScene(PlayerIndex playerIndex, int ballIndex)
+    {
+        List<BallScript> balls = m_args.Player2Balls;
+        if (playerIndex == PlayerIndex.First)
+        {
+            balls = m_args.Player1Balls;
+        }
+        return balls[ballIndex].IsInScene();
     }
 
 
