@@ -30,17 +30,17 @@ public class GameCanvasScript : MonoBehaviour
 
     #endregion
 
-    #region serialized
+    #region Refs
 
-    [SerializeField] ScoreDeltaUIClass ScoreUIDelta;
-    [SerializeField] ScoreUIClass ScoreUIPlayer1;
-    [SerializeField] ScoreUIClass ScoreUIPlayer2;
-    [SerializeField] CheerScript CheerObject;
+    private ScoreDeltaUIClass ScoreUIDelta;
+    private CheerScript CheerObject;
     [SerializeField] RawImage Background;
 
-    [SerializeField] SequenceMenuUI SequenceMenuUI;
-    [SerializeField] NextColorScript NextColorUI;
-    [SerializeField] ComboConterUI ComboConterUI;
+    //[SerializeField] SequenceMenuUI SequenceMenuUI;
+    private NextColorScript NextColorUI;
+    private ComboConterUI ComboConterUI;
+    private TurnsUI TurnsUI;
+    private TutorialUI TutorialUI;
     #endregion
 
     #region private
@@ -59,8 +59,6 @@ public class GameCanvasScript : MonoBehaviour
     public void SetGamePause(bool isPause)
     {
         isGamePaused = isPause;
-        ScoreUIPlayer1.SetGamePause(isGamePaused);
-        ScoreUIPlayer2.SetGamePause(isGamePaused);
         ScoreUIDelta.SetGamePause(isGamePaused);
 
     }
@@ -78,13 +76,11 @@ public class GameCanvasScript : MonoBehaviour
     {
         if (!m_initialized)
         {
+            InitRefs();
             m_initialized = true;
             this.GetComponent<Canvas>().worldCamera = Camera.main;
             m_anim = GetComponent<Animator>();
             m_timeToPlay = args.MatchTime;
-
-            ScoreUIPlayer1.Init();
-            ScoreUIPlayer2.Init();
 
             //need to set also the delta
             ScoreUIDelta.SetColors(args.PlayerColor1, args.PlayerColor2);
@@ -97,9 +93,10 @@ public class GameCanvasScript : MonoBehaviour
 
 
             CheerObject.Init();
-            SequenceMenuUI.Init();
+            //SequenceMenuUI.Init();
             NextColorUI.Init();
             ComboConterUI.Init();
+            TurnsUI.Init();
 
             EventManager.AddHandler(EVENT.EventOnTimeOver, () => m_onTimeIsOver());
             //m_anim.Play("FadeIn", -1, 0f);
@@ -108,6 +105,16 @@ public class GameCanvasScript : MonoBehaviour
         }
 
 
+    }
+
+    void InitRefs()
+    {
+        ScoreUIDelta = GetComponentInChildren<ScoreDeltaUIClass>(true);
+        CheerObject = GetComponentInChildren<CheerScript>(true);
+        NextColorUI = GetComponentInChildren<NextColorScript>(true);
+        ComboConterUI = GetComponentInChildren<ComboConterUI>(true);
+        TurnsUI = GetComponentInChildren<TurnsUI>(true);
+        TutorialUI = GetComponentInChildren<TutorialUI>(true);
     }
 
     public void CheerActivate()
@@ -133,14 +140,15 @@ public class GameCanvasScript : MonoBehaviour
         }
     }
 
-    public void UpdateSequenceUI(List<Sequence> newSequenceList)
-    {
-        if (!SequenceMenuUI.isInitialized())
+    /*
+        public void UpdateSequenceUI(List<Sequence> newSequenceList)
         {
-            SequenceMenuUI.Init();
-        }
-        SequenceMenuUI.UpdateSequenceUI(newSequenceList);
-    }
+            if (!SequenceMenuUI.isInitialized())
+            {
+                SequenceMenuUI.Init();
+            }
+            SequenceMenuUI.UpdateSequenceUI(newSequenceList);
+        }*/
 
     public void StartCountdown()
     {
@@ -157,6 +165,10 @@ public class GameCanvasScript : MonoBehaviour
     public void SetCombo(int curCombo)
     {
         ComboConterUI.SetCombo(curCombo);
+    }
+    public void SwitchTurn(bool isPlayerTurn)
+    {
+        TurnsUI.Activate(isPlayerTurn);
     }
 
 

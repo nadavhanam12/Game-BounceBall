@@ -32,11 +32,9 @@ public class GameManagerScript : MonoBehaviour
     private ComboDataContainer m_comboDataContainer;
 
     private PlayersDataContainer m_playersDataContainer;
-    private SequenceManager m_sequenceManager;
+    //private SequenceManager m_sequenceManager;
     private GameBallsManager m_ballsManager;
-
-
-
+    private TutorialManager m_tutorialManager;
 
 
     #endregion
@@ -44,6 +42,7 @@ public class GameManagerScript : MonoBehaviour
     #region serialized
     [SerializeField] private int m_matchTime;
     [SerializeField] private float m_countDownDelay = 1f;
+    [SerializeField] private bool m_shouldPlayTutorial = false;
 
     #endregion
 
@@ -116,6 +115,25 @@ public class GameManagerScript : MonoBehaviour
         //m_playerData1.PlayerScript.PlayIdle();
         //m_playerData2.PlayerScript.PlayIdle();
 
+        if (m_shouldPlayTutorial)
+        {
+            StartTutorial();
+
+        }
+        else
+        {
+            FinishedTutorial();
+        }
+    }
+    void StartTutorial()
+    {
+
+
+        m_tutorialManager.Play();
+    }
+
+    void FinishedTutorial()
+    {
         if (m_onMobileDevice)
         {
             Invoke("StartCountdown", m_countDownDelay);
@@ -124,8 +142,6 @@ public class GameManagerScript : MonoBehaviour
         {
             Invoke("FinishGameCountdown", m_countDownDelay);
         }
-
-
     }
 
     void InitListeners()
@@ -161,6 +177,7 @@ public class GameManagerScript : MonoBehaviour
         InitListeners();
 
         InitGameCanvas();
+        InitTutorialManager();
         //InitSequenceManager();
 
         SetGamePause(true);
@@ -173,13 +190,20 @@ public class GameManagerScript : MonoBehaviour
 
     }
 
+    void InitTutorialManager()
+    {
+
+        m_tutorialManager.Init();
+    }
+
     void InitRefs()
     {
         m_gameCanvas = GetComponentInChildren<GameCanvasScript>();
         m_ballsManager = GetComponentInChildren<GameBallsManager>();
         m_comboDataContainer = GetComponentInChildren<ComboDataContainer>();
         m_playersDataContainer = GetComponentInChildren<PlayersDataContainer>();
-        m_sequenceManager = GetComponentInChildren<SequenceManager>();
+        //m_sequenceManager = GetComponentInChildren<SequenceManager>();
+        m_tutorialManager = GetComponentInChildren<TutorialManager>();
 
 
     }
@@ -247,10 +271,11 @@ public class GameManagerScript : MonoBehaviour
 
 
     }
+    /*
     private void InitSequenceManager()
     {
         m_sequenceManager.Init(m_gameCanvas);
-    }
+    }*/
     void InitGameMood()
     {
         if (m_gameArgs.GameType == GameType.TurnsGame)
@@ -267,6 +292,14 @@ public class GameManagerScript : MonoBehaviour
 
     public void SwitchPlayerTurn()
     {
+        m_gameCanvas.SwitchTurn(m_curPlayerPlay != PlayerIndex.First);
+        Invoke("SwitchPlayerTurnAfterWait", 2f);
+
+
+    }
+
+    void SwitchPlayerTurnAfterWait()
+    {
         if (m_curPlayerPlay == PlayerIndex.First)
         {
             m_curPlayerPlay = PlayerIndex.Second;
@@ -279,9 +312,8 @@ public class GameManagerScript : MonoBehaviour
             m_playerData2.PlayerScript.LostTurn();
             m_playerData1.PlayerScript.StartTurn();
         }
-
-
     }
+
 
     private void SetGamePause(bool isPause)
     {

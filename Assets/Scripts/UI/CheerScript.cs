@@ -6,7 +6,7 @@ using UnityEngine.Video;
 public class CheerScript : MonoBehaviour
 {
 
-    private TMP_Text m_text;
+    [SerializeField] private TMP_Text m_cheerText;
     private bool m_isRunning = false;
 
     private Vector3 m_initTextPosition;
@@ -25,21 +25,20 @@ public class CheerScript : MonoBehaviour
 
     private void InitCheerTextOptions()
     {
-        CheerOptions.Add("Nice !");
-        CheerOptions.Add("Good Job !");
-        CheerOptions.Add("Champion !");
-        CheerOptions.Add("Combo !");
-        CheerOptions.Add("incredible !");
-        CheerOptions.Add("wonderful !");
-        CheerOptions.Add("awesome !");
+        CheerOptions.Add("Nice!");
+        CheerOptions.Add("Good Job!");
+        CheerOptions.Add("Champion!");
+        CheerOptions.Add("Combo!");
+        CheerOptions.Add("incredible!");
+        CheerOptions.Add("wonderful!");
+        CheerOptions.Add("awesome!");
 
 
     }
 
     public void Init()
     {
-        m_text = GetComponentInChildren<TMP_Text>(true);
-        m_initTextPosition = m_text.gameObject.transform.localPosition;
+        m_initTextPosition = m_cheerText.gameObject.transform.localPosition;
         m_initCrowdPosition = CrowdTexture.gameObject.transform.localPosition;
         m_MoveTextX = (m_initTextPosition.x * 2);
         InitCheerTextOptions();
@@ -63,7 +62,7 @@ public class CheerScript : MonoBehaviour
         {
             m_isRunning = true;
 
-            m_text.text = GetRandomCheerText();
+            m_cheerText.text = GetRandomCheerText();
 
             this.gameObject.SetActive(true);
             //.setEase(LeanTweenType.easeOutQuad)
@@ -77,7 +76,7 @@ public class CheerScript : MonoBehaviour
             ;
 
             LeanTween.moveLocalX
-            (m_text.gameObject, -m_initTextPosition.x, m_playTime)
+            (m_cheerText.gameObject, -m_initTextPosition.x, m_playTime)
             .setEase(animCurve)
             .setOnComplete(
                 () => Deactivate());
@@ -92,9 +91,8 @@ public class CheerScript : MonoBehaviour
 
     private void InitValues()
     {
-        m_text.gameObject.transform.localPosition = m_initTextPosition;
+        m_cheerText.gameObject.transform.localPosition = m_initTextPosition;
         CrowdTexture.gameObject.transform.localPosition = m_initCrowdPosition;
-
     }
 
     public bool IsRunning()

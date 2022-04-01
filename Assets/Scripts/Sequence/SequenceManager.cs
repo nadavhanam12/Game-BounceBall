@@ -8,6 +8,7 @@ using static Sequence;
 [Serializable]
 public class SequenceManager : MonoBehaviour
 {
+    /*
     private GameCanvasScript m_gameCanvas;
     [SerializeField] int m_parallelSequences;
 
@@ -195,4 +196,5 @@ public class SequenceManager : MonoBehaviour
         }
         m_gameCanvas.UpdateSequenceUI(m_curSequences);
     }
+    */
 }

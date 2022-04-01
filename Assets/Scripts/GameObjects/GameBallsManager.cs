@@ -22,7 +22,8 @@ public class GameBallsManager : MonoBehaviour
     [SerializeField] BallHitVisual m_ballHitVisualPrefab;
     [SerializeField] List<Color> ballColors;
 
-
+    [Range(0, 1)]
+    [SerializeField] private float m_opponentBallAlpha = 0.5f;
 
 
     #endregion
@@ -35,7 +36,6 @@ public class GameBallsManager : MonoBehaviour
     private Queue<BallHitVisual> m_hitVisualsQueue = new Queue<BallHitVisual>();
     private Color m_curRequiredColor;
     private GameCanvasScript m_gameCanvas;
-
 
 
     #endregion
@@ -141,6 +141,11 @@ public class GameBallsManager : MonoBehaviour
 
         Color color1 = GenerateRandomColor(Color.black);
         Color color2 = GenerateRandomColor(color1);
+        if (playerIndex == PlayerIndex.Second)
+        {
+            color1.a = m_opponentBallAlpha;
+            color2.a = m_opponentBallAlpha;
+        }
         UpdateNextBallColor(color1);
 
         if (FlipDistance())
@@ -221,6 +226,10 @@ public class GameBallsManager : MonoBehaviour
         BallScript ball = balls[0];
         //Color color = GenerateRandomColor(Color.black);
         Color color = Color.white;
+        if (playerIndex == PlayerIndex.Second)
+        {
+            color.a = m_opponentBallAlpha;
+        }
         ball.OnNewBallInScene(color);
         UpdateNextBallColor(color);
 

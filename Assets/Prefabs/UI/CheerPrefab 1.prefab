@@ -915,6 +915,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9586a19b9a1580b4abd79dc635c0e862, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_cheerText: {fileID: 5707031004741006207}
+  m_yourTurnText: {fileID: 0}
+  m_lostTurnText: {fileID: 0}
   m_playTime: 4
   animCurve:
     serializedVersion: 2

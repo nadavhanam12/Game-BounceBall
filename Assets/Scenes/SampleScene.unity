@@ -275,6 +275,23 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 780977244}
   m_Enabled: 1
+--- !u!1 &1039992565 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6667791918804438132, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
+  m_PrefabInstance: {fileID: 1845119458}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1039992567
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1039992565}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e8f0113683340e46a1791f867f8b694, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1685502585
 GameObject:
   m_ObjectHideFlags: 0
@@ -357,6 +374,26 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1845119460, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
+      propertyPath: ballArgs.m_startVelocityY
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1845119460, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
+      propertyPath: playerStats.m_hitZoneRadius
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1845119460, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
+      propertyPath: playerStats.m_autoPlayDifficult
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 4525438849260048329, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
+      propertyPath: RegularHitScore
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 4525438850644537379, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
+      propertyPath: m_shouldPlayTutorial
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4525438850974878673, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
       propertyPath: m_Name
       value: GameScene
@@ -413,21 +450,9 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5331467120359085935, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1.25
-      objectReference: {fileID: 0}
-    - target: {fileID: 5331467120359085935, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1.25
-      objectReference: {fileID: 0}
-    - target: {fileID: 8615572630395126104, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: m_LocalScale.x
-      value: -1.25
-      objectReference: {fileID: 0}
-    - target: {fileID: 8615572630395126104, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1.25
+    - target: {fileID: 6263577512216549388, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9204333524085245365, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
       propertyPath: m_AnchorMax.x

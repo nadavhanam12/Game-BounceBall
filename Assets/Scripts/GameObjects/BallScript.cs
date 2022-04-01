@@ -21,9 +21,9 @@ public class BallScript : MonoBehaviour
 
     const float m_speedEmitTrail = 0;
     const int ParticlesToEmit = 500;
-    const float m_startVelocityY = 0.2f;
+    //const float m_startVelocityY = 0.2f;
     //const float m_startVelocityX = -0.2f;
-    const float m_startVelocityX = 0f;
+    //const float m_startVelocityX = 0f;
     const float m_maxVelocityY = 100;
     const float m_velocityMultiplier = 0.001f;
     const float m_hitMultiplierY = 0.1f;
@@ -160,8 +160,8 @@ public class BallScript : MonoBehaviour
     {
 
         this.gameObject.transform.localPosition = m_initialPosition;
-        m_curVelocityY = m_startVelocityY;
-        m_curVelocityX = m_startVelocityX;
+        m_curVelocityY = m_args.m_startVelocityY;
+        m_curVelocityX = m_args.m_startVelocityX;
         GenerateNewBall(color);
 
     }

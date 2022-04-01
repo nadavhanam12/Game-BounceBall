@@ -14,6 +14,9 @@ public class BallArgs
     public float XAxisMultiplier = 0.75f;
     public float m_ballReflectPower = 1f;
     public float m_ballTimeFadeOut = 1f;
+    public float m_startVelocityY = 0.2f;
+    public float m_startVelocityX = 0.0f;
+
 
 
 }
