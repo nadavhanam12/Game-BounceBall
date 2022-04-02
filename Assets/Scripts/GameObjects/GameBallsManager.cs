@@ -37,8 +37,17 @@ public class GameBallsManager : MonoBehaviour
     private Color m_curRequiredColor;
     private GameCanvasScript m_gameCanvas;
 
+    private bool isGamePaused = false;
+
 
     #endregion
+
+
+    public void SetGamePause(bool isPause)
+    {
+        need to pause the balls also
+        isGamePaused = isPause;
+    }
 
     public void Init(GameBallsManagerArgs args)
     {

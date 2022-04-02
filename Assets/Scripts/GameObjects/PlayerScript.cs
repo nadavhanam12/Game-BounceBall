@@ -304,12 +304,8 @@ public class PlayerScript : MonoBehaviour
     {
         if (m_currentlyInTurn)
         {
-            int rnd = Random.Range(0, 100);
-            if (rnd <= m_args.playerStats.m_autoPlayDifficult)
-            {
-                AutoPlayKick();
-                AutoPlayMovement();
-            }
+            AutoPlayKick();
+            AutoPlayMovement();
         }
         else
         {
@@ -325,12 +321,16 @@ public class PlayerScript : MonoBehaviour
     {
         if (!m_inKickColldown)
         {
-            Vector3[] ballsPositions = m_args.BallsManager.GetBallsPosition(m_args.PlayerIndex);
-            //print("AUTOPLAYER PLAY");
-            if (BallInHitZone(ballsPositions[0]) || BallInHitZone(ballsPositions[1]))
+            int rnd = Random.Range(0, 100);
+            if (rnd <= m_args.playerStats.m_autoPlayDifficult)
             {
-                OnKickPlay(KickType.Regular);
-                StartCoroutine(AutoPlayKickCooldown());
+                Vector3[] ballsPositions = m_args.BallsManager.GetBallsPosition(m_args.PlayerIndex);
+                //print("AUTOPLAYER PLAY");
+                if (BallInHitZone(ballsPositions[0]) || BallInHitZone(ballsPositions[1]))
+                {
+                    OnKickPlay(KickType.Regular);
+                    StartCoroutine(AutoPlayKickCooldown());
+                }
             }
         }
 

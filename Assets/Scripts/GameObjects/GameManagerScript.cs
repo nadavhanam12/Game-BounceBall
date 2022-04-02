@@ -57,6 +57,7 @@ public class GameManagerScript : MonoBehaviour
     private GameArgs m_gameArgs;
     private PlayerIndex m_curPlayerPlay = PlayerIndex.First;
     private bool m_onMobileDevice = false;
+    private bool m_inTutorial = false;
 
 
 
@@ -127,8 +128,10 @@ public class GameManagerScript : MonoBehaviour
     }
     void StartTutorial()
     {
-
-
+        InitTutorial();
+        InitGameMood();
+        SetGamePause(false);
+        m_inTutorial = true;
         m_tutorialManager.Play();
     }
 
@@ -142,6 +145,16 @@ public class GameManagerScript : MonoBehaviour
         {
             Invoke("FinishGameCountdown", m_countDownDelay);
         }
+    }
+
+    void InitTutorial()
+    {
+        TutorialArgs tutorialArgs = new TutorialArgs();
+        tutorialArgs.TutorialUI = m_gameCanvas.GetTutorialUI();
+        m_tutorialManager.Init(tutorialArgs);
+        m_tutorialManager.OnFinishTutorial = FinishedTutorial;
+        m_tutorialManager.Pause = SetGamePause;
+
     }
 
     void InitListeners()
@@ -177,7 +190,7 @@ public class GameManagerScript : MonoBehaviour
         InitListeners();
 
         InitGameCanvas();
-        InitTutorialManager();
+
         //InitSequenceManager();
 
         SetGamePause(true);
@@ -188,12 +201,6 @@ public class GameManagerScript : MonoBehaviour
 
 
 
-    }
-
-    void InitTutorialManager()
-    {
-
-        m_tutorialManager.Init();
     }
 
     void InitRefs()
@@ -292,10 +299,11 @@ public class GameManagerScript : MonoBehaviour
 
     public void SwitchPlayerTurn()
     {
-        m_gameCanvas.SwitchTurn(m_curPlayerPlay != PlayerIndex.First);
+        if (!m_inTutorial)
+        {
+            m_gameCanvas.SwitchTurn(m_curPlayerPlay != PlayerIndex.First);
+        }
         Invoke("SwitchPlayerTurnAfterWait", 2f);
-
-
     }
 
     void SwitchPlayerTurnAfterWait()
@@ -320,6 +328,7 @@ public class GameManagerScript : MonoBehaviour
         m_isGamePause = isPause;
         m_playerData1.PlayerScript.SetGamePause(isPause);
         m_playerData2.PlayerScript.SetGamePause(isPause);
+        m_ballsManager.SetGamePause(isPause);
         m_gameCanvas.SetGamePause(isPause);
         if (!m_isGamePause)
         {
@@ -372,31 +381,46 @@ public class GameManagerScript : MonoBehaviour
 
 
 
-    public void onTurnLost(PlayerIndex ballIndex)
+    public void onTurnLost(PlayerIndex playerIndex)
     {
-        PlayerArgs playerData;
-        if (ballIndex == PlayerIndex.First)
+        if (m_inTutorial)
         {
-            playerData = m_playerData1;
-            EventManager.Broadcast(EVENT.EventOnBallLost);
+            if (!m_tutorialManager.IsEnemyTurn())
+            {
+                m_ballsManager.OnNewBallInScene(PlayerIndex.First);
+            }
+            else
+            {
+                SwitchPlayerTurn();
+            }
+
         }
         else
         {
-            playerData = m_playerData2;
-        }
+            PlayerArgs playerData;
+            if (playerIndex == PlayerIndex.First)
+            {
+                playerData = m_playerData1;
+                EventManager.Broadcast(EVENT.EventOnBallLost);
+            }
+            else
+            {
+                playerData = m_playerData2;
+            }
 
-        playerData.CurComboIndex = -1;
-        playerData.CurCombo = 0;
-        m_gameCanvas.SetCombo(playerData.CurCombo);
+            playerData.CurComboIndex = -1;
+            playerData.CurCombo = 0;
+            m_gameCanvas.SetCombo(playerData.CurCombo);
 
-        if (m_gameArgs.GameType == GameType.TurnsGame)
-        {
-            SwitchPlayerTurn();
-        }
-        else
-        {
-            //playerData.Ball1.OnNewBallInScene();
-            m_ballsManager.OnNewBallInScene(PlayerIndex.First);
+            if (m_gameArgs.GameType == GameType.TurnsGame)
+            {
+                SwitchPlayerTurn();
+            }
+            else
+            {
+                //playerData.Ball1.OnNewBallInScene();
+                m_ballsManager.OnNewBallInScene(PlayerIndex.First);
+            }
         }
 
     }
@@ -405,6 +429,12 @@ public class GameManagerScript : MonoBehaviour
     public void onBallHit(PlayerIndex playerIndex)
     {
         //print("onBallHit");
+        if (m_inTutorial)
+        {
+            m_tutorialManager.OnBallHit();
+            return;
+        }
+
         KickType kickType = KickType.Regular;
         if (playerIndex == PlayerIndex.First)
         {

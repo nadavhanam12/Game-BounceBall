@@ -170,6 +170,10 @@ public class GameCanvasScript : MonoBehaviour
     {
         TurnsUI.Activate(isPlayerTurn);
     }
+    public TutorialUI GetTutorialUI()
+    {
+        return TutorialUI;
+    }
 
 
 }
