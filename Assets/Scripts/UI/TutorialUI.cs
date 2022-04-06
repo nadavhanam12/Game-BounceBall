@@ -8,12 +8,14 @@ public class TutorialUI : MonoBehaviour
 {
     public delegate void onTouchScreen();
     public onTouchScreen OnTouchScreen;
+    private GameCanvasScript m_gameCanvas;
 
     private List<Image> Panels;
-    private int indexPanel = 0;
-    public void InitAndPlay()
+    public void InitAndPlay(GameCanvasScript gameCanvas)
     {
-        indexPanel = 0;
+        m_gameCanvas = gameCanvas;
+        m_gameCanvas.ShowScoreDelta(false);
+        m_gameCanvas.ShowComboAndNextBall(false);
         InitPanels();
         gameObject.SetActive(true);
     }
@@ -28,14 +30,15 @@ public class TutorialUI : MonoBehaviour
         }
     }
 
-    public void NextPanel()
+    public void OpenPanel(int panelToOpen)
     {
-        Panels[indexPanel].gameObject.SetActive(false);
-        if (Panels.Count - 1 > indexPanel)
+        for (int i = 1; i < Panels.Count; i++)
         {
-            indexPanel++;
-            Panels[indexPanel].gameObject.SetActive(true);
+            Panels[i].gameObject.SetActive(false);
         }
+        Panels[panelToOpen].gameObject.SetActive(true);
+
+
 
     }
 
@@ -47,13 +50,18 @@ public class TutorialUI : MonoBehaviour
     {
         OnTouchScreen();
     }
-    public int GetCurIndex()
+
+    public void HidePanel(int panelToHide)
     {
-        return indexPanel;
+        Panels[panelToHide].gameObject.SetActive(false);
     }
-    public void HideCurPanel()
+    public void ShowScoreDelta(bool shouldShow)
     {
-        Panels[indexPanel].gameObject.SetActive(false);
+        m_gameCanvas.ShowScoreDelta(shouldShow);
+    }
+    public void ShowComboAndNextBall(bool shouldShow)
+    {
+        m_gameCanvas.ShowComboAndNextBall(shouldShow);
     }
 
 }

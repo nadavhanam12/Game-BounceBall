@@ -320,7 +320,7 @@ public class BallScript : MonoBehaviour
     public void SetGamePause(bool isPause)
     {
         isGamePaused = isPause;
-        this.gameObject.SetActive(!isGamePaused);
+        //this.gameObject.SetActive(!isGamePaused);
 
     }
 

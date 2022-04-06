@@ -7,6 +7,8 @@ public class TutorialArgs
 {
     public TutorialUI TutorialUI;
 
+    public GameCanvasScript GameCanvas;
+
 
 
 }

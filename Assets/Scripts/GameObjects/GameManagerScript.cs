@@ -112,7 +112,9 @@ public class GameManagerScript : MonoBehaviour
         }
 
         Init();
+        m_gameBoundsData.gameObject.SetActive(false);
         this.gameObject.SetActive(true);
+
         //m_playerData1.PlayerScript.PlayIdle();
         //m_playerData2.PlayerScript.PlayIdle();
 
@@ -123,7 +125,7 @@ public class GameManagerScript : MonoBehaviour
         }
         else
         {
-            FinishedTutorial();
+            AfterTutorial();
         }
     }
     void StartTutorial()
@@ -134,8 +136,18 @@ public class GameManagerScript : MonoBehaviour
         m_inTutorial = true;
         m_tutorialManager.Play();
     }
-
     void FinishedTutorial()
+    {
+        //should init after tutorial
+        m_inTutorial = false;
+        m_ballsManager.DestroyBalls(PlayerIndex.Second);
+        /*m_ballsManager.OnBallLost(PlayerIndex.Second, 0);
+        m_ballsManager.OnBallLost(PlayerIndex.Second, 1);*/
+
+        AfterTutorial();
+    }
+
+    void AfterTutorial()
     {
         if (m_onMobileDevice)
         {
@@ -150,10 +162,12 @@ public class GameManagerScript : MonoBehaviour
     void InitTutorial()
     {
         TutorialArgs tutorialArgs = new TutorialArgs();
+        tutorialArgs.GameCanvas = m_gameCanvas;
         tutorialArgs.TutorialUI = m_gameCanvas.GetTutorialUI();
         m_tutorialManager.Init(tutorialArgs);
         m_tutorialManager.OnFinishTutorial = FinishedTutorial;
         m_tutorialManager.Pause = SetGamePause;
+        m_tutorialManager.OnFinishTutorial = FinishedTutorial;
 
     }
 
@@ -173,7 +187,7 @@ public class GameManagerScript : MonoBehaviour
     public void FinishGameCountdown()
     {
         EventManager.Broadcast(EVENT.EventStartGameScene);
-        m_gameBoundsData.gameObject.SetActive(false);
+
         InitGameMood();
         SetGamePause(false);
         StartCoroutine(UpdateScores());
@@ -221,14 +235,14 @@ public class GameManagerScript : MonoBehaviour
         GameBallsManagerArgs ballsManagerArgs = new GameBallsManagerArgs();
         ballsManagerArgs.BallArgs = m_playersDataContainer.ballArgs;
 
-        ballsManagerArgs.Player1Balls = m_playerContainer1.GetComponentsInChildren<BallScript>().ToList();
+        ballsManagerArgs.Player1Balls = m_playerContainer1.GetComponentsInChildren<BallScript>(true).ToList();
         if (ballsManagerArgs.Player1Balls.Count < 2)
         {
             BallScript curBall = ballsManagerArgs.Player1Balls[0];
             BallScript otherBall = Instantiate(curBall, curBall.transform.parent);
             ballsManagerArgs.Player1Balls.Add(otherBall);
         }
-        ballsManagerArgs.Player2Balls = m_playerContainer2.GetComponentsInChildren<BallScript>().ToList();
+        ballsManagerArgs.Player2Balls = m_playerContainer2.GetComponentsInChildren<BallScript>(true).ToList();
         if (ballsManagerArgs.Player2Balls.Count < 2)
         {
             BallScript curBall = ballsManagerArgs.Player2Balls[0];
@@ -287,6 +301,7 @@ public class GameManagerScript : MonoBehaviour
     {
         if (m_gameArgs.GameType == GameType.TurnsGame)
         {
+            m_curPlayerPlay = PlayerIndex.First;
             m_playerData1.PlayerScript.StartTurn();
             m_playerData2.PlayerScript.LostTurn();
         }
@@ -385,13 +400,14 @@ public class GameManagerScript : MonoBehaviour
     {
         if (m_inTutorial)
         {
+            m_tutorialManager.OnBallLost();
             if (!m_tutorialManager.IsEnemyTurn())
             {
                 m_ballsManager.OnNewBallInScene(PlayerIndex.First);
             }
             else
             {
-                SwitchPlayerTurn();
+                m_ballsManager.OnNewBallInScene(PlayerIndex.Second);
             }
 
         }

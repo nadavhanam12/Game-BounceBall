@@ -24,4 +24,15 @@ public class NextColorScript : MonoBehaviour
     {
         m_ballImage.color = color;
     }
+
+    public void Glow(bool glow)
+    {
+        if (glow)
+        {
+            LeanTween.scale(m_ballImage.gameObject, Vector3.one * 2f, 1f)
+                    .setLoopPingPong()
+                    .setEase(LeanTweenType.easeInOutBack);
+        }
+
+    }
 }

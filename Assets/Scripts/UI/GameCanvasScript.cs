@@ -174,6 +174,14 @@ public class GameCanvasScript : MonoBehaviour
     {
         return TutorialUI;
     }
+    public void ShowScoreDelta(bool shouldShow)
+    {
+        ScoreUIDelta.gameObject.SetActive(shouldShow);
+    }
+    public void ShowComboAndNextBall(bool shouldShow)
+    {
+        transform.Find("Combo&BallColor").gameObject.SetActive(shouldShow);
+    }
 
 
 }

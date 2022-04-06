@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static GameManagerScript;
 using static PlayerScript;
@@ -45,8 +46,12 @@ public class GameBallsManager : MonoBehaviour
 
     public void SetGamePause(bool isPause)
     {
-        need to pause the balls also
         isGamePaused = isPause;
+        foreach (BallScript ball in m_args.Player1Balls.Union(m_args.Player2Balls))
+        {
+            ball.SetGamePause(isGamePaused);
+        }
+
     }
 
     public void Init(GameBallsManagerArgs args)
@@ -112,6 +117,17 @@ public class GameBallsManager : MonoBehaviour
         }
 
 
+    }
+
+    public void DestroyBalls(PlayerIndex playerIndex)
+    {
+        List<BallScript> balls = m_args.Player2Balls;
+        if (playerIndex == PlayerIndex.First)
+        {
+            balls = m_args.Player1Balls;
+        }
+        balls[0].RemoveBallFromScene(true);
+        balls[1].RemoveBallFromScene(true);
     }
     void WrongBallHit(PlayerIndex playerIndex, int ballIndex)
     {
@@ -241,6 +257,10 @@ public class GameBallsManager : MonoBehaviour
         }
         ball.OnNewBallInScene(color);
         UpdateNextBallColor(color);
+        if (isGamePaused)
+        {
+            SetGamePause(isGamePaused);
+        }
 
 
     }
