@@ -119,15 +119,12 @@ public class GameBallsManager : MonoBehaviour
 
     }
 
-    public void DestroyBalls(PlayerIndex playerIndex)
+    public void DestroyAllBalls()
     {
-        List<BallScript> balls = m_args.Player2Balls;
-        if (playerIndex == PlayerIndex.First)
+        foreach (BallScript ball in m_args.Player1Balls.Union(m_args.Player2Balls))
         {
-            balls = m_args.Player1Balls;
+            ball.RemoveBallFromScene();
         }
-        balls[0].RemoveBallFromScene(true);
-        balls[1].RemoveBallFromScene(true);
     }
     void WrongBallHit(PlayerIndex playerIndex, int ballIndex)
     {
@@ -228,15 +225,7 @@ public class GameBallsManager : MonoBehaviour
     //should turn off the balls
     public void TimeIsOver()
     {
-        foreach (BallScript ball in m_args.Player1Balls)
-        {
-            ball.RemoveBallFromScene();
-
-        }
-        foreach (BallScript ball in m_args.Player2Balls)
-        {
-            ball.RemoveBallFromScene();
-        }
+        DestroyAllBalls();
     }
 
 

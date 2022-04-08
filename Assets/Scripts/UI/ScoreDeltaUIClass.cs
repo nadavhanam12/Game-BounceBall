@@ -68,7 +68,7 @@ public class ScoreDeltaUIClass : MonoBehaviour
 
     void Update()
     {
-        if (!isGamePaused)
+        if ((!isGamePaused) && m_initialized)
         {
             if (timeRemaining > 0)
             {

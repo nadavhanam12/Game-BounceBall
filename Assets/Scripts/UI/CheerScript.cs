@@ -10,14 +10,17 @@ public class CheerScript : MonoBehaviour
     private bool m_isRunning = false;
 
     private Vector3 m_initTextPosition;
-    private Vector3 m_initCrowdPosition;
+    private Vector3 m_initCrowdLeftPosition;
+    private Vector3 m_initCrowdRightPosition;
 
     [SerializeField] private float m_playTime = 1.5f;
+    [SerializeField] private int m_crowdMoveDistance = 480;
 
     private float m_MoveTextX = 300;
     public AnimationCurve animCurve;
 
-    [SerializeField] private GameObject CrowdTexture;
+    [SerializeField] private GameObject CrowdLeft;
+    [SerializeField] private GameObject CrowdRight;
 
 
     private List<string> CheerOptions = new List<string>();
@@ -39,7 +42,8 @@ public class CheerScript : MonoBehaviour
     public void Init()
     {
         m_initTextPosition = m_cheerText.gameObject.transform.localPosition;
-        m_initCrowdPosition = CrowdTexture.gameObject.transform.localPosition;
+        m_initCrowdLeftPosition = CrowdLeft.gameObject.transform.localPosition;
+        m_initCrowdRightPosition = CrowdRight.gameObject.transform.localPosition;
         m_MoveTextX = (m_initTextPosition.x * 2);
         InitCheerTextOptions();
 
@@ -67,13 +71,20 @@ public class CheerScript : MonoBehaviour
             this.gameObject.SetActive(true);
             //.setEase(LeanTweenType.easeOutQuad)
             LeanTween.moveLocalX
-            (CrowdTexture.gameObject, 0, m_playTime / 4)
+            (CrowdLeft.gameObject, m_crowdMoveDistance, m_playTime / 4)
             .setEase(LeanTweenType.easeOutQuart)
             .setOnComplete(
                 () => LeanTween.moveLocalX
-                (CrowdTexture.gameObject, m_initCrowdPosition.x, m_playTime / 4)
-                .setDelay(m_playTime / 2))
-            ;
+                (CrowdLeft.gameObject, m_initCrowdLeftPosition.x, m_playTime / 4)
+                .setDelay(m_playTime / 2));
+
+            LeanTween.moveLocalX
+            (CrowdRight.gameObject, -m_crowdMoveDistance, m_playTime / 4)
+            .setEase(LeanTweenType.easeOutQuart)
+            .setOnComplete(
+                () => LeanTween.moveLocalX
+                (CrowdRight.gameObject, m_initCrowdRightPosition.x, m_playTime / 4)
+                .setDelay(m_playTime / 2));
 
             LeanTween.moveLocalX
             (m_cheerText.gameObject, -m_initTextPosition.x, m_playTime)
@@ -92,7 +103,9 @@ public class CheerScript : MonoBehaviour
     private void InitValues()
     {
         m_cheerText.gameObject.transform.localPosition = m_initTextPosition;
-        CrowdTexture.gameObject.transform.localPosition = m_initCrowdPosition;
+        CrowdLeft.gameObject.transform.localPosition = m_initCrowdLeftPosition;
+        CrowdRight.gameObject.transform.localPosition = m_initCrowdRightPosition;
+
     }
 
     public bool IsRunning()

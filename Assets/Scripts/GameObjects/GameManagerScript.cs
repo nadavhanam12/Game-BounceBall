@@ -43,6 +43,8 @@ public class GameManagerScript : MonoBehaviour
     [SerializeField] private int m_matchTime;
     [SerializeField] private float m_countDownDelay = 1f;
     [SerializeField] private bool m_shouldPlayTutorial = false;
+    [SerializeField] private bool m_shouldPlayCountdown = false;
+    [SerializeField] private bool m_shouldStartWithMenu = false;
 
     #endregion
 
@@ -58,6 +60,8 @@ public class GameManagerScript : MonoBehaviour
     private PlayerIndex m_curPlayerPlay = PlayerIndex.First;
     private bool m_onMobileDevice = false;
     private bool m_inTutorial = false;
+
+    private bool m_shouldRestart;
 
 
 
@@ -78,14 +82,13 @@ public class GameManagerScript : MonoBehaviour
 #if UNITY_ANDROID && !UNITY_EDITOR
         m_onMobileDevice = true;
 #endif
-
+        //m_onMobileDevice = true;
         if (m_gameArgs == null)
         {
-            if (m_onMobileDevice)
+            if (m_shouldStartWithMenu)
             {
                 // Code for Google Android Project here
                 NoMenuStartPage.gameObject.SetActive(true);
-
             }
             else
             {
@@ -103,17 +106,19 @@ public class GameManagerScript : MonoBehaviour
 
     public void StartGameScene()
     {
-        if (NoMenuStartPage.gameObject.activeInHierarchy) { NoMenuStartPage.gameObject.SetActive(false); }
+        if (NoMenuStartPage.gameObject.activeInHierarchy)
+        {
+            NoMenuStartPage.gameObject.SetActive(false);
+        }
         if (m_gameArgs == null)
         {
-            //m_gameArgs = new GameArgs(GameType.OnePlayer, null);
-            m_gameArgs = new GameArgs(GameType.TurnsGame, null);
-            //print("No GameType Provided- GameType=TwoPlayer");
+            m_gameArgs = new GameArgs(GameType.TurnsGame);
         }
 
         Init();
         m_gameBoundsData.gameObject.SetActive(false);
         this.gameObject.SetActive(true);
+        m_shouldRestart = false;
 
         //m_playerData1.PlayerScript.PlayIdle();
         //m_playerData2.PlayerScript.PlayIdle();
@@ -121,7 +126,6 @@ public class GameManagerScript : MonoBehaviour
         if (m_shouldPlayTutorial)
         {
             StartTutorial();
-
         }
         else
         {
@@ -130,9 +134,9 @@ public class GameManagerScript : MonoBehaviour
     }
     void StartTutorial()
     {
-        InitTutorial();
         InitGameMood();
         SetGamePause(false);
+        m_playerData2.PlayerScript.ShowPlayer(false);
         m_inTutorial = true;
         m_tutorialManager.Play();
     }
@@ -140,7 +144,7 @@ public class GameManagerScript : MonoBehaviour
     {
         //should init after tutorial
         m_inTutorial = false;
-        m_ballsManager.DestroyBalls(PlayerIndex.Second);
+        m_ballsManager.DestroyAllBalls();
         /*m_ballsManager.OnBallLost(PlayerIndex.Second, 0);
         m_ballsManager.OnBallLost(PlayerIndex.Second, 1);*/
 
@@ -149,7 +153,8 @@ public class GameManagerScript : MonoBehaviour
 
     void AfterTutorial()
     {
-        if (m_onMobileDevice)
+        m_tutorialManager.TurnOff();
+        if (m_shouldPlayCountdown)
         {
             Invoke("StartCountdown", m_countDownDelay);
         }
@@ -168,14 +173,14 @@ public class GameManagerScript : MonoBehaviour
         m_tutorialManager.OnFinishTutorial = FinishedTutorial;
         m_tutorialManager.Pause = SetGamePause;
         m_tutorialManager.OnFinishTutorial = FinishedTutorial;
+        m_tutorialManager.onShowOpponent = () => m_playerData2.PlayerScript.ShowPlayer(true);
 
     }
 
     void InitListeners()
     {
         EventManager.Broadcast(EVENT.EventStartApp);
-        EventManager.AddHandler(EVENT.EventOnRestart, TimeIsOver);
-        //EventManager.AddHandler(EVENT.EventCombo, OnCombo);
+        EventManager.AddHandler(EVENT.EventOnRestart, OnRestart);
         EventManager.AddHandler(EVENT.EventOnCountdownEnds, FinishGameCountdown);
     }
 
@@ -204,6 +209,7 @@ public class GameManagerScript : MonoBehaviour
         InitListeners();
 
         InitGameCanvas();
+        InitTutorial();
 
         //InitSequenceManager();
 
@@ -358,13 +364,6 @@ public class GameManagerScript : MonoBehaviour
         canvasArgs.MatchTime = m_matchTime;
         canvasArgs.PlayerColor1 = m_playerData1.Color;
         canvasArgs.PlayerColor2 = m_playerData2.Color;
-
-        if (m_gameArgs.MainMenu != null)
-        {
-            //canvasArgs.Background = m_gameArgs.Background;
-            canvasArgs.Background = m_gameArgs.MainMenu.ChooseRandomBackground();
-        }
-
         m_gameCanvas.Init(canvasArgs);
         m_gameCanvas.m_onTimeIsOver = TimeIsOver;
 
@@ -407,7 +406,15 @@ public class GameManagerScript : MonoBehaviour
             }
             else
             {
-                m_ballsManager.OnNewBallInScene(PlayerIndex.Second);
+                if (m_curPlayerPlay == PlayerIndex.First) //for the first turn change while tutorial
+                {
+                    m_playerData2.PlayerScript.ShowPlayer(true);
+                    SwitchPlayerTurn();
+                }
+                else
+                {
+                    m_ballsManager.OnNewBallInScene(PlayerIndex.Second);
+                }
             }
 
         }
@@ -448,7 +455,7 @@ public class GameManagerScript : MonoBehaviour
         if (m_inTutorial)
         {
             m_tutorialManager.OnBallHit();
-            return;
+            //return;
         }
 
         KickType kickType = KickType.Regular;
@@ -474,9 +481,7 @@ public class GameManagerScript : MonoBehaviour
         else
         {
             playerData = m_playerData2;
-
         }
-
 
         playerData.CurScore += (addScore);
         UpdatePlayerCurCombo(playerData);
@@ -490,7 +495,11 @@ public class GameManagerScript : MonoBehaviour
         if (playerArgs.CurCombo == nextComboData.ComboRequired)
         {//New Combo-apply cheer and added score
             playerArgs.CurComboIndex++;
-            m_gameCanvas.CheerActivate();
+            if ((!m_inTutorial) && (m_curPlayerPlay == PlayerIndex.First))
+            {
+                m_gameCanvas.CheerActivate();
+                EventManager.Broadcast(EVENT.EventCombo);
+            }
             playerArgs.CurScore += (nextComboData.ScoreBonus);
             //print("nextComboData.ScoreBonus: " + nextComboData.ScoreBonus);
         }
@@ -558,14 +567,21 @@ public class GameManagerScript : MonoBehaviour
 
     private void EndGame()
     {
-        if (m_gameArgs.MainMenu == null)
+        if (m_shouldRestart)
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            //SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            //SceneManager.UnloadSceneAsync("GameScene");
+            SceneManager.LoadSceneAsync("GameScene");
         }
         else
         {
-            m_gameArgs.MainMenu.BackToMenu();
+            SceneManager.LoadSceneAsync("Root");
         }
+    }
+    private void OnRestart()
+    {
+        m_shouldRestart = true;
+        TimeIsOver();
     }
 
 

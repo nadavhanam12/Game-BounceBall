@@ -11,12 +11,17 @@ public class TutorialUI : MonoBehaviour
     private GameCanvasScript m_gameCanvas;
 
     private List<Image> Panels;
-    public void InitAndPlay(GameCanvasScript gameCanvas)
+    public void Init(GameCanvasScript gameCanvas)
     {
         m_gameCanvas = gameCanvas;
         m_gameCanvas.ShowScoreDelta(false);
         m_gameCanvas.ShowComboAndNextBall(false);
         InitPanels();
+        gameObject.SetActive(false);
+    }
+
+    public void Play()
+    {
         gameObject.SetActive(true);
     }
 

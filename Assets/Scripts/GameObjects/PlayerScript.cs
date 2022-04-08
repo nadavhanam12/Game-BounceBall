@@ -304,12 +304,14 @@ public class PlayerScript : MonoBehaviour
     {
         if (m_currentlyInTurn)
         {
+            m_anim.enabled = true;
             AutoPlayKick();
             AutoPlayMovement();
         }
         else
         {
             //shit not on turn
+            m_anim.enabled = false;
         }
 
 
@@ -366,10 +368,14 @@ public class PlayerScript : MonoBehaviour
 
     public void Win()
     {
+        m_anim.enabled = true;
+        m_anim.Play("Win", -1, 0f);
     }
 
     public void Lose()
     {
+        m_anim.enabled = true;
+        m_anim.Play("Lose", -1, 0f);
     }
 
 
@@ -497,6 +503,7 @@ public class PlayerScript : MonoBehaviour
     public void SetGamePause(bool isPause)
     {
         isGamePaused = isPause;
+        m_anim.enabled = !isPause;
     }
 
     public void OnTouchKickRegular()
@@ -520,6 +527,10 @@ public class PlayerScript : MonoBehaviour
     {
         m_currentlyInTurn = true;
         m_args.BallsManager.OnNewBallInScene(m_args.PlayerIndex);
+    }
+    public void ShowPlayer(bool toShow)
+    {
+        gameObject.SetActive(toShow);
     }
 
 

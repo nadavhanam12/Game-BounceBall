@@ -14,13 +14,11 @@ public enum GameType
 public class GameArgs
 {
     public GameType GameType;
-    public MainMenu MainMenu;
     public Texture Background;
 
-    public GameArgs(GameType gameType, MainMenu mainMenu)
+    public GameArgs(GameType gameType)
     {
         GameType = gameType;
-        MainMenu = mainMenu;
     }
 
 

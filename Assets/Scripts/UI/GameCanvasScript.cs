@@ -35,6 +35,7 @@ public class GameCanvasScript : MonoBehaviour
     private ScoreDeltaUIClass ScoreUIDelta;
     private CheerScript CheerObject;
     [SerializeField] RawImage Background;
+    public GameObject CountdownUI;
 
     //[SerializeField] SequenceMenuUI SequenceMenuUI;
     private NextColorScript NextColorUI;
@@ -51,6 +52,8 @@ public class GameCanvasScript : MonoBehaviour
     private bool isGamePaused;
     private bool m_initialized;
     private Animator m_anim;
+    private Texture2D[] backgroundsList;
+    const string backgroundsPath = "BackGround";
 
 
     #endregion
@@ -86,10 +89,10 @@ public class GameCanvasScript : MonoBehaviour
             ScoreUIDelta.SetColors(args.PlayerColor1, args.PlayerColor2);
             ScoreUIDelta.SetTimeToPlay(m_timeToPlay);
             ScoreUIDelta.Init();
-            if (args.Background != null)
-            {
-                Background.texture = args.Background;
-            }
+
+            backgroundsList = Resources.LoadAll<Texture2D>(backgroundsPath);
+            Background.texture = ChooseRandomBackground();
+
 
 
             CheerObject.Init();
@@ -99,12 +102,20 @@ public class GameCanvasScript : MonoBehaviour
             TurnsUI.Init();
 
             EventManager.AddHandler(EVENT.EventOnTimeOver, () => m_onTimeIsOver());
+
+            CountdownUI.gameObject.SetActive(false);
             //m_anim.Play("FadeIn", -1, 0f);
 
 
         }
 
 
+    }
+
+    private Texture ChooseRandomBackground()
+    {
+        int rnd = Random.Range(0, backgroundsList.Length);
+        return backgroundsList[rnd];
     }
 
     void InitRefs()
@@ -152,10 +163,12 @@ public class GameCanvasScript : MonoBehaviour
 
     public void StartCountdown()
     {
+        CountdownUI.SetActive(true);
         m_anim.Play("Countdown", -1, 0f);
     }
     public void OnCountdownEnds()
     {
+        CountdownUI.SetActive(false);
         EventManager.Broadcast(EVENT.EventOnCountdownEnds);
     }
     public void UpdateNextBallColor(Color color)

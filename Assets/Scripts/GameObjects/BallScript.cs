@@ -142,15 +142,19 @@ public class BallScript : MonoBehaviour
 
     public void RemoveBallFromScene(bool fadeOut = false)
     {
-        m_isBallInPlay = false;
-        if (fadeOut)
+        if (gameObject.activeInHierarchy)
         {
-            FadeOut();
+            m_isBallInPlay = false;
+            if (fadeOut)
+            {
+                FadeOut();
+            }
+            else
+            {
+                this.gameObject.SetActive(false);
+            }
         }
-        else
-        {
-            this.gameObject.SetActive(false);
-        }
+
     }
 
 
@@ -320,7 +324,7 @@ public class BallScript : MonoBehaviour
     public void SetGamePause(bool isPause)
     {
         isGamePaused = isPause;
-        //this.gameObject.SetActive(!isGamePaused);
+        m_anim.enabled = !isGamePaused;
 
     }
 

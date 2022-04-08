@@ -117,6 +117,7 @@ public class SoundManager : MonoBehaviour
             bool isPlayingNow = m_effectsSource.isPlaying;
             if ((!isNewSoundPriority) && (isCurSoundPriority) && (isPlayingNow))
             {
+                //print("Skip SFX");
                 m_availableForUpdate = true;
                 return;
             }

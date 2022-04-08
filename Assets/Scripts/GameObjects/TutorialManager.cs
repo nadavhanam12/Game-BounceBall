@@ -8,6 +8,9 @@ public class TutorialManager : MonoBehaviour
     public delegate void onFinishTutorial();
     public onFinishTutorial OnFinishTutorial;
 
+    public delegate void OnShowOpponent();
+    public OnShowOpponent onShowOpponent;
+
     public delegate void onPause(bool isPause);
     public onPause Pause;
 
@@ -24,6 +27,7 @@ public class TutorialManager : MonoBehaviour
     {
         m_args = args;
         m_enemyTurn = false;
+        TurnOff();
     }
     public bool IsEnemyTurn()
     {
@@ -33,8 +37,10 @@ public class TutorialManager : MonoBehaviour
     //play the tutorial 
     public void Play()
     {
-        m_args.TutorialUI.InitAndPlay(m_args.GameCanvas);
+        this.gameObject.SetActive(true);
+        m_args.TutorialUI.Init(m_args.GameCanvas);
         m_args.TutorialUI.OnTouchScreen = OnTouchScreen;
+        m_args.TutorialUI.Play();
         NextPanel();
     }
     private void NextPanel()
@@ -46,11 +52,11 @@ public class TutorialManager : MonoBehaviour
 
     private IEnumerator StartCoolDown()
     {
-        print("m_onCoolDown = true;");
+        //print("m_onCoolDown = true;");
         m_onCoolDown = true;
         yield return new WaitForSeconds(.25f);
         m_onCoolDown = false;
-        print("m_onCoolDown = false;");
+        //print("m_onCoolDown = false;");
 
     }
 
@@ -60,15 +66,17 @@ public class TutorialManager : MonoBehaviour
         curCombo++;
         if (!m_enemyTurn)
         {
-            if ((m_curPanel == 2) && (curCombo == 3))
+            if ((m_curPanel == 2) && (curCombo == 4))
             {
 
                 m_enemyTurn = true;
+                onShowOpponent();
                 Invoke("PauseGame", 0.75f);
                 Invoke("NextPanel", 0.75f);
 
             }
-            else if (m_curPanel == 0)
+            else
+             if (m_curPanel == 0)
             {
                 Invoke("PauseGame", 0.5f);
                 m_args.TutorialUI.ShowComboAndNextBall(true);
@@ -157,12 +165,16 @@ public class TutorialManager : MonoBehaviour
 
     }
 
+    public void TurnOff()
+    {
+        m_args.TutorialUI.FinishTutorial();
+        gameObject.SetActive(false);
+    }
     private void FinishedTutorial()
     {
-        print("FinishedTutorial");
-        m_args.TutorialUI.FinishTutorial();
+        //print("FinishedTutorial");
         OnFinishTutorial();
-        gameObject.SetActive(false);
+        TurnOff();
     }
 
     void Update()

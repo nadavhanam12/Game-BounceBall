@@ -10,8 +10,5 @@ public class GameCanvasArgs
 
     public Color PlayerColor2;
 
-    public Texture Background;
-
-
 
 }
