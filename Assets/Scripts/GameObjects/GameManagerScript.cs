@@ -76,6 +76,7 @@ public class GameManagerScript : MonoBehaviour
 
 
 
+
     void Awake()
     {
         Application.targetFrameRate = 60;
@@ -144,16 +145,17 @@ public class GameManagerScript : MonoBehaviour
     {
         //should init after tutorial
         m_inTutorial = false;
-        m_ballsManager.DestroyAllBalls();
-        /*m_ballsManager.OnBallLost(PlayerIndex.Second, 0);
-        m_ballsManager.OnBallLost(PlayerIndex.Second, 1);*/
+        m_playerData2.PlayerScript.ShowPlayer(true);
+        m_ballsManager.RemoveAllBalls();
+        m_tutorialManager.TurnOff();
+        InitScoreAndCombo();
 
         AfterTutorial();
     }
 
     void AfterTutorial()
     {
-        m_tutorialManager.TurnOff();
+
         if (m_shouldPlayCountdown)
         {
             Invoke("StartCountdown", m_countDownDelay);
@@ -170,7 +172,6 @@ public class GameManagerScript : MonoBehaviour
         tutorialArgs.GameCanvas = m_gameCanvas;
         tutorialArgs.TutorialUI = m_gameCanvas.GetTutorialUI();
         m_tutorialManager.Init(tutorialArgs);
-        m_tutorialManager.OnFinishTutorial = FinishedTutorial;
         m_tutorialManager.Pause = SetGamePause;
         m_tutorialManager.OnFinishTutorial = FinishedTutorial;
         m_tutorialManager.onShowOpponent = () => m_playerData2.PlayerScript.ShowPlayer(true);
@@ -183,6 +184,15 @@ public class GameManagerScript : MonoBehaviour
         EventManager.AddHandler(EVENT.EventOnRestart, OnRestart);
         EventManager.AddHandler(EVENT.EventOnCountdownEnds, FinishGameCountdown);
     }
+    void RemoveListeners()
+    {
+        EventManager.RemoveHandler(EVENT.EventOnRestart, OnRestart);
+        EventManager.RemoveHandler(EVENT.EventOnCountdownEnds, FinishGameCountdown);
+    }
+    void OnDestroy()
+    {
+        RemoveListeners();
+    }
 
     void StartCountdown()
     {
@@ -192,7 +202,6 @@ public class GameManagerScript : MonoBehaviour
     public void FinishGameCountdown()
     {
         EventManager.Broadcast(EVENT.EventStartGameScene);
-
         InitGameMood();
         SetGamePause(false);
         StartCoroutine(UpdateScores());
@@ -264,7 +273,7 @@ public class GameManagerScript : MonoBehaviour
 
     }
 
-    void InitPlayersData()
+    private void InitScoreAndCombo()
     {
         m_playerData1.CurScore = 0;
         m_playerData2.CurScore = 0;
@@ -272,6 +281,14 @@ public class GameManagerScript : MonoBehaviour
         m_playerData2.CurComboIndex = -1;
         m_playerData2.CurCombo = 0;
         m_playerData2.CurCombo = 0;
+        if (m_gameCanvas != null)
+        {
+            m_gameCanvas.SetCombo(0);
+        }
+    }
+    void InitPlayersData()
+    {
+        InitScoreAndCombo();
 
         m_playerData1.Bounds = m_gameBounds;
         m_playerData2.Bounds = m_gameBounds;
@@ -397,6 +414,21 @@ public class GameManagerScript : MonoBehaviour
 
     public void onTurnLost(PlayerIndex playerIndex)
     {
+        PlayerArgs playerData;
+        if (playerIndex == PlayerIndex.First)
+        {
+            playerData = m_playerData1;
+            EventManager.Broadcast(EVENT.EventOnBallLost);
+        }
+        else
+        {
+            playerData = m_playerData2;
+        }
+
+        playerData.CurComboIndex = -1;
+        playerData.CurCombo = 0;
+        m_gameCanvas.SetCombo(playerData.CurCombo);
+
         if (m_inTutorial)
         {
             m_tutorialManager.OnBallLost();
@@ -420,20 +452,7 @@ public class GameManagerScript : MonoBehaviour
         }
         else
         {
-            PlayerArgs playerData;
-            if (playerIndex == PlayerIndex.First)
-            {
-                playerData = m_playerData1;
-                EventManager.Broadcast(EVENT.EventOnBallLost);
-            }
-            else
-            {
-                playerData = m_playerData2;
-            }
 
-            playerData.CurComboIndex = -1;
-            playerData.CurCombo = 0;
-            m_gameCanvas.SetCombo(playerData.CurCombo);
 
             if (m_gameArgs.GameType == GameType.TurnsGame)
             {
@@ -580,8 +599,16 @@ public class GameManagerScript : MonoBehaviour
     }
     private void OnRestart()
     {
-        m_shouldRestart = true;
-        TimeIsOver();
+        if (m_inTutorial)
+        {
+            FinishedTutorial();
+        }
+        else
+        {
+            m_shouldRestart = true;
+            TimeIsOver();
+        }
+
     }
 
 

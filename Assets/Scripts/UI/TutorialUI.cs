@@ -9,13 +9,14 @@ public class TutorialUI : MonoBehaviour
     public delegate void onTouchScreen();
     public onTouchScreen OnTouchScreen;
     private GameCanvasScript m_gameCanvas;
+    private Button m_buttonNext;
 
     private List<Image> Panels;
     public void Init(GameCanvasScript gameCanvas)
     {
         m_gameCanvas = gameCanvas;
-        m_gameCanvas.ShowScoreDelta(false);
-        m_gameCanvas.ShowComboAndNextBall(false);
+        m_buttonNext = GetComponentInChildren<Button>();
+
         InitPanels();
         gameObject.SetActive(false);
     }
@@ -23,6 +24,9 @@ public class TutorialUI : MonoBehaviour
     public void Play()
     {
         gameObject.SetActive(true);
+        m_gameCanvas.ShowScoreDelta(false);
+        m_gameCanvas.ShowComboAndNextBall(false);
+        m_gameCanvas.ShowSkipButton(true);
     }
 
     void InitPanels()
@@ -33,32 +37,48 @@ public class TutorialUI : MonoBehaviour
         {
             Panels[i].gameObject.SetActive(false);
         }
+        m_buttonNext.gameObject.SetActive(true);
     }
 
     public void OpenPanel(int panelToOpen)
     {
-        for (int i = 1; i < Panels.Count; i++)
+        for (int i = 0; i < Panels.Count; i++)
         {
             Panels[i].gameObject.SetActive(false);
         }
         Panels[panelToOpen].gameObject.SetActive(true);
+        m_buttonNext.gameObject.SetActive(true);
 
 
 
+    }
+
+    public List<Image> GetPanels()
+    {
+        return Panels;
     }
 
     public void FinishTutorial()
     {
         gameObject.SetActive(false);
+        m_gameCanvas.ShowSkipButton(false);
+        ShowScoreDelta(true);
+        ShowComboAndNextBall(true);
     }
     public void TouchScreen()
     {
+        //print("TouchScreen");
         OnTouchScreen();
+    }
+    public void HideButton()
+    {
+        m_buttonNext.gameObject.SetActive(false);
     }
 
     public void HidePanel(int panelToHide)
     {
         Panels[panelToHide].gameObject.SetActive(false);
+        m_buttonNext.gameObject.SetActive(false);
     }
     public void ShowScoreDelta(bool shouldShow)
     {

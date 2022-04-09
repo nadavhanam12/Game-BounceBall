@@ -12,7 +12,7 @@ public class PlayerStats
     [Range(1, 100)]
     public int m_autoPlayDifficult = 50;
     public float AutoPlayBallDistance = 2f;
-    [Range(0, 1f)] public float AutoPlayerKickColldown = 0.5f;
+    [Range(0, 1f)] public float KickCooldown = 0.5f;
 
 
 }

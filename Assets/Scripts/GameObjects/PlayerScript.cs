@@ -42,7 +42,7 @@ public class PlayerScript : MonoBehaviour
     private bool m_runRightFromTouch = false;
     private bool m_runLeftFromTouch = false;
 
-    private bool m_inKickColldown = false;
+    private bool m_inKickCooldown = false;
 
 
     #endregion
@@ -321,7 +321,7 @@ public class PlayerScript : MonoBehaviour
 
     void AutoPlayKick()
     {
-        if (!m_inKickColldown)
+        if (!m_inKickCooldown)
         {
             int rnd = Random.Range(0, 100);
             if (rnd <= m_args.playerStats.m_autoPlayDifficult)
@@ -331,18 +331,20 @@ public class PlayerScript : MonoBehaviour
                 if (BallInHitZone(ballsPositions[0]) || BallInHitZone(ballsPositions[1]))
                 {
                     OnKickPlay(KickType.Regular);
-                    StartCoroutine(AutoPlayKickCooldown());
+                    StartCoroutine(KickCooldown());
                 }
             }
         }
 
     }
 
-    IEnumerator AutoPlayKickCooldown()
+    IEnumerator KickCooldown()
     {
-        m_inKickColldown = true;
-        yield return new WaitForSeconds(m_args.playerStats.AutoPlayerKickColldown);
-        m_inKickColldown = false;
+        //print("m_inKickCooldown = true");
+        m_inKickCooldown = true;
+        yield return new WaitForSeconds(m_args.playerStats.KickCooldown);
+        m_inKickCooldown = false;
+        //print("m_inKickCooldown = false");
     }
 
     void AutoPlayMovement()
@@ -462,7 +464,7 @@ public class PlayerScript : MonoBehaviour
         if (!isGamePaused)
         {
             //if (!m_inAnimation)
-            if (true)
+            if (!m_inKickCooldown)
             {
                 m_inAnimation = true;
 
@@ -483,6 +485,7 @@ public class PlayerScript : MonoBehaviour
                 m_anim.ResetTrigger(triggerName);
                 m_anim.SetTrigger(triggerName);
                 ReachHitPosition();
+                StartCoroutine(KickCooldown());
 
                 //anim.enabled = false;
             }

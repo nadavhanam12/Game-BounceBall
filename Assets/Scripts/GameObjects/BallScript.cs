@@ -162,7 +162,6 @@ public class BallScript : MonoBehaviour
 
     public void OnNewBallInScene(Color color)
     {
-
         this.gameObject.transform.localPosition = m_initialPosition;
         m_curVelocityY = m_args.m_startVelocityY;
         m_curVelocityX = m_args.m_startVelocityX;

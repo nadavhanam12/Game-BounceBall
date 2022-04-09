@@ -35,7 +35,8 @@ public class GameCanvasScript : MonoBehaviour
     private ScoreDeltaUIClass ScoreUIDelta;
     private CheerScript CheerObject;
     [SerializeField] RawImage Background;
-    public GameObject CountdownUI;
+    [SerializeField] GameObject CountdownUI;
+    private RestartUI RestartButton;
 
     //[SerializeField] SequenceMenuUI SequenceMenuUI;
     private NextColorScript NextColorUI;
@@ -101,7 +102,7 @@ public class GameCanvasScript : MonoBehaviour
             ComboConterUI.Init();
             TurnsUI.Init();
 
-            EventManager.AddHandler(EVENT.EventOnTimeOver, () => m_onTimeIsOver());
+            EventManager.AddHandler(EVENT.EventOnTimeOver, OnTimeIsOver);
 
             CountdownUI.gameObject.SetActive(false);
             //m_anim.Play("FadeIn", -1, 0f);
@@ -110,6 +111,16 @@ public class GameCanvasScript : MonoBehaviour
         }
 
 
+    }
+
+    private void OnTimeIsOver()
+    {
+        m_onTimeIsOver();
+    }
+
+    void Destroy()
+    {
+        EventManager.RemoveHandler(EVENT.EventOnTimeOver, OnTimeIsOver);
     }
 
     private Texture ChooseRandomBackground()
@@ -126,6 +137,7 @@ public class GameCanvasScript : MonoBehaviour
         ComboConterUI = GetComponentInChildren<ComboConterUI>(true);
         TurnsUI = GetComponentInChildren<TurnsUI>(true);
         TutorialUI = GetComponentInChildren<TutorialUI>(true);
+        RestartButton = GetComponentInChildren<RestartUI>(true);
     }
 
     public void CheerActivate()
@@ -177,7 +189,10 @@ public class GameCanvasScript : MonoBehaviour
     }
     public void SetCombo(int curCombo)
     {
-        ComboConterUI.SetCombo(curCombo);
+        if (ComboConterUI != null)
+        {
+            ComboConterUI.SetCombo(curCombo);
+        }
     }
     public void SwitchTurn(bool isPlayerTurn)
     {
@@ -194,6 +209,10 @@ public class GameCanvasScript : MonoBehaviour
     public void ShowComboAndNextBall(bool shouldShow)
     {
         transform.Find("Combo&BallColor").gameObject.SetActive(shouldShow);
+    }
+    public void ShowSkipButton(bool toShow)
+    {
+        RestartButton.ShowSkipButton(toShow);
     }
 
 
