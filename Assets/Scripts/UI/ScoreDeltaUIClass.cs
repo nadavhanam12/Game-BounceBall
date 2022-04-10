@@ -11,6 +11,8 @@ public class ScoreDeltaUIClass : MonoBehaviour
 
     [SerializeField] private Slider m_leftSlider;
     [SerializeField] private Slider m_rightSlider;
+    [SerializeField] private NormalScoreUI m_leftNormalScore;
+    [SerializeField] private NormalScoreUI m_rightNormalScore;
     [SerializeField] private TMP_Text m_timeTextSeconds;
     [SerializeField] private TMP_Text m_timeTextMilliseconds;
 
@@ -35,6 +37,7 @@ public class ScoreDeltaUIClass : MonoBehaviour
     private float m_timeToPlay = 60f;
 
     private float timeRemaining;
+    private GameType m_gameType;
 
     #endregion
 
@@ -43,17 +46,33 @@ public class ScoreDeltaUIClass : MonoBehaviour
         isGamePaused = isPause;
     }
 
-    public void Init()
+    public void Init(GameType gameType)
     {
         if (!m_initialized)
         {
             m_initialized = true;
-
+            m_gameType = gameType;
             m_playerInLead = PlayerIndex.First;
-            //m_curColor = m_colorPlayer1;
+            if (m_gameType == GameType.TurnsGame)
+            {
+                RemoveNormalScore();
+                InitSliders();
 
-            InitSliders();
+            }
+            else if (m_gameType == GameType.TalTalGame)
+            {
+                RemoveSliders();
+                InitNormalScore();
+            }
+            else
+            {
+                InitSliders();
+            }
+
+
             InitTimer();
+
+
         }
 
 
@@ -99,11 +118,30 @@ public class ScoreDeltaUIClass : MonoBehaviour
 
     void InitSliders()
     {
+        m_leftSlider.gameObject.SetActive(true);
+        m_rightSlider.gameObject.SetActive(true);
         m_leftSlider.value = 0f;
         m_leftSlider.maxValue = 1.0f;
         m_rightSlider.value = 0f;
         m_rightSlider.maxValue = 1.0f;
+    }
+    void RemoveSliders()
+    {
+        m_leftSlider.gameObject.SetActive(false);
+        m_rightSlider.gameObject.SetActive(false);
+    }
+    void InitNormalScore()
+    {
+        m_leftNormalScore.gameObject.SetActive(true);
+        m_rightNormalScore.gameObject.SetActive(true);
+        m_leftNormalScore.Init();
+        m_rightNormalScore.Init();
 
+    }
+    void RemoveNormalScore()
+    {
+        m_leftNormalScore.gameObject.SetActive(false);
+        m_rightNormalScore.gameObject.SetActive(false);
     }
 
     public void SetColors(Color colorPlayer1, Color colorPlayer2)
@@ -126,10 +164,26 @@ public class ScoreDeltaUIClass : MonoBehaviour
     {
         return m_curDelta;
     }
-
-
-    public void setScore(int scoreDelta, PlayerIndex playerInLead)
+    public void SetNormalScore(int scoreLeft, int scoreRight)
     {
+        if (m_gameType == GameType.TurnsGame)
+        {
+            print("TurnsGame, please call setScore");
+            return;
+        }
+        m_leftNormalScore.SetScore(scoreLeft);
+        m_rightNormalScore.SetScore(scoreRight);
+
+    }
+
+
+    public void SetScore(int scoreDelta, PlayerIndex playerInLead)
+    {
+        if (m_gameType == GameType.TalTalGame)
+        {
+            print("TalTalGame, please call setNormalScore");
+            return;
+        }
         m_playerInLead = playerInLead;
         m_curDelta = scoreDelta;
         UpdateProgressBar();

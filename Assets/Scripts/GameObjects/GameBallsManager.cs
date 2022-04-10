@@ -39,6 +39,8 @@ public class GameBallsManager : MonoBehaviour
     private GameCanvasScript m_gameCanvas;
 
     private bool isGamePaused = false;
+    private Queue<BallScript> m_ballsQueue = new Queue<BallScript>();
+    private BallScript firstBall;
 
 
     #endregion
@@ -47,7 +49,7 @@ public class GameBallsManager : MonoBehaviour
     public void SetGamePause(bool isPause)
     {
         isGamePaused = isPause;
-        foreach (BallScript ball in m_args.Player1Balls.Union(m_args.Player2Balls))
+        foreach (BallScript ball in m_ballsQueue)
         {
             ball.SetGamePause(isGamePaused);
         }
@@ -69,7 +71,7 @@ public class GameBallsManager : MonoBehaviour
     void InitHitBallVisuals()
     {
         BallHitVisual curBallVisuals;
-        Vector3 ballScale = m_args.Player1Balls[0].transform.localScale;
+        Vector3 ballScale = firstBall.transform.localScale;
         for (int i = 0; i < 6; i++)
         {
             curBallVisuals = Instantiate(m_ballHitVisualPrefab, gameObject.transform);
@@ -77,30 +79,29 @@ public class GameBallsManager : MonoBehaviour
             m_hitVisualsQueue.Enqueue(curBallVisuals);
         }
     }
+
     private void InitBalls()
     {
-        int i = 0;
-        foreach (BallScript ball in m_args.Player1Balls)
+        firstBall = GetComponentInChildren<BallScript>();
+        m_ballsQueue.Enqueue(firstBall);
+        for (int i = 0; i < 5; i++)
         {
-            ball.Init(m_args.BallArgs, PlayerIndex.First, i);
-            ball.m_onBallLost = OnBallLost;
-            i++;
+            m_ballsQueue.Enqueue(Instantiate(firstBall, firstBall.transform.parent));
         }
-
-        i = 0;
-        foreach (BallScript ball in m_args.Player2Balls)
+        BallScript curBall;
+        BallScript[] ballsArray = m_ballsQueue.ToArray();
+        for (int i = 0; i < ballsArray.Length; i++)
         {
-            ball.Init(m_args.BallArgs, PlayerIndex.Second, i);
-            ball.m_onBallLost = OnBallLost;
-            i++;
-
-            ball.RemoveBallFromScene();
+            curBall = ballsArray[i];
+            curBall.Init(m_args.BallArgs, i);
+            curBall.m_onBallLost = OnBallLost;
+            curBall.RemoveBallFromScene();
         }
 
     }
 
 
-    public void OnBallLost(PlayerIndex playerIndex, int ballIndex)
+    public void OnBallLost(int ballIndex)
     {
         List<BallScript> balls = m_args.Player2Balls;
         if (playerIndex == PlayerIndex.First)

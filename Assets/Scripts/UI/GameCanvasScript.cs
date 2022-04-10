@@ -56,6 +56,8 @@ public class GameCanvasScript : MonoBehaviour
     private Texture2D[] backgroundsList;
     const string backgroundsPath = "BackGround";
 
+    private GameCanvasArgs m_gameType;
+
 
     #endregion
 
@@ -80,16 +82,17 @@ public class GameCanvasScript : MonoBehaviour
     {
         if (!m_initialized)
         {
+            m_gameType = args;
             InitRefs();
             m_initialized = true;
             this.GetComponent<Canvas>().worldCamera = Camera.main;
             m_anim = GetComponent<Animator>();
-            m_timeToPlay = args.MatchTime;
+            m_timeToPlay = m_gameType.MatchTime;
 
             //need to set also the delta
-            ScoreUIDelta.SetColors(args.PlayerColor1, args.PlayerColor2);
+            ScoreUIDelta.SetColors(m_gameType.PlayerColor1, m_gameType.PlayerColor2);
             ScoreUIDelta.SetTimeToPlay(m_timeToPlay);
-            ScoreUIDelta.Init();
+            ScoreUIDelta.Init(m_gameType.GameType);
 
             backgroundsList = Resources.LoadAll<Texture2D>(backgroundsPath);
             Background.texture = ChooseRandomBackground();
@@ -146,7 +149,7 @@ public class GameCanvasScript : MonoBehaviour
     }
 
 
-    public void setScore(int scorePlayer1, int scorePlayer2, int scoreDelta, PlayerIndex playerInLead)
+    public void SetScore(int scorePlayer1, int scorePlayer2, int scoreDelta, PlayerIndex playerInLead)
     {
         /*if (ScoreUIPlayer1.GetScore() != scorePlayer1)
         {
@@ -159,7 +162,7 @@ public class GameCanvasScript : MonoBehaviour
         m_curPlayerInLead = playerInLead;
         if ((ScoreUIDelta.GetCurDelta() != scoreDelta) || (ScoreUIDelta.GetCurPlayerInLead() != m_curPlayerInLead))
         {
-            ScoreUIDelta.setScore(scoreDelta, playerInLead);
+            ScoreUIDelta.SetScore(scoreDelta, playerInLead);
         }
     }
 
@@ -194,6 +197,13 @@ public class GameCanvasScript : MonoBehaviour
             ComboConterUI.SetCombo(curCombo);
         }
     }
+    public void IncrementCombo()
+    {
+        if (ComboConterUI != null)
+        {
+            ComboConterUI.IncrementCombo();
+        }
+    }
     public void SwitchTurn(bool isPlayerTurn)
     {
         TurnsUI.Activate(isPlayerTurn);
@@ -213,6 +223,10 @@ public class GameCanvasScript : MonoBehaviour
     public void ShowSkipButton(bool toShow)
     {
         RestartButton.ShowSkipButton(toShow);
+    }
+    public void SetNormalScore(int scoreLeft, int scoreRight)
+    {
+        ScoreUIDelta.SetNormalScore(scoreLeft, scoreRight);
     }
 
 

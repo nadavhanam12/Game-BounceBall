@@ -59,6 +59,7 @@ public class TutorialManager : MonoBehaviour
 
         m_args.TutorialUI.Play();
         NextPanel();
+        PauseGame();
     }
     private void NextPanel()
     {
@@ -108,7 +109,7 @@ public class TutorialManager : MonoBehaviour
             }
 
         }
-        else if (curCombo == 1)
+        else if (curCombo == 3)
         {
             Invoke("ShowScoreDeltaWithDelay", 2f);
         }
@@ -167,6 +168,7 @@ public class TutorialManager : MonoBehaviour
 
             NextPanel();
             m_args.TutorialUI.HideButton();
+            ResumeGame();
         }
         else if (m_curPanel == m_panels["ButtonsPanel"])
         {

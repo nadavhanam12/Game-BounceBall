@@ -12,7 +12,7 @@ public class BallScript : MonoBehaviour
     #region events
 
 
-    public delegate void onBallLost(PlayerIndex index, int ballIndex);
+    public delegate void onBallLost(int ballIndex);
     public onBallLost m_onBallLost;
 
     #endregion
@@ -62,7 +62,6 @@ public class BallScript : MonoBehaviour
     private string animName = "BallRegularHitSide1";
 
     private SpriteRenderer m_spriteRenderer;
-    private PlayerIndex m_playerIndex;
     private int m_ballIndex = -1;
     private Color m_curColor = Color.white;
 
@@ -72,7 +71,7 @@ public class BallScript : MonoBehaviour
 
 
 
-    public void Init(BallArgs args, PlayerIndex playerIndex, int ballIndex)
+    public void Init(BallArgs args, int ballIndex)
     {
         if (!m_initialized)
         {
@@ -98,7 +97,6 @@ public class BallScript : MonoBehaviour
 
             m_initialized = true;
 
-            m_playerIndex = playerIndex;
             m_ballIndex = ballIndex;
 
             //m_hitHailo.gameObject.SetActive(false);
@@ -268,7 +266,7 @@ public class BallScript : MonoBehaviour
         {
             m_isBallInPlay = false;
             this.gameObject.SetActive(false);
-            m_onBallLost(m_playerIndex, m_ballIndex);
+            m_onBallLost(m_ballIndex);
 
         }
         else if (this.gameObject.transform.position.y > m_args.Bounds.GameUpperBound)

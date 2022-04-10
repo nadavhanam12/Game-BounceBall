@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class GameCanvasArgs
 {
+    public GameType GameType;
     public int MatchTime;
 
     public Color PlayerColor1;

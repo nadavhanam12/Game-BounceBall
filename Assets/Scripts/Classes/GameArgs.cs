@@ -8,7 +8,8 @@ public enum GameType
 {
     OnePlayer = 0,
     TwoPlayer = 1,
-    TurnsGame = 2
+    TurnsGame = 2,
+    TalTalGame = 3
 
 }
 public class GameArgs

@@ -526,10 +526,13 @@ public class PlayerScript : MonoBehaviour
     {
         m_currentlyInTurn = false;
     }
-    public void StartTurn()
+    public void StartTurn(bool throwNewBall = true)
     {
         m_currentlyInTurn = true;
-        m_args.BallsManager.OnNewBallInScene(m_args.PlayerIndex);
+        if (throwNewBall)
+        {
+            m_args.BallsManager.OnNewBallInScene(m_args.PlayerIndex);
+        }
     }
     public void ShowPlayer(bool toShow)
     {

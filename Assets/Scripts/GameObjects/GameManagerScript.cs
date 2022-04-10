@@ -113,7 +113,8 @@ public class GameManagerScript : MonoBehaviour
         }
         if (m_gameArgs == null)
         {
-            m_gameArgs = new GameArgs(GameType.TurnsGame);
+            m_gameArgs = new GameArgs(GameType.TalTalGame);
+            //m_gameArgs = new GameArgs(GameType.TurnsGame);
         }
 
         Init();
@@ -204,7 +205,10 @@ public class GameManagerScript : MonoBehaviour
         EventManager.Broadcast(EVENT.EventStartGameScene);
         InitGameMood();
         SetGamePause(false);
-        StartCoroutine(UpdateScores());
+        if (m_gameArgs.GameType == GameType.TurnsGame)
+        {
+            StartCoroutine(UpdateScores());
+        }
     }
 
 
@@ -250,20 +254,6 @@ public class GameManagerScript : MonoBehaviour
         GameBallsManagerArgs ballsManagerArgs = new GameBallsManagerArgs();
         ballsManagerArgs.BallArgs = m_playersDataContainer.ballArgs;
 
-        ballsManagerArgs.Player1Balls = m_playerContainer1.GetComponentsInChildren<BallScript>(true).ToList();
-        if (ballsManagerArgs.Player1Balls.Count < 2)
-        {
-            BallScript curBall = ballsManagerArgs.Player1Balls[0];
-            BallScript otherBall = Instantiate(curBall, curBall.transform.parent);
-            ballsManagerArgs.Player1Balls.Add(otherBall);
-        }
-        ballsManagerArgs.Player2Balls = m_playerContainer2.GetComponentsInChildren<BallScript>(true).ToList();
-        if (ballsManagerArgs.Player2Balls.Count < 2)
-        {
-            BallScript curBall = ballsManagerArgs.Player2Balls[0];
-            BallScript otherBall = Instantiate(curBall, curBall.transform.parent);
-            ballsManagerArgs.Player2Balls.Add(otherBall);
-        }
         m_ballsManager.GameManagerOnBallHit = onBallHit;
         m_ballsManager.GameManagerOnTurnLost = onTurnLost;
 
@@ -328,6 +318,12 @@ public class GameManagerScript : MonoBehaviour
             m_playerData1.PlayerScript.StartTurn();
             m_playerData2.PlayerScript.LostTurn();
         }
+        else if (m_gameArgs.GameType == GameType.TalTalGame)
+        {
+            m_curPlayerPlay = PlayerIndex.First;
+            m_playerData1.PlayerScript.StartTurn();
+            m_playerData2.PlayerScript.LostTurn();
+        }
         else
         {
             m_playerData1.PlayerScript.StartTurn();
@@ -344,19 +340,19 @@ public class GameManagerScript : MonoBehaviour
         Invoke("SwitchPlayerTurnAfterWait", 2f);
     }
 
-    void SwitchPlayerTurnAfterWait()
+    void SwitchPlayerTurnAfterWait(bool throwNewBall = true)
     {
         if (m_curPlayerPlay == PlayerIndex.First)
         {
             m_curPlayerPlay = PlayerIndex.Second;
             m_playerData1.PlayerScript.LostTurn();
-            m_playerData2.PlayerScript.StartTurn();
+            m_playerData2.PlayerScript.StartTurn(throwNewBall);
         }
         else
         {
             m_curPlayerPlay = PlayerIndex.First;
             m_playerData2.PlayerScript.LostTurn();
-            m_playerData1.PlayerScript.StartTurn();
+            m_playerData1.PlayerScript.StartTurn(throwNewBall);
         }
     }
 
@@ -370,7 +366,10 @@ public class GameManagerScript : MonoBehaviour
         m_gameCanvas.SetGamePause(isPause);
         if (!m_isGamePause)
         {
-            StartCoroutine(UpdateScores());
+            if (m_gameArgs.GameType == GameType.TurnsGame)
+            {
+                StartCoroutine(UpdateScores());
+            }
         }
 
     }
@@ -378,6 +377,7 @@ public class GameManagerScript : MonoBehaviour
     private void InitGameCanvas()
     {
         GameCanvasArgs canvasArgs = new GameCanvasArgs();
+        canvasArgs.GameType = m_gameArgs.GameType;
         canvasArgs.MatchTime = m_matchTime;
         canvasArgs.PlayerColor1 = m_playerData1.Color;
         canvasArgs.PlayerColor2 = m_playerData2.Color;
@@ -403,7 +403,11 @@ public class GameManagerScript : MonoBehaviour
 
         m_playerData1.PlayerScript.Init(m_playerData1);
 
-        if (m_gameArgs.GameType != GameType.TwoPlayer)
+        if (m_gameArgs.GameType != GameType.TurnsGame)
+        {
+            m_playerData2.AutoPlay = true;
+        }
+        else if (m_gameArgs.GameType != GameType.TalTalGame)
         {
             m_playerData2.AutoPlay = true;
         }
@@ -458,6 +462,13 @@ public class GameManagerScript : MonoBehaviour
             {
                 SwitchPlayerTurn();
             }
+            else if (m_gameArgs.GameType == GameType.TalTalGame)
+            {
+                playerData = playerData == m_playerData1 ? m_playerData2 : m_playerData1;
+                playerData.CurScore++;
+                m_gameCanvas.SetNormalScore(m_playerData1.CurScore, m_playerData2.CurScore);
+                SwitchPlayerTurn();
+            }
             else
             {
                 //playerData.Ball1.OnNewBallInScene();
@@ -489,6 +500,12 @@ public class GameManagerScript : MonoBehaviour
                     EventManager.Broadcast(EVENT.EventNormalKick);
                     break;
             }
+        }
+        if (m_gameArgs.GameType == GameType.TalTalGame)
+        {
+            m_gameCanvas.IncrementCombo();
+            SwitchPlayerTurnAfterWait(false);
+            return;
         }
 
         int addScore = m_comboDataContainer.RegularHitScore;
@@ -543,7 +560,7 @@ public class GameManagerScript : MonoBehaviour
             }
             //print("m_playerData1.CurScore: " + m_playerData1.CurScore);
             //print("m_playerData2.CurScore: " + m_playerData2.CurScore);
-            m_gameCanvas.setScore(m_playerData1.CurScore, m_playerData2.CurScore,
+            m_gameCanvas.SetScore(m_playerData1.CurScore, m_playerData2.CurScore,
              m_curPlayersScoreDelta, m_curPlayerInLead);
 
             yield return null;

@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class ComboConterUI : MonoBehaviour
+public class NormalScoreUI : MonoBehaviour
 {
 
     [SerializeField] TMP_Text m_text;
     private int m_curTweenId = -1;
     private Vector3 m_textInitScale;
-    private int m_curCombo;
 
     [Range(0.05f, 1f)] public float m_timeToTween = 0.2f;
 
@@ -20,23 +19,21 @@ public class ComboConterUI : MonoBehaviour
     public void Init()
     {
         m_textInitScale = transform.localScale;
-        m_curCombo = 0;
+        SetScore(0);
 
     }
-    public void IncrementCombo()
-    {
-        m_curCombo++;
-        SetCombo(m_curCombo);
-    }
 
-    public void SetCombo(int curCombo)
+    public void SetScore(int curScore)
     {
-        m_curCombo = curCombo;
-        m_text.text = m_curCombo.ToString();
-        if ((m_curTweenId == -1) && (m_curCombo != 0))
+        if (m_text.text != curScore.ToString())
         {
-            ScaleUp();
+            m_text.text = curScore.ToString();
+            if (m_curTweenId == -1)
+            {
+                ScaleUp();
+            }
         }
+
     }
     private void ScaleUp()
     {
