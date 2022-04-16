@@ -8,8 +8,11 @@ public class GameCanvasArgs
     public int MatchTime;
 
     public Color PlayerColor1;
+    public Texture PlayerImage1;
 
     public Color PlayerColor2;
+    public Texture PlayerImage2;
+
 
 
 }

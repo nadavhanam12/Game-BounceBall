@@ -58,7 +58,7 @@ public class SoundManager : MonoBehaviour
         EventManager.AddHandler(EVENT.EventStartGameScene, () => { PlayAudioClip(m_soundStartGameScene); });
         EventManager.AddHandler(EVENT.EventCombo, () => { PlayAudioClip(m_soundCombo); });
         EventManager.AddHandler(EVENT.EventNormalKick, () => { PlayNormalKick(); });
-        EventManager.AddHandler(EVENT.EventPowerKick, () => { PlayAudioClip(m_soundSpecialKick); });
+        EventManager.AddHandler(EVENT.EventSpecialKick, () => { PlayAudioClip(m_soundSpecialKick); });
         EventManager.AddHandler(EVENT.EventUpKick, () => { PlayAudioClip(m_soundSpecialKick); });
 
 
@@ -77,7 +77,7 @@ public class SoundManager : MonoBehaviour
         EventManager.RemoveHandler(EVENT.EventStartGameScene, EventAddSoundStartGameScene);
         EventManager.RemoveHandler(EVENT.EventCombo, EventAddSoundCombo);
         EventManager.RemoveHandler(EVENT.EventNormalKick, PlayNormalKick);
-        EventManager.RemoveHandler(EVENT.EventPowerKick, EventAddSoundSpecialKick);
+        EventManager.RemoveHandler(EVENT.EventSpecialKick, EventAddSoundSpecialKick);
         EventManager.RemoveHandler(EVENT.EventUpKick, EventAddSoundSpecialKick);
 
 

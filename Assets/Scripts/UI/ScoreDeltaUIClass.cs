@@ -168,7 +168,7 @@ public class ScoreDeltaUIClass : MonoBehaviour
     {
         if (m_gameType == GameType.TurnsGame)
         {
-            print("TurnsGame, please call setScore");
+            //print("TurnsGame, please call setScore");
             return;
         }
         m_leftNormalScore.SetScore(scoreLeft);
@@ -181,7 +181,7 @@ public class ScoreDeltaUIClass : MonoBehaviour
     {
         if (m_gameType == GameType.TalTalGame)
         {
-            print("TalTalGame, please call setNormalScore");
+            //print("TalTalGame, please call setNormalScore");
             return;
         }
         m_playerInLead = playerInLead;

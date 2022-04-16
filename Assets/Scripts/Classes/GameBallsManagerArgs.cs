@@ -11,6 +11,8 @@ public class GameBallsManagerArgs
     public BallArgs BallArgs;
     public GameCanvasScript GameCanvas;
 
+    public GameType GameType;
+
 
 
 

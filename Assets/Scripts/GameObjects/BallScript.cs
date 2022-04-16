@@ -140,6 +140,7 @@ public class BallScript : MonoBehaviour
 
     public void RemoveBallFromScene(bool fadeOut = false)
     {
+        //print("RemoveBallFrom: " + m_ballIndex);
         if (gameObject.activeInHierarchy)
         {
             m_isBallInPlay = false;
@@ -158,11 +159,11 @@ public class BallScript : MonoBehaviour
 
 
 
-    public void OnNewBallInScene(Color color)
+    public void OnNewBallInScene(Color color, int disXMultiplier = 1)
     {
         this.gameObject.transform.localPosition = m_initialPosition;
         m_curVelocityY = m_args.m_startVelocityY;
-        m_curVelocityX = m_args.m_startVelocityX;
+        m_curVelocityX = m_args.m_startVelocityX * disXMultiplier;
         GenerateNewBall(color);
 
     }
@@ -262,28 +263,32 @@ public class BallScript : MonoBehaviour
 
     private void CheckBounds()
     {
-        if (this.gameObject.transform.position.y < m_args.Bounds.GameLowerBound)
+        Vector3 ballPosition = this.gameObject.transform.position;
+        if (ballPosition.y < m_args.Bounds.GameLowerBound)
         {
             m_isBallInPlay = false;
             this.gameObject.SetActive(false);
             m_onBallLost(m_ballIndex);
 
         }
-        else if (this.gameObject.transform.position.y > m_args.Bounds.GameUpperBound)
+        else if (ballPosition.y > m_args.Bounds.GameUpperBound)
         {
-            Vector3 curPos = this.gameObject.transform.localPosition;
-            curPos.y -= 0.1f;
-            this.gameObject.transform.localPosition = curPos;
+            ballPosition.y -= 0.1f;
+            this.gameObject.transform.localPosition = ballPosition;
             //this.gameObject.transform.localPosition = m_initialPosition;
             m_curVelocityY = m_curVelocityY * (-1f) * m_args.m_ballReflectPower;
         }
-        else if (this.gameObject.transform.position.x - 2 < m_args.Bounds.GameLeftBound)
+        else if (ballPosition.x - 2 < m_args.Bounds.GameLeftBound)
         {
-            m_curVelocityX *= -1;
+            //m_curVelocityX *= -1;
+            ballPosition.x = m_args.Bounds.GameRightBound - 3;
+            this.gameObject.transform.localPosition = ballPosition;
         }
-        else if (this.gameObject.transform.position.x + 2 > m_args.Bounds.GameRightBound)
+        else if (ballPosition.x + 2 > m_args.Bounds.GameRightBound)
         {
-            m_curVelocityX *= -1;
+            //m_curVelocityX *= -1;
+            ballPosition.x = m_args.Bounds.GameLeftBound + 3;
+            this.gameObject.transform.localPosition = ballPosition;
         }
 
     }
@@ -305,12 +310,12 @@ public class BallScript : MonoBehaviour
     public void OnHitPlay(KickType kickType, float distanceX, Color color, bool burstParticles)
     {
         UpdateColor(color);
-        bool isSpecial = true;
+        bool isSpecial = false;
 
-        if (kickType == KickType.Regular)
-        {
-            isSpecial = false;
-        }
+        // if (kickType == KickType.Regular)
+        // {
+        //     isSpecial = false;
+        // }
 
         ApplyHitPhysics(isSpecial, distanceX);
         ApplyHitVisuals(isSpecial, burstParticles);

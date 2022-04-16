@@ -10,6 +10,8 @@ public class PlayerArgs
     public PlayerIndex PlayerIndex;
 
     public Color Color = Color.red;
+    public Texture Image;
+
 
     [HideInInspector] public bool AutoPlay = false;
 

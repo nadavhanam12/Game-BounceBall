@@ -24,10 +24,13 @@ public class GameManagerScript : MonoBehaviour
 
     #region Refs
 
+    public GameType GameType;
+
     [SerializeField] private GameBoundsData m_gameBoundsData;
     [SerializeField] private GameObject m_playerContainer1;
     [SerializeField] private GameObject m_playerContainer2;
     [SerializeField] private GameObject NoMenuStartPage;
+
     private GameCanvasScript m_gameCanvas;
     private ComboDataContainer m_comboDataContainer;
 
@@ -57,7 +60,7 @@ public class GameManagerScript : MonoBehaviour
     private PlayerIndex m_curPlayerInLead;
     private bool m_isGamePause;
     private GameArgs m_gameArgs;
-    private PlayerIndex m_curPlayerPlay = PlayerIndex.First;
+    private PlayerIndex m_curPlayerTurn = PlayerIndex.First;
     private bool m_onMobileDevice = false;
     private bool m_inTutorial = false;
 
@@ -113,7 +116,7 @@ public class GameManagerScript : MonoBehaviour
         }
         if (m_gameArgs == null)
         {
-            m_gameArgs = new GameArgs(GameType.TalTalGame);
+            m_gameArgs = new GameArgs(GameType);
             //m_gameArgs = new GameArgs(GameType.TurnsGame);
         }
 
@@ -253,6 +256,7 @@ public class GameManagerScript : MonoBehaviour
 
         GameBallsManagerArgs ballsManagerArgs = new GameBallsManagerArgs();
         ballsManagerArgs.BallArgs = m_playersDataContainer.ballArgs;
+        ballsManagerArgs.GameType = m_gameArgs.GameType;
 
         m_ballsManager.GameManagerOnBallHit = onBallHit;
         m_ballsManager.GameManagerOnTurnLost = onTurnLost;
@@ -314,13 +318,13 @@ public class GameManagerScript : MonoBehaviour
     {
         if (m_gameArgs.GameType == GameType.TurnsGame)
         {
-            m_curPlayerPlay = PlayerIndex.First;
+            m_curPlayerTurn = PlayerIndex.First;
             m_playerData1.PlayerScript.StartTurn();
             m_playerData2.PlayerScript.LostTurn();
         }
         else if (m_gameArgs.GameType == GameType.TalTalGame)
         {
-            m_curPlayerPlay = PlayerIndex.First;
+            m_curPlayerTurn = PlayerIndex.First;
             m_playerData1.PlayerScript.StartTurn();
             m_playerData2.PlayerScript.LostTurn();
         }
@@ -331,29 +335,62 @@ public class GameManagerScript : MonoBehaviour
         }
     }
 
-    public void SwitchPlayerTurn()
+    IEnumerator SwitchPlayerTurn(bool shouldSwitchTurn = true)
     {
         if (!m_inTutorial)
         {
-            m_gameCanvas.SwitchTurn(m_curPlayerPlay != PlayerIndex.First);
+            m_gameCanvas.SwitchTurn(m_curPlayerTurn != PlayerIndex.First);
         }
-        Invoke("SwitchPlayerTurnAfterWait", 2f);
+        if (m_gameArgs.GameType == GameType.TalTalGame)
+        {
+            if (m_curPlayerTurn != PlayerIndex.First)
+            {//win player1
+                m_playerData1.PlayerScript.Win();
+                m_playerData2.PlayerScript.Lose();
+            }
+            else
+            {//win player2
+                m_playerData1.PlayerScript.Lose();
+                m_playerData2.PlayerScript.Win();
+            }
+        }
+
+        yield return new WaitForSeconds(1);
+        InitPlayersStatus();
+        /*if (shouldSwitchTurn)
+        {
+            m_gameCanvas.SetCurPlayerUI(m_curPlayerTurn != PlayerIndex.First);
+        }*/
+        yield return new WaitForSeconds(1);
+        SwitchPlayerTurnAfterWait(true, shouldSwitchTurn);
+
     }
 
-    void SwitchPlayerTurnAfterWait(bool throwNewBall = true)
+    private void InitPlayersStatus()
     {
-        if (m_curPlayerPlay == PlayerIndex.First)
+        m_playerData1.PlayerScript.InitPlayer();
+        m_playerData2.PlayerScript.InitPlayer();
+    }
+
+    void SwitchPlayerTurnAfterWait(bool throwNewBall = true, bool shouldSwitchTurn = true)
+    {
+        //print("shouldSwitchTurn: " + shouldSwitchTurn);
+        if (shouldSwitchTurn)
         {
-            m_curPlayerPlay = PlayerIndex.Second;
-            m_playerData1.PlayerScript.LostTurn();
-            m_playerData2.PlayerScript.StartTurn(throwNewBall);
+            m_curPlayerTurn = m_curPlayerTurn == PlayerIndex.First ? PlayerIndex.Second : PlayerIndex.First;
+        }
+
+        if (m_curPlayerTurn == PlayerIndex.First)
+        {
+            m_playerData1.PlayerScript.StartTurn(throwNewBall);
+            m_playerData2.PlayerScript.LostTurn();
         }
         else
         {
-            m_curPlayerPlay = PlayerIndex.First;
-            m_playerData2.PlayerScript.LostTurn();
-            m_playerData1.PlayerScript.StartTurn(throwNewBall);
+            m_playerData1.PlayerScript.LostTurn();
+            m_playerData2.PlayerScript.StartTurn(throwNewBall);
         }
+        m_gameCanvas.SetCurPlayerUI(m_curPlayerTurn == PlayerIndex.First);
     }
 
 
@@ -381,11 +418,13 @@ public class GameManagerScript : MonoBehaviour
         canvasArgs.MatchTime = m_matchTime;
         canvasArgs.PlayerColor1 = m_playerData1.Color;
         canvasArgs.PlayerColor2 = m_playerData2.Color;
+        canvasArgs.PlayerImage1 = m_playerData1.Image;
+        canvasArgs.PlayerImage2 = m_playerData2.Image;
         m_gameCanvas.Init(canvasArgs);
         m_gameCanvas.m_onTimeIsOver = TimeIsOver;
 
         m_gameCanvas.m_OnTouchKickRegular = m_playerData1.PlayerScript.OnTouchKickRegular;
-        m_gameCanvas.m_OnTouchKickPower = m_playerData1.PlayerScript.OnTouchKickPower;
+        m_gameCanvas.m_OnTouchKickSpecial = m_playerData1.PlayerScript.OnTouchKickSpecial;
         m_gameCanvas.m_OnTouchJump = m_playerData1.PlayerScript.OnTouchJump;
 
 
@@ -416,10 +455,10 @@ public class GameManagerScript : MonoBehaviour
 
 
 
-    public void onTurnLost(PlayerIndex playerIndex)
+    public void onTurnLost()
     {
         PlayerArgs playerData;
-        if (playerIndex == PlayerIndex.First)
+        if (m_curPlayerTurn == PlayerIndex.First)
         {
             playerData = m_playerData1;
             EventManager.Broadcast(EVENT.EventOnBallLost);
@@ -442,10 +481,10 @@ public class GameManagerScript : MonoBehaviour
             }
             else
             {
-                if (m_curPlayerPlay == PlayerIndex.First) //for the first turn change while tutorial
+                if (m_curPlayerTurn == PlayerIndex.First) //for the first turn change while tutorial
                 {
                     m_playerData2.PlayerScript.ShowPlayer(true);
-                    SwitchPlayerTurn();
+                    StartCoroutine(SwitchPlayerTurn(false));
                 }
                 else
                 {
@@ -460,14 +499,19 @@ public class GameManagerScript : MonoBehaviour
 
             if (m_gameArgs.GameType == GameType.TurnsGame)
             {
-                SwitchPlayerTurn();
+                StartCoroutine(SwitchPlayerTurn());
             }
             else if (m_gameArgs.GameType == GameType.TalTalGame)
             {
                 playerData = playerData == m_playerData1 ? m_playerData2 : m_playerData1;
                 playerData.CurScore++;
+                if (playerData == m_playerData1)
+                {
+                    m_gameCanvas.CheerActivate();
+                }
                 m_gameCanvas.SetNormalScore(m_playerData1.CurScore, m_playerData2.CurScore);
-                SwitchPlayerTurn();
+                StartCoroutine(SwitchPlayerTurn(false));
+
             }
             else
             {
@@ -493,8 +537,8 @@ public class GameManagerScript : MonoBehaviour
         {
             switch (kickType)
             {
-                case KickType.Power:
-                    EventManager.Broadcast(EVENT.EventPowerKick);
+                case KickType.Special:
+                    EventManager.Broadcast(EVENT.EventSpecialKick);
                     break;
                 default:
                     EventManager.Broadcast(EVENT.EventNormalKick);
@@ -531,7 +575,7 @@ public class GameManagerScript : MonoBehaviour
         if (playerArgs.CurCombo == nextComboData.ComboRequired)
         {//New Combo-apply cheer and added score
             playerArgs.CurComboIndex++;
-            if ((!m_inTutorial) && (m_curPlayerPlay == PlayerIndex.First))
+            if ((!m_inTutorial) && (m_curPlayerTurn == PlayerIndex.First))
             {
                 m_gameCanvas.CheerActivate();
                 EventManager.Broadcast(EVENT.EventCombo);

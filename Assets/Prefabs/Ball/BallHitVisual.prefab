@@ -47,7 +47,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ScaleDownFromOriginalScale: 0.585
   timeToPlay: 0.4
-  ScaleFactor: 1.5
+  ScaleFactor: 2.5
 --- !u!95 &4345121352574712494
 Animator:
   serializedVersion: 3
@@ -93,7 +93,7 @@ Transform:
   m_GameObject: {fileID: 2515805801315555596}
   m_LocalRotation: {x: 0, y: 0, z: -0.2838479, w: 0.95886934}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.5, y: 1.5, z: 1}
+  m_LocalScale: {x: 1.1, y: 1.1, z: 1.1}
   m_Children: []
   m_Father: {fileID: 5185872662028686954}
   m_RootOrder: 0
@@ -175,7 +175,7 @@ Transform:
   m_GameObject: {fileID: 7878780472799140198}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.3, y: 1.3, z: 1.3}
   m_Children:
   - {fileID: 3489960750334744670}
   m_Father: {fileID: 5479752297530480255}

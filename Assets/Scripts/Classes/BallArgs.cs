@@ -15,7 +15,7 @@ public class BallArgs
     public float m_ballReflectPower = 1f;
     public float m_ballTimeFadeOut = 1f;
     public float m_startVelocityY = 0.2f;
-    public float m_startVelocityX = 0.0f;
+    [Range(0, 0.5f)] public float m_startVelocityX = 0.25f;
 
 
 

@@ -11,7 +11,7 @@ public enum EVENT
     EventStartGameScene,
     EventCombo,
     EventNormalKick,
-    EventPowerKick,
+    EventSpecialKick,
     EventUpKick,
     EventOnRestart,
     EventOnTimeOver,

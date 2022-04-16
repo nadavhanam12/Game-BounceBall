@@ -882,7 +882,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4525438849032664984}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 5, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 6059651098391552867}
@@ -1057,14 +1057,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3befba924ce909f44993ac73a5d37215, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  GameType: 3
   m_gameBoundsData: {fileID: 2800763266729549041}
   m_playerContainer1: {fileID: 4525438849407261826}
   m_playerContainer2: {fileID: 4525438849365356703}
   NoMenuStartPage: {fileID: 3098511428524071670}
   m_matchTime: 400
   m_countDownDelay: 1
-  m_shouldPlayTutorial: 1
-  m_shouldPlayCountdown: 1
+  m_shouldPlayTutorial: 0
+  m_shouldPlayCountdown: 0
   m_shouldStartWithMenu: 0
 --- !u!1 &4525438850974878673
 GameObject:
@@ -1142,10 +1143,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerStats:
     m_hitZoneRadius: 6
-    m_movingSpeed: 0.375
+    m_movingSpeed: 0.5
     m_jumpSpeed: 0.5
     m_maxHeight: 2
-    m_autoPlayDifficult: 7
+    m_autoPlayDifficult: 0
     AutoPlayBallDistance: 2
     KickCooldown: 0.125
   ballArgs:
@@ -1161,6 +1162,7 @@ MonoBehaviour:
     Name: Player Name 1
     PlayerIndex: 1
     Color: {r: 1, g: 0, b: 0, a: 1}
+    Image: {fileID: 2800000, guid: 198f21f8dfefe3545a65584495883e73, type: 3}
     AutoPlay: 0
     PlayerScript: {fileID: 0}
     CurScore: 0
@@ -1179,6 +1181,7 @@ MonoBehaviour:
     Name: Player Name 2
     PlayerIndex: 2
     Color: {r: 0, g: 0.030314207, b: 1, a: 1}
+    Image: {fileID: 2800000, guid: f91123344a35f584e8b11ba70b8e5d79, type: 3}
     AutoPlay: 0
     PlayerScript: {fileID: 0}
     CurScore: 0

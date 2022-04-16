@@ -19,7 +19,7 @@ public class SequenceRowUI : MonoBehaviour
     [SerializeField] private TMP_Text m_prizeText;
 
     [SerializeField] private Texture m_textureRegular;
-    [SerializeField] private Texture m_texturePower;
+    [SerializeField] private Texture m_textureSpecial;
     [SerializeField] private Texture m_textureUp;
     [SerializeField] private ParticleSystem m_particleSystemRow;
     [SerializeField] private ParticleSystem m_particleSystemImage;
@@ -323,8 +323,8 @@ public class SequenceRowUI : MonoBehaviour
                 return m_textureRegular;
             /*case KickType.Up:
                 return m_textureUp;*/
-            case KickType.Power:
-                return m_texturePower;
+            case KickType.Special:
+                return m_textureSpecial;
             default:
                 return m_textureRegular;
         }

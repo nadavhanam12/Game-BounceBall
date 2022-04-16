@@ -13,7 +13,7 @@ public class PlayerScript : MonoBehaviour
     public enum KickType
     {
         Regular = 0,
-        Power = 1,
+        Special = 1,
     }
 
     #endregion
@@ -26,7 +26,7 @@ public class PlayerScript : MonoBehaviour
 
     private bool m_initialized = false;
     private Animator m_anim;
-    private bool m_inAnimation;
+    private bool m_inParalyze;
     private Quaternion m_initialRotation;
     private Vector3 m_initialPosition;
     private Vector3 m_initialScale;
@@ -43,6 +43,9 @@ public class PlayerScript : MonoBehaviour
     private bool m_runLeftFromTouch = false;
 
     private bool m_inKickCooldown = false;
+    private bool m_onWinLoseAnim = false;
+    bool m_onSlide = false;
+    private float m_halfFieldDistance;
 
 
     #endregion
@@ -62,17 +65,19 @@ public class PlayerScript : MonoBehaviour
     {
         if (!m_initialized)
         {
+            m_args = args;
             m_anim = gameObject.GetComponent<Animator>();
             //m_anim.enabled = false;
-            m_inAnimation = false;
+            m_inParalyze = false;
 
             m_initialRotation = gameObject.transform.rotation;
             m_initialPosition = gameObject.transform.position;
-            m_initialScale = gameObject.transform.lossyScale;
+            m_initialScale = gameObject.transform.localScale;
 
             m_hitZone.gameObject.SetActive(false);
 
-            m_args = args;
+
+            m_halfFieldDistance = m_args.Bounds.GameRightBound - m_args.Bounds.GameRightBound;
             SetPlayerIndexSettings();
 
             m_anim.speed = 1;
@@ -80,6 +85,7 @@ public class PlayerScript : MonoBehaviour
             InitListeners();
 
             m_initialized = true;
+            InitPlayer();
             this.gameObject.SetActive(true);
 
         }
@@ -145,19 +151,20 @@ public class PlayerScript : MonoBehaviour
     {
         if ((!isGamePaused))
         {
-            //if (!m_inAnimation)
-            //{
-            if (!m_args.AutoPlay)
+            if (!m_inParalyze)
             {
-                GetPlayerKickFromKeyboard();
-                GetPlayerMovement();
-                GetJump();
+                if (!m_args.AutoPlay)
+                {
+                    GetPlayerKickFromKeyboard();
+                    GetPlayerMovement();
+                    GetJump();
+                }
+                else
+                {
+                    AutoPlayGeneral();
+                    GetJump();
+                }
             }
-            else
-            {
-                AutoPlayGeneral();
-            }
-            //}
         }
 
     }
@@ -221,7 +228,7 @@ public class PlayerScript : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.A))
         {
-            OnKickPlay(KickType.Power);
+            OnKickPlay(KickType.Special);
         }
 
     }
@@ -235,13 +242,13 @@ public class PlayerScript : MonoBehaviour
         {
             OnMoveX(Vector3.right);
         }
-        else
+        else if (!m_onWinLoseAnim)
         {
-            //m_anim.SetBool("Running", true);
             //print("Idle Trigger");
             AnimSetTrigger("Idle Trigger");
         }
     }
+
 
 
     public void OnMoveX(Vector3 direction)
@@ -259,7 +266,7 @@ public class PlayerScript : MonoBehaviour
         //if (!m_inAnimation)
         if (true)
         {
-            //m_anim.ResetTrigger(triggerName);
+
             m_anim.SetTrigger(triggerName);
         }
     }
@@ -284,20 +291,35 @@ public class PlayerScript : MonoBehaviour
     private bool CheckPlayerInBounds(Vector3 direction)
     {
         bool inBounds;
-        if (direction == Vector3.left)
+        Vector3 playerPos = transform.position;
+        if (direction.x <= 0)//he is moving left
         {
-            inBounds = transform.position.x - 2 > m_args.Bounds.GameLeftBound;
+            //inBounds = transform.position.x - 2 > m_args.Bounds.GameLeftBound;
+            if (playerPos.x - 2 < m_args.Bounds.GameLeftBound)
+            {
+                playerPos.x = m_args.Bounds.GameRightBound;
+                transform.position = playerPos;
+            }
         }
-        else
+        else //he is moving right
         {
-            inBounds = transform.position.x + 2 < m_args.Bounds.GameRightBound;
+            //inBounds = playerPos.x + 2 < m_args.Bounds.GameRightBound;
+            if (playerPos.x + 2 > m_args.Bounds.GameRightBound)
+            {
+                playerPos.x = m_args.Bounds.GameLeftBound;
+                transform.position = playerPos;
+            }
+
         }
+
         //print("leftFromRightBounds: " + leftFromRightBounds);
         //print("rightFromLeftBounds: " + rightFromLeftBounds);
         //print("transform.position.x: " + transform.position.x);
         //print("m_args.Bounds.GameLeftBound: " + m_args.Bounds.GameLeftBound);
 
-        return inBounds;
+
+        //return inBounds;
+        return true;
     }
 
     void AutoPlayGeneral()
@@ -326,13 +348,8 @@ public class PlayerScript : MonoBehaviour
             int rnd = Random.Range(0, 100);
             if (rnd <= m_args.playerStats.m_autoPlayDifficult)
             {
-                Vector3[] ballsPositions = m_args.BallsManager.GetBallsPosition(m_args.PlayerIndex);
-                //print("AUTOPLAYER PLAY");
-                if (BallInHitZone(ballsPositions[0]) || BallInHitZone(ballsPositions[1]))
-                {
-                    OnKickPlay(KickType.Regular);
-                    StartCoroutine(KickCooldown());
-                }
+                m_args.BallsManager.ApplyKick(m_args.PlayerIndex, m_curKickType, m_hitZone.transform.position, m_args.playerStats.m_hitZoneRadius);
+                StartCoroutine(KickCooldown());
             }
         }
 
@@ -349,19 +366,33 @@ public class PlayerScript : MonoBehaviour
 
     void AutoPlayMovement()
     {
-        Vector3[] ballsPositions = m_args.BallsManager.GetBallsPosition(m_args.PlayerIndex);
-        Vector3 ballsTransform = ballsPositions[0];
+        Vector3 ballsTransform = m_args.BallsManager.GetCorrectBallPosition();
         Vector3 playerTransform = gameObject.transform.position;
         float deltaX = ballsTransform.x - playerTransform.x;
         if (Mathf.Abs(deltaX) > m_args.playerStats.AutoPlayBallDistance)
         {
             if (deltaX > 0)
             {
-                OnMoveX(Vector3.right);
+                if (Mathf.Abs(deltaX) < m_halfFieldDistance)//if the distance is less then half field then its better to move the other side
+                {
+                    OnMoveX(Vector3.right);
+                }
+                else
+                {
+                    OnMoveX(Vector3.left);
+                }
+
             }
             else
             {
-                OnMoveX(Vector3.left);
+                if (Mathf.Abs(deltaX) <= m_halfFieldDistance)//if the distance is less then half field then its better to move the other side
+                {
+                    OnMoveX(Vector3.left);
+                }
+                else
+                {
+                    OnMoveX(Vector3.right);
+                }
             }
         }
 
@@ -370,91 +401,68 @@ public class PlayerScript : MonoBehaviour
 
     public void Win()
     {
-        m_anim.enabled = true;
-        m_anim.Play("Win", -1, 0f);
+        /* m_onWinLoseAnim = true;
+         m_anim.enabled = true;
+         m_anim.ResetAllAnimatorTriggers();
+
+         m_anim.Play("Win", -1, 0f);*/
     }
 
     public void Lose()
     {
+        /*m_onWinLoseAnim = true;
         m_anim.enabled = true;
-        m_anim.Play("Lose", -1, 0f);
+        //m_anim.Play("Lose", -1, 0f);
+        m_anim.ResetAllAnimatorTriggers();
+        AnimSetTrigger("Lose Trigger");*/
     }
 
 
 
     public void FinishAnimation()
     {
-        /*print("finishAnimation");
+        //print("finishAnimation");
 
         //gameObject.transform.localRotation = m_initialRotation;
         //gameObject.transform.localPosition = m_initialPosition;
         //gameObject.transform.localScale = m_initialScale;
         //m_anim.SetTrigger("Idle Trigger");
-        m_inAnimation = false;
-        isRunning = false;
-        AnimSetTrigger("Idle Trigger");*/
+        m_inParalyze = false;
+        if (m_onSlide)
+        {
+            ToggleSlide(false);
+        }
+    }
+
+    public void InitPlayer()
+    {
+        gameObject.transform.rotation = m_initialRotation;
+        Vector3 positionUpper = m_initialPosition;
+        positionUpper.y += 8f;
+        gameObject.transform.position = positionUpper;
+        gameObject.transform.localScale = m_initialScale;
+
+        //m_anim.SetTrigger("Idle Trigger");
+        FinishAnimation();
+        m_onWinLoseAnim = false;
+        isJumping = true;
+        isJumpingDown = true;
 
     }
 
 
     public void ReachHitPosition()
     {
-
+        //print("ReachHitPosition");
         if (m_currentlyInTurn)
         {
-            int ballIndex = -1;
-            Vector3[] ballsPositions = m_args.BallsManager.GetBallsPosition(m_args.PlayerIndex);
-            bool firstBallInHitZone = BallInHitZone(ballsPositions[0]);
-            bool secondBallInHitZone = BallInHitZone(ballsPositions[1]);
-            bool firstBallInPlay = m_args.BallsManager.IsBallInScene(m_args.PlayerIndex, 0);
-            bool secondBallInPlay = m_args.BallsManager.IsBallInScene(m_args.PlayerIndex, 1);
-            if (firstBallInHitZone && secondBallInHitZone && firstBallInPlay && secondBallInPlay)
-            {
-                float firstBallDistanceX = ballsPositions[0].x - m_hitZone.transform.position.x;
-                float secondBallDistanceX = ballsPositions[1].x - m_hitZone.transform.position.x;
-                ballIndex = firstBallDistanceX < secondBallDistanceX ? 0 : 1;
-                float distanceX = Mathf.Min(firstBallDistanceX, secondBallDistanceX);
-                m_args.BallsManager.OnHitPlay(m_args.PlayerIndex, ballIndex, m_curKickType, distanceX);
-
-            }
-            else if (firstBallInHitZone && firstBallInPlay)
-            {
-                ballIndex = 0;
-                float distanceX = ballsPositions[ballIndex].x - m_hitZone.transform.position.x;
-                m_args.BallsManager.OnHitPlay(m_args.PlayerIndex, ballIndex, m_curKickType, distanceX);
-
-            }
-            else if (secondBallInHitZone && secondBallInPlay)
-            {
-                ballIndex = 1;
-                float distanceX = ballsPositions[ballIndex].x - m_hitZone.transform.position.x;
-                m_args.BallsManager.OnHitPlay(m_args.PlayerIndex, ballIndex, m_curKickType, distanceX);
-
-            }
-
+            m_args.BallsManager.ApplyKick(m_args.PlayerIndex, m_curKickType, m_hitZone.transform.position, m_args.playerStats.m_hitZoneRadius);
         }
 
     }
 
-    private bool BallInHitZone(Vector3 ballPosition)
-    {
-        /*if (m_args.PlayerIndex == PlayerIndex.Second)
-        {
-            return true;
-        }*/
-        Vector3 hitZoneCenter = m_hitZone.transform.position;
-        ballPosition.z = 0;
-        hitZoneCenter.z = 0;
-        float distance = Vector3.Distance(hitZoneCenter, ballPosition);
-        /*if (m_args.PlayerIndex == PlayerIndex.First)
-        {
-            print("distance: " + distance);
-            print("m_hitZoneRadius: " + m_hitZoneRadius);
-            print(distance <= m_hitZoneRadius);
-        }*/
 
-        return distance <= m_args.playerStats.m_hitZoneRadius;
-    }
+
 
 
 
@@ -464,31 +472,49 @@ public class PlayerScript : MonoBehaviour
         if (!isGamePaused)
         {
             //if (!m_inAnimation)
-            if (!m_inKickCooldown)
+            if ((!m_inKickCooldown) && (!m_inParalyze))
             {
-                m_inAnimation = true;
-
                 m_curKickType = kickType;
                 string triggerName;
                 switch (kickType)
                 {
-                    case (KickType.Power):
-                        triggerName = "KickPower Trigger";
+                    case (KickType.Special):
+                        triggerName = "KickSpecial Trigger";
+                        m_inParalyze = true;
+                        ToggleSlide(true);
                         break;
 
                     default:
                         triggerName = "KickReg Trigger";
+                        ReachHitPosition();
                         break;
                 }
                 //print(animName);
                 //AnimSetTrigger(triggerName);
                 m_anim.ResetTrigger(triggerName);
                 m_anim.SetTrigger(triggerName);
-                ReachHitPosition();
+                //ReachHitPosition();
                 StartCoroutine(KickCooldown());
+
 
                 //anim.enabled = false;
             }
+        }
+    }
+
+    void ToggleSlide(bool shouldSlide)
+    {
+        m_onSlide = shouldSlide;
+        if (m_onSlide)
+        {
+            Vector3 dir = gameObject.transform.localScale.x == 1 ? Vector3.right : Vector3.left;
+            dir *= m_args.playerStats.SlideSpeed;
+            StartCoroutine(Slide(dir));
+        }
+        else
+        {
+            print("stop slide");
+            StopCoroutine(Slide(Vector3.zero));
         }
     }
 
@@ -517,26 +543,38 @@ public class PlayerScript : MonoBehaviour
     {
         OnJump();
     }
-    public void OnTouchKickPower()
+    public void OnTouchKickSpecial()
     {
-        OnKickPlay(KickType.Power);
+        OnKickPlay(KickType.Special);
     }
 
     public void LostTurn()
     {
+
         m_currentlyInTurn = false;
+
     }
     public void StartTurn(bool throwNewBall = true)
     {
         m_currentlyInTurn = true;
         if (throwNewBall)
         {
-            m_args.BallsManager.OnNewBallInScene(m_args.PlayerIndex);
+            m_args.BallsManager.OnNewBallInScene(m_args.PlayerIndex, m_args.PlayerIndex);
         }
+
     }
     public void ShowPlayer(bool toShow)
     {
         gameObject.SetActive(toShow);
+    }
+
+    IEnumerator Slide(Vector3 slideDirection)
+    {
+        while (m_onSlide)
+        {
+            OnMoveX(slideDirection);
+            yield return new WaitForSeconds(.01f);
+        }
     }
 
 

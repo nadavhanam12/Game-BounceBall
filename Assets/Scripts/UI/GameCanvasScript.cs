@@ -19,8 +19,8 @@ public class GameCanvasScript : MonoBehaviour
     public OnTouchKickRegular m_OnTouchKickRegular;
     public delegate void OnTouchJump();
     public OnTouchJump m_OnTouchJump;
-    public delegate void OnTouchKickPower();
-    public OnTouchKickPower m_OnTouchKickPower;
+    public delegate void OnTouchKickSpecial();
+    public OnTouchKickSpecial m_OnTouchKickSpecial;
 
 
 
@@ -43,6 +43,7 @@ public class GameCanvasScript : MonoBehaviour
     private ComboConterUI ComboConterUI;
     private TurnsUI TurnsUI;
     private TutorialUI TutorialUI;
+    private CurPlayerUI CurPlayerUI;
     #endregion
 
     #region private
@@ -56,7 +57,7 @@ public class GameCanvasScript : MonoBehaviour
     private Texture2D[] backgroundsList;
     const string backgroundsPath = "BackGround";
 
-    private GameCanvasArgs m_gameType;
+    private GameCanvasArgs m_args;
 
 
     #endregion
@@ -68,7 +69,7 @@ public class GameCanvasScript : MonoBehaviour
         ScoreUIDelta.SetGamePause(isGamePaused);
 
     }
-    public void OnKickPowerInput() { m_OnTouchKickPower(); }
+    public void OnKickSpecialInput() { m_OnTouchKickSpecial(); }
     public void OnKickRegularInput() { m_OnTouchKickRegular(); }
     public void OnJumpInput() { m_OnTouchJump(); }
     public void OnMoveRightInputPressed() { EventManager.Broadcast(EVENT.EventOnRightPressed); }
@@ -82,17 +83,17 @@ public class GameCanvasScript : MonoBehaviour
     {
         if (!m_initialized)
         {
-            m_gameType = args;
+            m_args = args;
             InitRefs();
             m_initialized = true;
             this.GetComponent<Canvas>().worldCamera = Camera.main;
             m_anim = GetComponent<Animator>();
-            m_timeToPlay = m_gameType.MatchTime;
+            m_timeToPlay = m_args.MatchTime;
 
             //need to set also the delta
-            ScoreUIDelta.SetColors(m_gameType.PlayerColor1, m_gameType.PlayerColor2);
+            ScoreUIDelta.SetColors(m_args.PlayerColor1, m_args.PlayerColor2);
             ScoreUIDelta.SetTimeToPlay(m_timeToPlay);
-            ScoreUIDelta.Init(m_gameType.GameType);
+            ScoreUIDelta.Init(m_args.GameType);
 
             backgroundsList = Resources.LoadAll<Texture2D>(backgroundsPath);
             Background.texture = ChooseRandomBackground();
@@ -104,6 +105,7 @@ public class GameCanvasScript : MonoBehaviour
             NextColorUI.Init();
             ComboConterUI.Init();
             TurnsUI.Init();
+            CurPlayerUI.Init(m_args.PlayerImage1, m_args.PlayerImage2);
 
             EventManager.AddHandler(EVENT.EventOnTimeOver, OnTimeIsOver);
 
@@ -141,6 +143,7 @@ public class GameCanvasScript : MonoBehaviour
         TurnsUI = GetComponentInChildren<TurnsUI>(true);
         TutorialUI = GetComponentInChildren<TutorialUI>(true);
         RestartButton = GetComponentInChildren<RestartUI>(true);
+        CurPlayerUI = GetComponentInChildren<CurPlayerUI>(true);
     }
 
     public void CheerActivate()
@@ -206,7 +209,19 @@ public class GameCanvasScript : MonoBehaviour
     }
     public void SwitchTurn(bool isPlayerTurn)
     {
+        if ((m_args.GameType == GameType.TalTalGame) && (isPlayerTurn))
+        {
+            return;
+        }
+
         TurnsUI.Activate(isPlayerTurn);
+
+
+    }
+    public void SetCurPlayerUI(bool isPlayerTurn)
+    {
+        //print(isPlayerTurn);
+        CurPlayerUI.SetImage(isPlayerTurn);
     }
     public TutorialUI GetTutorialUI()
     {
