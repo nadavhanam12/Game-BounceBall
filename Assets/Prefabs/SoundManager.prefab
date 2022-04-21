@@ -43,7 +43,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.05
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -170,7 +170,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.1
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -264,6 +264,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2838336884908187814}
   - component: {fileID: 2708142022355576447}
+  - component: {fileID: 2001943622}
   m_Layer: 0
   m_Name: SoundManager
   m_TagString: Untagged
@@ -299,14 +300,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae55584a14ec08b41be39e39f617af91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_soundNormalKick: []
-  m_soundSpecialKick: {fileID: 0}
-  m_soundCombo: {fileID: 0}
-  m_soundMenuChoose: {fileID: 0}
-  m_soundMainMenuOpen: {fileID: 0}
-  m_soundStartGameScene: {fileID: 0}
-  m_musicGeneral: {fileID: 8300000, guid: 5d377c114bffc034a88e4903771a2e23, type: 3}
+  m_soundNormalKick:
+  - {fileID: 8300000, guid: 59e35502eee5ba64b823ae704e087d2d, type: 3}
+  - {fileID: 8300000, guid: f8ae5fc3bf7993e44af258a1cb206181, type: 3}
+  - {fileID: 8300000, guid: 13c0d92257d3f3d449ee9ebb99d71f66, type: 3}
+  m_soundSpecialKick: {fileID: 8300000, guid: c67dd8b7cdd1e9c4b9479263ae34d40b, type: 3}
+  m_soundCombo: {fileID: 8300000, guid: 25425d77b4d410841847b10b3d758d69, type: 3}
+  m_soundMenuChoose: {fileID: 8300000, guid: 2eaeafd687ea5ea4db1483889648be5c, type: 3}
+  m_soundMainMenuOpen: {fileID: 8300000, guid: 01028a788c593604dbd08d14a8c0c838, type: 3}
+  m_soundStartGameScene: {fileID: 8300000, guid: dd949ff660f4c11449d5db3887d200fd, type: 3}
+  m_musicGeneral: {fileID: 8300000, guid: a6632e6006a5a444c8ab5e93146ce90c, type: 3}
   m_effectsSource: {fileID: 6855799805450843559}
   m_musicSource: {fileID: 4910729711649023149}
   LowPitchRange: 0.95
   HighPitchRange: 1.05
+--- !u!81 &2001943622
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6112541667056135801}
+  m_Enabled: 1

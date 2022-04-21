@@ -38,6 +38,7 @@ public class GameManagerScript : MonoBehaviour
     //private SequenceManager m_sequenceManager;
     private GameBallsManager m_ballsManager;
     private TutorialManager m_tutorialManager;
+    private PickablesManager m_pickablesManager;
 
 
     #endregion
@@ -141,7 +142,7 @@ public class GameManagerScript : MonoBehaviour
     {
         InitGameMood();
         SetGamePause(false);
-        m_playerData2.PlayerScript.ShowPlayer(false);
+        m_playerData2.PlayerScript.HidePlayer();
         m_inTutorial = true;
         m_tutorialManager.Play();
     }
@@ -149,7 +150,7 @@ public class GameManagerScript : MonoBehaviour
     {
         //should init after tutorial
         m_inTutorial = false;
-        m_playerData2.PlayerScript.ShowPlayer(true);
+        m_playerData2.PlayerScript.ShowPlayer();
         m_ballsManager.RemoveAllBalls();
         m_tutorialManager.TurnOff();
         InitScoreAndCombo();
@@ -178,7 +179,7 @@ public class GameManagerScript : MonoBehaviour
         m_tutorialManager.Init(tutorialArgs);
         m_tutorialManager.Pause = SetGamePause;
         m_tutorialManager.OnFinishTutorial = FinishedTutorial;
-        m_tutorialManager.onShowOpponent = () => m_playerData2.PlayerScript.ShowPlayer(true);
+        m_tutorialManager.onShowOpponent = () => m_playerData2.PlayerScript.ShowPlayer();
 
     }
 
@@ -226,6 +227,7 @@ public class GameManagerScript : MonoBehaviour
 
         InitGameCanvas();
         InitTutorial();
+        InitPickablesManager();
 
         //InitSequenceManager();
 
@@ -247,8 +249,16 @@ public class GameManagerScript : MonoBehaviour
         m_playersDataContainer = GetComponentInChildren<PlayersDataContainer>();
         //m_sequenceManager = GetComponentInChildren<SequenceManager>();
         m_tutorialManager = GetComponentInChildren<TutorialManager>();
+        m_pickablesManager = GetComponentInChildren<PickablesManager>();
 
 
+    }
+
+    private void InitPickablesManager()
+    {
+        PickablesManagerArgs args = new PickablesManagerArgs();
+        args.GameBounds = m_gameBounds;
+        m_pickablesManager.Init(args);
     }
 
     private void InitBallsManager()
@@ -294,6 +304,8 @@ public class GameManagerScript : MonoBehaviour
 
         m_playerData1.BallsManager = m_ballsManager;
         m_playerData2.BallsManager = m_ballsManager;
+        m_playerData1.PickablesManager = m_pickablesManager;
+        m_playerData2.PickablesManager = m_pickablesManager;
 
     }
 
@@ -483,7 +495,7 @@ public class GameManagerScript : MonoBehaviour
             {
                 if (m_curPlayerTurn == PlayerIndex.First) //for the first turn change while tutorial
                 {
-                    m_playerData2.PlayerScript.ShowPlayer(true);
+                    m_playerData2.PlayerScript.ShowPlayer();
                     StartCoroutine(SwitchPlayerTurn(false));
                 }
                 else
@@ -655,7 +667,8 @@ public class GameManagerScript : MonoBehaviour
         }
         else
         {
-            SceneManager.LoadSceneAsync("Root");
+            SceneManager.LoadSceneAsync("GameScene");
+            //SceneManager.LoadSceneAsync("Root");
         }
     }
     private void OnRestart()

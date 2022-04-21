@@ -166,7 +166,7 @@ public class GameBallsManager : MonoBehaviour
 
     //Generate another ball with different color and direction
     //update the game manager for score and combo
-    private void OnHitPlay(PlayerIndex playerIndex, int ballIndex, KickType kickType, float distanceX)
+    private void OnHitPlay(PlayerIndex playerIndex, int ballIndex, KickType kickType)
     {
         BallScript ball = m_ballsArray[ballIndex];
         if (m_curRequiredColor != ball.GetColor())
@@ -194,6 +194,7 @@ public class GameBallsManager : MonoBehaviour
         ActivateBallHitVisual(color1, ball.GetPosition());
         otherBall.GenerateNewBallInScene(color2, ball.GetPosition(), ball.GetVelocityY(), ball.GetVelocityX());
 
+        float distanceX = 1f;
         if (FlipDistance())
         {
             distanceX *= (-1);
@@ -296,94 +297,23 @@ public class GameBallsManager : MonoBehaviour
 
     }
 
-    public void ApplyKick(PlayerIndex playerIndex, KickType kickType, Vector3 hitZoneCenter, float radius)
+    public void ApplyKick(PlayerIndex playerIndex, KickType kickType, List<BallScript> ballsHit)
     {
-        Vector3 correctBallPosition = m_ballsArray[m_correctBallIndex].gameObject.transform.position;
-        if (BallInHitZone(hitZoneCenter, radius, correctBallPosition)) //kick correct ball if in range
+        BallScript correctBall = m_ballsArray[m_correctBallIndex];
+        if (ballsHit.Contains(correctBall)) //kick correct ball if in range
         {
             int ballIndex = m_correctBallIndex;
-            float distanceX = correctBallPosition.x - hitZoneCenter.x;
-            OnHitPlay(playerIndex, ballIndex, kickType, distanceX);
+            OnHitPlay(playerIndex, ballIndex, kickType);
         }
         else //kick closest ball if in range
         {
-            int ClosestBallIndex = GetClostestBallInZone(hitZoneCenter, radius);
-
-            if (ClosestBallIndex != -1)
-            {
-                Vector3 BallPosition = m_ballsArray[ClosestBallIndex].gameObject.transform.position;
-                float distanceX = BallPosition.x - hitZoneCenter.x;
-                OnHitPlay(playerIndex, ClosestBallIndex, kickType, distanceX);
-            }
+            BallScript kickBall = ballsHit[0];
+            int ballIndex = System.Array.IndexOf(m_ballsArray, kickBall);
+            OnHitPlay(playerIndex, ballIndex, kickType);
         }
 
     }
-    private int GetClostestBallInZone(Vector3 hitZoneCenter, float radius)
-    {
-        float minDistance = -1;
-        Vector3 minBallPos = Vector3.zero;
-        int minBallIndex = -1;
 
-        float curDistance = 0;
-        Vector3 curBallPos;
-        BallScript curBall;
-        for (int i = 0; i < m_ballsArray.Length; i++)
-        {
-            curBall = m_ballsArray[i];
-            if (curBall.IsInScene())
-            {
-                curBallPos = m_ballsArray[i].gameObject.transform.position;
-                curDistance = Vector3.Distance(hitZoneCenter, curBallPos);
-                if (minDistance == -1)
-                {
-                    minBallIndex = i;
-                    minDistance = curDistance;
-                    minBallPos = curBallPos;
-                }
-                else if (minDistance > curDistance)
-                {
-                    minBallIndex = i;
-                    minDistance = curDistance;
-                    minBallPos = curBallPos;
-                }
-            }
-        }
-        if ((minBallIndex != -1) && (BallInHitZone(hitZoneCenter, radius, minBallPos)))
-        {
-            return minBallIndex;
-        }
-        return -1;
-
-    }
-    private bool BallInHitZone(Vector3 hitZoneCenter, float radius, Vector3 ballPosition)
-    {
-        ballPosition.z = 0;
-        hitZoneCenter.z = 0;
-        float distance = Vector3.Distance(hitZoneCenter, ballPosition);
-        /*if (m_args.PlayerIndex == PlayerIndex.First)
-        {
-            print("distance: " + distance);
-            print("m_hitZoneRadius: " + m_hitZoneRadius);
-            print(distance <= m_hitZoneRadius);
-        }*/
-
-        return distance <= radius;
-    }
-
-    //return the balls position
-    private Vector3[] GetBallsPosition()
-    {
-        List<Vector3> ballsPositions = new List<Vector3>();
-        for (int i = 0; i < m_ballsArray.Length; i++)
-        {
-            if (m_ballsArray[i].IsInScene())
-            {
-                ballsPositions.Add(m_ballsArray[i].gameObject.transform.position);
-            }
-        }
-
-        return ballsPositions.ToArray();
-    }
 
     public Vector3 GetCorrectBallPosition()
     {

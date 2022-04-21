@@ -23,6 +23,7 @@ public class PlayerArgs
     [HideInInspector] public int CurCombo;
     [HideInInspector] public GameBounds Bounds;
     [HideInInspector] public GameBallsManager BallsManager;
+    [HideInInspector] public PickablesManager PickablesManager;
     [HideInInspector] public PlayerStats playerStats;
 
 }
