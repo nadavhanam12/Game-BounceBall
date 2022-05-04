@@ -264,7 +264,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2838336884908187814}
   - component: {fileID: 2708142022355576447}
-  - component: {fileID: 2001943622}
+  - component: {fileID: 780977247}
   m_Layer: 0
   m_Name: SoundManager
   m_TagString: Untagged
@@ -314,7 +314,7 @@ MonoBehaviour:
   m_musicSource: {fileID: 4910729711649023149}
   LowPitchRange: 0.95
   HighPitchRange: 1.05
---- !u!81 &2001943622
+--- !u!81 &780977247
 AudioListener:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

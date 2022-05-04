@@ -10,6 +10,9 @@ public class TutorialUI : MonoBehaviour
     public onTouchScreen OnTouchScreen;
     private GameCanvasScript m_gameCanvas;
     private Button m_buttonNext;
+    [SerializeField] GameObject m_basicKickPNG;
+    [SerializeField] GameObject m_KickKickPNG;
+
 
     private List<Image> Panels;
     public void Init(GameCanvasScript gameCanvas)
@@ -48,8 +51,14 @@ public class TutorialUI : MonoBehaviour
         }
         Panels[panelToOpen].gameObject.SetActive(true);
         m_buttonNext.gameObject.SetActive(true);
+        TogglePNG(true);
 
 
+    }
+    private void TogglePNG(bool toShow)
+    {
+        m_basicKickPNG.gameObject.SetActive(toShow);
+        m_KickKickPNG.gameObject.SetActive(toShow);
 
     }
 
@@ -73,6 +82,7 @@ public class TutorialUI : MonoBehaviour
     public void HideButton()
     {
         m_buttonNext.gameObject.SetActive(false);
+        TogglePNG(false);
     }
 
     public void HidePanel(int panelToHide)

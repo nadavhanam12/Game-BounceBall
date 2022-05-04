@@ -36,6 +36,7 @@ public class GameCanvasScript : MonoBehaviour
     private CheerScript CheerObject;
     [SerializeField] RawImage Background;
     [SerializeField] GameObject CountdownUI;
+    [SerializeField] GameObject BombUI;
     private RestartUI RestartButton;
 
     //[SerializeField] SequenceMenuUI SequenceMenuUI;
@@ -100,15 +101,16 @@ public class GameCanvasScript : MonoBehaviour
 
 
 
-            CheerObject.Init();
+            CheerObject.Init(m_args.GameType);
             //SequenceMenuUI.Init();
             NextColorUI.Init();
             ComboConterUI.Init();
-            TurnsUI.Init();
+            TurnsUI.Init(m_args.GameType);
             CurPlayerUI.Init(m_args.PlayerImage1, m_args.PlayerImage2);
 
             EventManager.AddHandler(EVENT.EventOnTimeOver, OnTimeIsOver);
 
+            ShowBombUI(false);
             CountdownUI.gameObject.SetActive(false);
             //m_anim.Play("FadeIn", -1, 0f);
 
@@ -209,10 +211,10 @@ public class GameCanvasScript : MonoBehaviour
     }
     public void SwitchTurn(bool isPlayerTurn)
     {
-        if ((m_args.GameType == GameType.TalTalGame) && (isPlayerTurn))
+        /*if ((m_args.GameType == GameType.TalTalGame) && (isPlayerTurn))
         {
             return;
-        }
+        }*/
 
         TurnsUI.Activate(isPlayerTurn);
 
@@ -242,6 +244,10 @@ public class GameCanvasScript : MonoBehaviour
     public void SetNormalScore(int scoreLeft, int scoreRight)
     {
         ScoreUIDelta.SetNormalScore(scoreLeft, scoreRight);
+    }
+    public void ShowBombUI(bool toShow)
+    {
+        BombUI.gameObject.SetActive(toShow);
     }
 
 

@@ -26,4 +26,7 @@ public class PlayerArgs
     [HideInInspector] public PickablesManager PickablesManager;
     [HideInInspector] public PlayerStats playerStats;
 
+    public delegate void OnToggleBombUI(bool toShow);
+    public OnToggleBombUI ToggleBombUI;
+
 }

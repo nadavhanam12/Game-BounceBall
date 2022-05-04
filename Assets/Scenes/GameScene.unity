@@ -204,54 +204,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1845119460, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: playerStats.m_movingSpeed
-      value: 0.65
-      objectReference: {fileID: 0}
-    - target: {fileID: 583772043532331049, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1301254002389605659, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: m_RaycastPadding.x
-      value: -15
-      objectReference: {fileID: 0}
-    - target: {fileID: 1301254002389605659, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: m_RaycastPadding.z
-      value: -15
-      objectReference: {fileID: 0}
-    - target: {fileID: 2800763266875916994, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0.3
-      objectReference: {fileID: 0}
-    - target: {fileID: 2800763266875916994, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0.3
-      objectReference: {fileID: 0}
-    - target: {fileID: 2800763266875916994, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4525438850644537379, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: GameType
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 4525438850644537379, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: m_matchTime
-      value: 60
-      objectReference: {fileID: 0}
-    - target: {fileID: 4525438850644537379, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: m_shouldPlayTutorial
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4525438850644537379, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: m_shouldPlayCountdown
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4525438850644537379, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: m_shouldStartWithMenu
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 4525438850974878673, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
       propertyPath: m_Name
       value: GameScene
@@ -299,30 +251,6 @@ PrefabInstance:
     - target: {fileID: 4525438850974878674, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5589865567311019556, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: m_RaycastPadding.x
-      value: -15
-      objectReference: {fileID: 0}
-    - target: {fileID: 5589865567311019556, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: m_RaycastPadding.z
-      value: -15
-      objectReference: {fileID: 0}
-    - target: {fileID: 7561251731256154789, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: m_LocalScale.x
-      value: -1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8030788031381227241, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: m_RaycastPadding.x
-      value: -15
-      objectReference: {fileID: 0}
-    - target: {fileID: 8030788031381227241, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: m_RaycastPadding.z
-      value: -15
-      objectReference: {fileID: 0}
-    - target: {fileID: 9080468270625385701, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}
-      propertyPath: m_bombsMaxNumber
-      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1b44e0365a82f0548a07d61b2fbc7c2a, type: 3}

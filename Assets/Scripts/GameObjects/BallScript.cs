@@ -1,11 +1,7 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
-using static GameManagerScript;
-// using System;
 using static PlayerScript;
-using static UnityEngine.ParticleSystem;
 
 public class BallScript : MonoBehaviour
 {
@@ -24,10 +20,6 @@ public class BallScript : MonoBehaviour
     //const float m_startVelocityY = 0.2f;
     //const float m_startVelocityX = -0.2f;
     //const float m_startVelocityX = 0f;
-    const float m_maxVelocityY = 100;
-    const float m_velocityMultiplier = 0.001f;
-    const float m_hitMultiplierY = 0.1f;
-    const float m_hitMultiplierX = 0.2f;
 
     #endregion
 
@@ -40,15 +32,7 @@ public class BallScript : MonoBehaviour
 
     private bool m_initialized = false;
 
-    private bool m_isBallInPlay;
-    private Animator m_anim;
     private ParticleSystem m_particles;
-    private bool m_inAnimation;
-    private float m_curVelocityY;
-    private float m_curVelocityX;
-
-    private float curY;
-    private float curX;
     private Quaternion m_initialRotation;
     private Vector3 m_initialPosition;
     private Vector3 m_initialScale;
@@ -66,6 +50,11 @@ public class BallScript : MonoBehaviour
     private Color m_curColor = Color.white;
 
     private int m_curTweenId = -1;
+    private Rigidbody2D m_rigidBody;
+    private CircleCollider2D m_collider;
+    public bool BallHasFallen = false;
+
+    private Vector2 waitingForce = Vector2.zero;
 
     #endregion
 
@@ -77,36 +66,25 @@ public class BallScript : MonoBehaviour
         {
 
             //print("init ballscript");
-            m_anim = gameObject.GetComponent<Animator>();
             //m_particles = gameObject.GetComponentInChildren<ParticleSystem>();
             m_spriteRenderer = GetComponentInChildren<SpriteRenderer>();
             m_curBallTrail = GetComponentInChildren<ParticleSystem>();
-            //m_rigidBody = GetComponent<Rigidbody>();
+            m_rigidBody = GetComponent<Rigidbody2D>();
+            m_collider = GetComponent<CircleCollider2D>();
 
             this.gameObject.SetActive(false);
-            //m_anim.enabled = false;
-            m_inAnimation = false;
 
             m_initialRotation = gameObject.transform.localRotation;
             m_initialPosition = gameObject.transform.localPosition;
             m_initialScale = gameObject.transform.localScale;
 
-            m_curVelocityY = 0;
-            m_curVelocityX = 0;
             m_args = args;
 
             m_initialized = true;
 
             m_ballIndex = ballIndex;
 
-            //m_hitHailo.gameObject.SetActive(false);
-
-            // this.gameObject.SetActive(true);
-            // m_isBallInPlay = true;
-
-
-
-            //OnNewBallInScene();
+            m_rigidBody.gravityScale = m_args.m_gravity;
         }
 
     }
@@ -115,13 +93,9 @@ public class BallScript : MonoBehaviour
     {
         return transform.position;
     }
-    public float GetVelocityX()
+    public Vector2 GetVelocity()
     {
-        return m_curVelocityX;
-    }
-    public float GetVelocityY()
-    {
-        return m_curVelocityY;
+        return m_rigidBody.velocity;
     }
 
     public Color GetColor()
@@ -135,7 +109,7 @@ public class BallScript : MonoBehaviour
 
     public bool IsInScene()
     {
-        return m_isBallInPlay;
+        return gameObject.activeInHierarchy;
     }
 
     public void RemoveBallFromScene(bool fadeOut = false)
@@ -143,7 +117,6 @@ public class BallScript : MonoBehaviour
         //print("RemoveBallFrom: " + m_ballIndex);
         if (gameObject.activeInHierarchy)
         {
-            m_isBallInPlay = false;
             if (fadeOut)
             {
                 FadeOut();
@@ -157,22 +130,20 @@ public class BallScript : MonoBehaviour
     }
 
 
-
-
     public void OnNewBallInScene(Color color, int disXMultiplier = 1)
     {
+        //print("OnNewBallInScene");
+        this.gameObject.SetActive(true);
         this.gameObject.transform.localPosition = m_initialPosition;
-        m_curVelocityY = m_args.m_startVelocityY;
-        m_curVelocityX = m_args.m_startVelocityX * disXMultiplier;
+        ApplyPhysics(new Vector2(m_args.m_startVelocityX * disXMultiplier, m_args.m_startVelocityY));
         GenerateNewBall(color);
 
     }
-    public void GenerateNewBallInScene(Color color, Vector3 pos, float velocityY, float velocityX)
+    public void GenerateNewBallInScene(Color color, Vector3 pos)
     {
-
+        //print("GenerateNewBallInScene");
+        this.gameObject.SetActive(true);
         this.gameObject.transform.position = pos;
-        m_curVelocityY = velocityY;
-        m_curVelocityX = velocityX;
         GenerateNewBall(color);
 
     }
@@ -186,13 +157,8 @@ public class BallScript : MonoBehaviour
             m_curTweenId = -1;
         }
         UpdateColor(color);
-        m_isBallInPlay = true;
-
-        //SetBallSprite(0);
-        ApplyHitVisuals(false, false);
-
         this.gameObject.SetActive(true);
-        enabled = true;
+        BallHasFallen = false;
     }
 
     private void UpdateColor(Color color)
@@ -216,39 +182,19 @@ public class BallScript : MonoBehaviour
     {
         if (!isGamePaused)
         {
-            if (m_isBallInPlay)
+
+            if (gameObject.activeInHierarchy)
             {
-                if (Math.Abs(m_curVelocityY) < m_maxVelocityY)
-                {
-                    m_curVelocityY -= m_args.m_gravity * m_velocityMultiplier;
-                }
-
-                curY = this.gameObject.transform.localPosition.y;
-                curY += m_curVelocityY;
-
-                curX = this.gameObject.transform.localPosition.x;
-                curX += m_curVelocityX;
-
-                this.gameObject.transform.localPosition = new Vector3(curX, curY, m_initialPosition.z);
-                if ((m_curVelocityX >= 0) && (animName != "BallRegularHitSide1"))
-                {
-                    animName = "BallRegularHitSide1";
-                }
-                else if ((m_curVelocityX < 0) && (animName != "BallRegularHitSide2"))
-                {
-                    animName = "BallRegularHitSide2";
-                }
-
                 CheckBounds();
                 CheckEmitTrail();
             }
         }
+
     }
 
     void CheckEmitTrail()
     {
-        //print(m_curVelocityY);
-        bool inSpeedToEmit = Math.Abs(m_curVelocityY) >= m_speedEmitTrail;
+        bool inSpeedToEmit = Math.Abs(m_rigidBody.velocity.y) >= m_speedEmitTrail;
         if ((inSpeedToEmit) && (!m_isTrailEmmiting))
         {
             m_isTrailEmmiting = true;
@@ -257,35 +203,43 @@ public class BallScript : MonoBehaviour
         {
             m_isTrailEmmiting = false;
         }
-        //if(m_isTrailEmmiting) m_curBallTrail.Play();
+    }
+    private async void BallFallen()
+    {
+        //print("Ball has fallen");
+        m_rigidBody.AddForce(new Vector2(0, m_args.m_ballReflectPower));
+        BallHasFallen = true;
+        await Task.Delay(1000);
+        this.gameObject.SetActive(false);
+        m_onBallLost(m_ballIndex);
+    }
 
+    private void OnCollisionEnter2D(Collision2D col)
+    {
+        //print("Ball OnCollusion: " + col.collider.name);
+        if (col.gameObject.tag == "GameLowerBound")
+        {
+            BallFallen();
+        }
+        else
+        {
+            Physics2D.IgnoreCollision(m_collider, col.collider);
+        }
     }
 
     private void CheckBounds()
     {
         Vector3 ballPosition = this.gameObject.transform.position;
-        if (ballPosition.y < m_args.Bounds.GameLowerBound)
+        if (ballPosition.x - 2 < m_args.Bounds.GameLeftBound)
         {
-            m_isBallInPlay = false;
-            this.gameObject.SetActive(false);
-            m_onBallLost(m_ballIndex);
-
-        }
-        else if (ballPosition.y > m_args.Bounds.GameUpperBound)
-        {
-            ballPosition.y -= 0.1f;
-            this.gameObject.transform.localPosition = ballPosition;
-            //this.gameObject.transform.localPosition = m_initialPosition;
-            m_curVelocityY = m_curVelocityY * (-1f) * m_args.m_ballReflectPower;
-        }
-        else if (ballPosition.x - 2 < m_args.Bounds.GameLeftBound)
-        {
+            //print("Reached left bound");
             //m_curVelocityX *= -1;
             ballPosition.x = m_args.Bounds.GameRightBound - 3;
             this.gameObject.transform.localPosition = ballPosition;
         }
         else if (ballPosition.x + 2 > m_args.Bounds.GameRightBound)
         {
+            //print("Reached right bound");
             //m_curVelocityX *= -1;
             ballPosition.x = m_args.Bounds.GameLeftBound + 3;
             this.gameObject.transform.localPosition = ballPosition;
@@ -294,69 +248,44 @@ public class BallScript : MonoBehaviour
     }
 
 
-    public void FinishAnimation()
-    {
-        /*
-        gameObject.transform.localRotation = m_initialRotation;
-        gameObject.transform.localPosition = m_initialPosition;
-        gameObject.transform.localScale = m_initialScale;
-        */
-
-        m_inAnimation = false;
-
-    }
-
-
     public void OnHitPlay(KickType kickType, float distanceX, Color color, bool burstParticles)
     {
         UpdateColor(color);
-        bool isSpecial = false;
-
-        // if (kickType == KickType.Regular)
-        // {
-        //     isSpecial = false;
-        // }
-
-        ApplyHitPhysics(isSpecial, distanceX);
-        ApplyHitVisuals(isSpecial, burstParticles);
-
+        ApplyPhysics(new Vector2(distanceX, m_args.BallHitPowerY));
     }
 
 
     public void SetGamePause(bool isPause)
     {
         isGamePaused = isPause;
-        m_anim.enabled = !isGamePaused;
-
-    }
-
-    private void ApplyHitPhysics(bool isSpecial, float distanceX)
-    {
-        float kickPower = isSpecial ? m_args.BallSpecialHitPower : m_args.BallRegularHitPower;
-        m_curVelocityY = kickPower * m_hitMultiplierY;
-        //m_curVelocityX = distanceX * m_args.XAxisMultiplier * m_hitMultiplierX;
-        m_curVelocityX = distanceX * m_args.XAxisMultiplier * m_hitMultiplierX;
-        //print(multiX + "," + m_args.XAxisMultiplier + "," + m_hitMultiplierX + "'" + m_curVelocityX);
-        //print("distanceX: " + distanceX);
-
-    }
-
-    private void ApplyHitVisuals(bool isSpecial, bool withParticles)
-    {
-        if (this.isActiveAndEnabled)
+        m_rigidBody.simulated = !isGamePaused;
+        if (!isGamePaused && waitingForce != Vector2.zero)
         {
-            m_inAnimation = true;
-            //print("animName: " + animName);
-            m_anim.Play(animName, -1, 0f);
-
-            /*if (withParticles)
-            {
-                //m_particles.Emit(ParticlesToEmit);
-                ActivateHitHailo();
-            }*/
+            ResetVelocity();
+            ApplyPhysics(waitingForce);
+            waitingForce = Vector2.zero;
         }
 
     }
+
+    public void ResetVelocity()
+    {
+        m_rigidBody.velocity = Vector2.zero;
+        m_rigidBody.angularVelocity = 0;
+    }
+    private void ApplyPhysics(Vector2 force)
+    {
+        if (isGamePaused)
+        {
+            waitingForce = force;
+        }
+        else
+        {
+            m_rigidBody.AddForce(force);
+            m_rigidBody.AddTorque(force.x * m_args.BallTorqueMultiplier * -1);
+        }
+    }
+
 
     private void FadeOut()
     {

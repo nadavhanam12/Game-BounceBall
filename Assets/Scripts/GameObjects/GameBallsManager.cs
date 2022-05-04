@@ -25,6 +25,8 @@ public class GameBallsManager : MonoBehaviour
 
     [Range(0, 1)]
     [SerializeField] private float m_opponentBallAlpha = 0.5f;
+    [SerializeField] private int m_ballsPoolSize;
+    [SerializeField] private GameObject m_ballsHitVFX;
 
 
     #endregion
@@ -74,9 +76,9 @@ public class GameBallsManager : MonoBehaviour
     {
         BallHitVisual curBallVisuals;
         Vector3 ballScale = firstBall.transform.localScale;
-        for (int i = 0; i < 6; i++)
+        for (int i = 0; i < m_ballsPoolSize; i++)
         {
-            curBallVisuals = Instantiate(m_ballHitVisualPrefab, gameObject.transform);
+            curBallVisuals = Instantiate(m_ballHitVisualPrefab, m_ballsHitVFX.transform);
             curBallVisuals.Init(ballScale);
             m_hitVisualsQueue.Enqueue(curBallVisuals);
         }
@@ -86,7 +88,7 @@ public class GameBallsManager : MonoBehaviour
     {
         m_nextBallIndex = 0;
         firstBall = GetComponentInChildren<BallScript>();
-        m_ballsArray = new BallScript[6];
+        m_ballsArray = new BallScript[m_ballsPoolSize];
         m_ballsArray[0] = firstBall;
         for (int i = 1; i < m_ballsArray.Length; i++)
         {
@@ -106,8 +108,8 @@ public class GameBallsManager : MonoBehaviour
 
     public void OnBallLost(int ballIndex)
     {
-
-        m_ballsArray[ballIndex].RemoveBallFromScene();
+        //bool fadeOut = m_correctBallIndex != ballIndex;
+        m_ballsArray[ballIndex].RemoveBallFromScene(false);
         if (!IsBallsInPLay())
         {
             GameManagerOnTurnLost();
@@ -151,17 +153,17 @@ public class GameBallsManager : MonoBehaviour
 
     private BallScript GetNextBall()
     {
-        BallScript nextBall = m_ballsArray[m_nextBallIndex];
-        m_nextBallIndex++;
-        m_nextBallIndex = m_nextBallIndex % m_ballsArray.Length;
-        while (nextBall.IsInScene())
+        for (int i = 0; i < m_ballsArray.Length; i++)
         {
-            print("nextBall.IsInScene()");
-            nextBall = m_ballsArray[m_nextBallIndex];
+            BallScript nextBall = m_ballsArray[m_nextBallIndex];
             m_nextBallIndex++;
             m_nextBallIndex = m_nextBallIndex % m_ballsArray.Length;
+            if (!nextBall.IsInScene())
+            {
+                return nextBall;
+            }
         }
-        return nextBall;
+        return null;
     }
 
     //Generate another ball with different color and direction
@@ -169,6 +171,10 @@ public class GameBallsManager : MonoBehaviour
     private void OnHitPlay(PlayerIndex playerIndex, int ballIndex, KickType kickType)
     {
         BallScript ball = m_ballsArray[ballIndex];
+        if (ball.BallHasFallen)
+        {
+            return;
+        }
         if (m_curRequiredColor != ball.GetColor())
         {//not correct color
             WrongBallHit(ballIndex);
@@ -178,6 +184,7 @@ public class GameBallsManager : MonoBehaviour
         GameManagerOnBallHit(playerIndex);
 
         BallScript otherBall = GetNextBall();
+        if (otherBall == null) { return; }
         Color color1 = GenerateRandomColor(Color.black);
         Color color2 = GenerateRandomColor(color1);
         if (m_args.GameType == GameType.TurnsGame)
@@ -190,36 +197,37 @@ public class GameBallsManager : MonoBehaviour
         }
         UpdateNextBallColor(color1);
 
-
-        ActivateBallHitVisual(color1, ball.GetPosition());
-        otherBall.GenerateNewBallInScene(color2, ball.GetPosition(), ball.GetVelocityY(), ball.GetVelocityX());
-
-        float distanceX = 1f;
-        if (FlipDistance())
-        {
-            distanceX *= (-1);
-        }
-        //maybe add here lower and upper bound for disX, can make it random or like now that deppend on the kik itself
-
-
-        distanceX = RandomDisX(distanceX);
-
+        Vector2 ballPos = ball.GetPosition();
+        float distanceX = RandomDisX();
         //print("distanceX: " + distanceX);
+
+        ActivateBallHitVisual(color1, ballPos);
+
+        Vector2 otherBallPos = ballPos;
+        if (distanceX > 0)
+            otherBallPos.x -= 1f;
+        else
+            otherBallPos.x += 1f;
+
+        otherBall.GenerateNewBallInScene(color2, otherBallPos);
+
+        ball.ResetVelocity();
+        otherBall.ResetVelocity();
+
+
         ball.OnHitPlay(kickType, distanceX, color1, true);
         otherBall.OnHitPlay(kickType, (-1) * distanceX, color2, false);
     }
 
-    float RandomDisX(float distanceX)
+    float RandomDisX()
     {
-        float rnd = Random.Range(0.75f, 1.75f);
-        if (distanceX >= 0)
+        float rnd = Random.Range(m_args.BallArgs.BallMinimumHitPowerX, m_args.BallArgs.BallMaximumHitPowerX);
+        if (FlipDistance())
         {
-            return rnd;
+            rnd *= (-1);
         }
-        else
-        {
-            return -rnd;
-        }
+
+        return rnd;
     }
 
     float IgnoreDisX(float distanceX)
@@ -276,8 +284,15 @@ public class GameBallsManager : MonoBehaviour
     //should start new turn
     public void OnNewBallInScene(PlayerIndex playerIndex, PlayerIndex nextPlayerIndex = PlayerIndex.First)
     {
+        if (m_ballsArray[m_correctBallIndex].IsInScene())
+        {
+            print("correct ball is in scene");
+            return;
+        }
         m_correctBallIndex = m_nextBallIndex;
+        //print("m_correctBallIndex " + m_correctBallIndex);
         BallScript ball = GetNextBall();
+        if (ball == null) { return; }
         Color color = Color.white;
         if (m_args.GameType == GameType.TurnsGame)
         {
@@ -289,10 +304,10 @@ public class GameBallsManager : MonoBehaviour
         int disXMultiplier = nextPlayerIndex == PlayerIndex.First ? -1 : 1;
         ball.OnNewBallInScene(color, disXMultiplier);
         UpdateNextBallColor(color);
-        if (isGamePaused)
+        /*if (isGamePaused)
         {
             SetGamePause(isGamePaused);
-        }
+        }*/
 
 
     }

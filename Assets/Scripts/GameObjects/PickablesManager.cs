@@ -7,6 +7,7 @@ public class PickablesManager : MonoBehaviour
 {
     private Bomb m_bombInstance;
     [SerializeField] private int m_bombsMaxNumber;
+    [SerializeField] private float m_timeBetweenGenerates = 3f;
     [SerializeField] private float m_pickablesGravity;
     [SerializeField] private float m_pickUpDistance = 1f;
     [SerializeField] private float m_bombHitZoneRadius = 1f;
@@ -20,6 +21,9 @@ public class PickablesManager : MonoBehaviour
     private PickablesManagerArgs m_args;
 
     private int m_bombsCountInScene = 0;
+    private bool isGamePaused = false;
+    private bool m_shouldGenerate = true;
+    private bool m_initialized = false;
 
     public void Init(PickablesManagerArgs args)
     {
@@ -27,8 +31,27 @@ public class PickablesManager : MonoBehaviour
         m_ballsArrayGameObject = transform.Find("BombsArray").gameObject;
         m_bombsArray = new Bomb[m_bombsMaxNumber];
         InitBombs();
-        StartCoroutine(GenerateBombs());
 
+    }
+    public void FinishInitialize()
+    {
+        m_initialized = true;
+    }
+    public void SetGamePause(bool isPause)
+    {
+        isGamePaused = isPause;
+        m_shouldGenerate = !isGamePaused;
+        if ((!isGamePaused) && (m_initialized))
+        {
+            StartCoroutine(GenerateBombs());
+        }
+    }
+
+
+    public void GeneratePickables()
+    {
+        m_shouldGenerate = true;
+        StartCoroutine(GenerateBombs());
     }
 
     private int GetFreeBombIndex()
@@ -46,27 +69,28 @@ public class PickablesManager : MonoBehaviour
 
     IEnumerator GenerateBombs()
     {
-        bool shouldRun = true;
-        while (shouldRun)
+
+        while (m_shouldGenerate)
         {
             if (m_bombsCountInScene == m_bombsMaxNumber) //reached max Bombs
             {
                 //print("Reached Max Bombs");
-                shouldRun = false;
+                m_shouldGenerate = false;
                 break;
             }
             int bombIndex = GetFreeBombIndex();
             if (bombIndex == -1)    //no free bombs left
             {
                 //print("no free bombs left");
-                shouldRun = false;
+                m_shouldGenerate = false;
                 break;
             }
 
             GenerateBomb(bombIndex);
-            yield return new WaitForSeconds(1.5f);
+            yield return new WaitForSeconds(m_timeBetweenGenerates);
 
         }
+        yield return new WaitForSeconds(m_timeBetweenGenerates);
     }
 
     private void InitBombs()
@@ -104,7 +128,7 @@ public class PickablesManager : MonoBehaviour
     public void PickableDisabled<T>(T pickable) where T : Bomb
     {
         m_bombsCountInScene--;
-        StartCoroutine(GenerateBombs());
+        GeneratePickables();
     }
 
 

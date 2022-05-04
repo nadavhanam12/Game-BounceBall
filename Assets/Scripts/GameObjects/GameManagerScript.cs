@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -66,6 +67,7 @@ public class GameManagerScript : MonoBehaviour
     private bool m_inTutorial = false;
 
     private bool m_shouldRestart;
+    private MainMenu m_mainMenu;
 
 
 
@@ -76,6 +78,8 @@ public class GameManagerScript : MonoBehaviour
     public void SetGameArgs(GameArgs gameArgs)
     {
         m_gameArgs = gameArgs;
+
+        StartGameScene();
     }
 
 
@@ -84,11 +88,8 @@ public class GameManagerScript : MonoBehaviour
     void Awake()
     {
         Application.targetFrameRate = 60;
-#if UNITY_ANDROID && !UNITY_EDITOR
-        m_onMobileDevice = true;
-#endif
-        //m_onMobileDevice = true;
-        if (m_gameArgs == null)
+        m_mainMenu = FindObjectOfType<MainMenu>(true);
+        if (m_mainMenu == null) //runs as solo scene
         {
             if (m_shouldStartWithMenu)
             {
@@ -111,6 +112,10 @@ public class GameManagerScript : MonoBehaviour
 
     public void StartGameScene()
     {
+#if UNITY_ANDROID && !UNITY_EDITOR
+            m_onMobileDevice = true;
+#endif
+
         if (NoMenuStartPage.gameObject.activeInHierarchy)
         {
             NoMenuStartPage.gameObject.SetActive(false);
@@ -141,7 +146,6 @@ public class GameManagerScript : MonoBehaviour
     void StartTutorial()
     {
         InitGameMood();
-        SetGamePause(false);
         m_playerData2.PlayerScript.HidePlayer();
         m_inTutorial = true;
         m_tutorialManager.Play();
@@ -154,6 +158,8 @@ public class GameManagerScript : MonoBehaviour
         m_ballsManager.RemoveAllBalls();
         m_tutorialManager.TurnOff();
         InitScoreAndCombo();
+        m_curPlayerTurn = PlayerIndex.First;
+        m_gameCanvas.SetCurPlayerUI(m_curPlayerTurn == PlayerIndex.First);
 
         AfterTutorial();
     }
@@ -175,6 +181,7 @@ public class GameManagerScript : MonoBehaviour
     {
         TutorialArgs tutorialArgs = new TutorialArgs();
         tutorialArgs.GameCanvas = m_gameCanvas;
+        tutorialArgs.GameType = m_gameArgs.GameType;
         tutorialArgs.TutorialUI = m_gameCanvas.GetTutorialUI();
         m_tutorialManager.Init(tutorialArgs);
         m_tutorialManager.Pause = SetGamePause;
@@ -201,6 +208,7 @@ public class GameManagerScript : MonoBehaviour
 
     void StartCountdown()
     {
+        SetGamePause(true);
         m_gameCanvas.StartCountdown();
     }
 
@@ -208,6 +216,8 @@ public class GameManagerScript : MonoBehaviour
     {
         EventManager.Broadcast(EVENT.EventStartGameScene);
         InitGameMood();
+        m_pickablesManager.FinishInitialize();
+        m_pickablesManager.GeneratePickables();
         SetGamePause(false);
         if (m_gameArgs.GameType == GameType.TurnsGame)
         {
@@ -230,15 +240,8 @@ public class GameManagerScript : MonoBehaviour
         InitPickablesManager();
 
         //InitSequenceManager();
-
-        SetGamePause(true);
-
         //Invoke("InitGameMood", 1f);
         //SetGamePause(false);
-
-
-
-
     }
 
     void InitRefs()
@@ -268,7 +271,7 @@ public class GameManagerScript : MonoBehaviour
         ballsManagerArgs.BallArgs = m_playersDataContainer.ballArgs;
         ballsManagerArgs.GameType = m_gameArgs.GameType;
 
-        m_ballsManager.GameManagerOnBallHit = onBallHit;
+        m_ballsManager.GameManagerOnBallHit = OnBallHit;
         m_ballsManager.GameManagerOnTurnLost = onTurnLost;
 
         ballsManagerArgs.GameCanvas = m_gameCanvas;
@@ -307,6 +310,9 @@ public class GameManagerScript : MonoBehaviour
         m_playerData1.PickablesManager = m_pickablesManager;
         m_playerData2.PickablesManager = m_pickablesManager;
 
+        m_playerData1.ToggleBombUI = m_gameCanvas.ShowBombUI;
+        //m_playerData2.ToggleBombUI = m_gameCanvas.ShowBombUI;
+
     }
 
     private void InitData()
@@ -340,6 +346,12 @@ public class GameManagerScript : MonoBehaviour
             m_playerData1.PlayerScript.StartTurn();
             m_playerData2.PlayerScript.LostTurn();
         }
+        else if (m_gameArgs.GameType == GameType.OnePlayer)
+        {
+            m_curPlayerTurn = PlayerIndex.First;
+            m_playerData1.PlayerScript.StartTurn();
+            m_playerData2.PlayerScript.HidePlayer();
+        }
         else
         {
             m_playerData1.PlayerScript.StartTurn();
@@ -347,7 +359,7 @@ public class GameManagerScript : MonoBehaviour
         }
     }
 
-    IEnumerator SwitchPlayerTurn(bool shouldSwitchTurn = true)
+    private async void SwitchPlayerTurn(bool shouldSwitchTurn = true)
     {
         if (!m_inTutorial)
         {
@@ -366,14 +378,15 @@ public class GameManagerScript : MonoBehaviour
                 m_playerData2.PlayerScript.Win();
             }
         }
-
-        yield return new WaitForSeconds(1);
-        InitPlayersStatus();
-        /*if (shouldSwitchTurn)
+        else if (m_gameArgs.GameType == GameType.OnePlayer)
         {
-            m_gameCanvas.SetCurPlayerUI(m_curPlayerTurn != PlayerIndex.First);
-        }*/
-        yield return new WaitForSeconds(1);
+            shouldSwitchTurn = false;
+        }
+
+        await Task.Delay(1000);
+        InitPlayersStatus();
+
+        await Task.Delay(1000);
         SwitchPlayerTurnAfterWait(true, shouldSwitchTurn);
 
     }
@@ -387,6 +400,11 @@ public class GameManagerScript : MonoBehaviour
     void SwitchPlayerTurnAfterWait(bool throwNewBall = true, bool shouldSwitchTurn = true)
     {
         //print("shouldSwitchTurn: " + shouldSwitchTurn);
+        if (m_gameArgs.GameType == GameType.OnePlayer)
+        {
+            shouldSwitchTurn = false;
+        }
+
         if (shouldSwitchTurn)
         {
             m_curPlayerTurn = m_curPlayerTurn == PlayerIndex.First ? PlayerIndex.Second : PlayerIndex.First;
@@ -412,6 +430,7 @@ public class GameManagerScript : MonoBehaviour
         m_playerData1.PlayerScript.SetGamePause(isPause);
         m_playerData2.PlayerScript.SetGamePause(isPause);
         m_ballsManager.SetGamePause(isPause);
+        m_pickablesManager.SetGamePause(isPause);
         m_gameCanvas.SetGamePause(isPause);
         if (!m_isGamePause)
         {
@@ -454,15 +473,16 @@ public class GameManagerScript : MonoBehaviour
 
         m_playerData1.PlayerScript.Init(m_playerData1);
 
-        if (m_gameArgs.GameType != GameType.TurnsGame)
+        if (m_gameArgs.GameType == GameType.TurnsGame || m_gameArgs.GameType == GameType.TalTalGame)
         {
             m_playerData2.AutoPlay = true;
         }
-        else if (m_gameArgs.GameType != GameType.TalTalGame)
+        else if (m_gameArgs.GameType == GameType.OnePlayer)
         {
-            m_playerData2.AutoPlay = true;
+            m_playerData2.AutoPlay = false;
         }
         m_playerData2.PlayerScript.Init(m_playerData2);
+
     }
 
 
@@ -496,7 +516,15 @@ public class GameManagerScript : MonoBehaviour
                 if (m_curPlayerTurn == PlayerIndex.First) //for the first turn change while tutorial
                 {
                     m_playerData2.PlayerScript.ShowPlayer();
-                    StartCoroutine(SwitchPlayerTurn(false));
+                    if (m_gameArgs.GameType == GameType.TalTalGame)
+                    {
+                        SwitchPlayerTurn(true);
+                    }
+                    else
+                    {
+                        SwitchPlayerTurn(false);
+                    }
+
                 }
                 else
                 {
@@ -511,7 +539,7 @@ public class GameManagerScript : MonoBehaviour
 
             if (m_gameArgs.GameType == GameType.TurnsGame)
             {
-                StartCoroutine(SwitchPlayerTurn());
+                SwitchPlayerTurn();
             }
             else if (m_gameArgs.GameType == GameType.TalTalGame)
             {
@@ -522,8 +550,13 @@ public class GameManagerScript : MonoBehaviour
                     m_gameCanvas.CheerActivate();
                 }
                 m_gameCanvas.SetNormalScore(m_playerData1.CurScore, m_playerData2.CurScore);
-                StartCoroutine(SwitchPlayerTurn(false));
+                SwitchPlayerTurn(false);
 
+            }
+            else if (m_gameArgs.GameType == GameType.OnePlayer)
+            {
+                m_playerData1.CurScore = 0;
+                m_ballsManager.OnNewBallInScene(PlayerIndex.First);
             }
             else
             {
@@ -534,8 +567,7 @@ public class GameManagerScript : MonoBehaviour
 
     }
 
-
-    public void onBallHit(PlayerIndex playerIndex)
+    public void OnBallHit(PlayerIndex playerIndex)
     {
         //print("onBallHit");
         if (m_inTutorial)
@@ -557,10 +589,36 @@ public class GameManagerScript : MonoBehaviour
                     break;
             }
         }
+
         if (m_gameArgs.GameType == GameType.TalTalGame)
         {
             m_gameCanvas.IncrementCombo();
-            SwitchPlayerTurnAfterWait(false);
+            if (m_inTutorial && !m_tutorialManager.IsFreePlayMode())
+            {
+                return;
+            }
+            else
+            {
+                SwitchPlayerTurnAfterWait(false);
+            }
+
+            return;
+        }
+
+        if (m_gameArgs.GameType == GameType.OnePlayer)
+        {
+            m_playerData1.CurScore += 1;
+            m_gameCanvas.IncrementCombo();
+            if (m_inTutorial && !m_tutorialManager.IsFreePlayMode())
+            {
+                return;
+            }
+            else if (m_playerData1.CurScore % 4 == 0)
+            {
+                m_gameCanvas.CheerActivate();
+                EventManager.Broadcast(EVENT.EventCombo);
+            }
+
             return;
         }
 
@@ -659,16 +717,21 @@ public class GameManagerScript : MonoBehaviour
 
     private void EndGame()
     {
-        if (m_shouldRestart)
+        if ((!m_shouldRestart) && (m_mainMenu != null))
         {
-            //SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-            //SceneManager.UnloadSceneAsync("GameScene");
-            SceneManager.LoadSceneAsync("GameScene");
+            m_mainMenu.BackToMenu();
         }
         else
         {
-            SceneManager.LoadSceneAsync("GameScene");
-            //SceneManager.LoadSceneAsync("Root");
+            if (m_mainMenu == null)
+            {
+                SceneManager.LoadSceneAsync("Root");
+            }
+            else
+            {
+                m_mainMenu.OnRestart();
+
+            }
         }
     }
     private void OnRestart()

@@ -24,6 +24,7 @@ public class CheerScript : MonoBehaviour
 
 
     private List<string> CheerOptions = new List<string>();
+    private GameType m_gameType;
 
 
     private void InitCheerTextOptions()
@@ -39,17 +40,19 @@ public class CheerScript : MonoBehaviour
 
     }
 
-    public void Init()
+    public void Init(GameType gameType)
     {
+        m_gameType = gameType;
         m_initTextPosition = m_cheerText.gameObject.transform.localPosition;
         m_initCrowdLeftPosition = CrowdLeft.gameObject.transform.localPosition;
         m_initCrowdRightPosition = CrowdRight.gameObject.transform.localPosition;
         m_MoveTextX = (m_initTextPosition.x * 2);
         InitCheerTextOptions();
 
-        this.gameObject.SetActive(false);
-
-        //Invoke("Activate", 1f);
+        if (m_gameType == GameType.TalTalGame)
+        {
+            m_cheerText.gameObject.SetActive(false);
+        }
     }
 
     private string GetRandomCheerText()
@@ -116,7 +119,7 @@ public class CheerScript : MonoBehaviour
     public void Deactivate()
     {
 
-        this.gameObject.SetActive(false);
+        //this.gameObject.SetActive(false);
 
         InitValues();
         m_isRunning = false;

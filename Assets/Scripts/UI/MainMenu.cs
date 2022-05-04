@@ -1,9 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -18,7 +20,6 @@ public class MainMenu : MonoBehaviour
 
     [SerializeField] private GameObject m_StartGame;
     [SerializeField] private GameObject m_gameOption;
-    [SerializeField] private GameObject m_gameScene;
     [SerializeField] private RawImage m_background;
     [SerializeField] private GameObject m_BallOnePlayer;
     [SerializeField] private GameObject m_BallTwoPlayer;
@@ -40,7 +41,12 @@ public class MainMenu : MonoBehaviour
     private int m_highMove = 150;
     private float m_timeToTween = 1f;
     private GameObject m_userBallChoosen = null;
+    private GameType m_gameType;
     private float m_inputDelay = 0.0f;
+
+    private Camera m_camera;
+    private EventSystem m_eventSystem;
+    private string m_gameSceneName = "GameScene";
 
 
     #endregion
@@ -55,6 +61,8 @@ public class MainMenu : MonoBehaviour
         Application.targetFrameRate = 60;
 
         m_anim = GetComponent<Animator>();
+        m_camera = Camera.main;
+        m_eventSystem = EventSystem.current;
         backgroundsList = Resources.LoadAll<Texture2D>(backgroundsPath);
 
         m_background.texture = ChooseRandomBackground();
@@ -74,7 +82,7 @@ public class MainMenu : MonoBehaviour
 
     void Start()
     {
-        Debug.Log("StartApp");
+        //Debug.Log("StartApp");
         EventManager.Broadcast(EVENT.EventStartApp);
 
     }
@@ -91,15 +99,6 @@ public class MainMenu : MonoBehaviour
 
     private void ApplyRandomTweens()
     {
-        //apply idle Tweens
-
-        // int high = 500;
-        // LeanTween.moveLocalY(m_BallImage, high, m_timeToTween)
-        //              .setEase(LeanTweenType.easeOutSine)
-        //              .setLoopPingPong(5)
-        //              .setOnComplete(() => high = high - 100)
-        //              .setOnCompleteOnRepeat(true);
-
 
     }
 
@@ -108,15 +107,46 @@ public class MainMenu : MonoBehaviour
         int rnd = Random.Range(0, backgroundsList.Length);
         return backgroundsList[rnd];
     }
+    public async void OnRestart()
+    {
+        AsyncOperation operation = SceneManager.UnloadSceneAsync(m_gameSceneName);
+        while (!operation.isDone)
+        {
+            await Task.Delay(30);
+        }
+        StartGameScene();
+    }
 
-    public void StartGameScene()
+    public async void StartGameScene()
     {
         Debug.Log("StartGame");
-        SceneManager.LoadSceneAsync("GameScene");
-        //SceneManager.SetActiveScene("GameScene");
+
+        AsyncOperation operation = SceneManager.LoadSceneAsync(m_gameSceneName, LoadSceneMode.Additive);
+        while (!operation.isDone)
+        {
+            await Task.Delay(30);
+        }
+        m_gameManager = FindObjectOfType<GameManagerScript>(true);
+        ToggleMenu(false);
+        if (m_gameManager != null)
+        {
+            GameArgs args = new GameArgs(m_gameType);
+            m_gameManager.SetGameArgs(args);
+        }
+        else
+        {
+            BackToMenu();
+        }
     }
-    public void BackToMenu()
+    public async void BackToMenu()
     {
+        print("BackToMenu");
+        AsyncOperation operation = SceneManager.UnloadSceneAsync(m_gameSceneName);
+        while (!operation.isDone)
+        {
+            await Task.Delay(30);
+        }
+
         m_BallOnePlayer.transform.localPosition = m_posBallOnePlayer;
         m_BallOnePlayer.gameObject.SetActive(true);
         m_BallTwoPlayer.transform.localPosition = m_posBallTwoPlayer;
@@ -126,9 +156,16 @@ public class MainMenu : MonoBehaviour
 
         ChooseRandomBackground();
         m_userBallChoosen = null;
-        this.gameObject.SetActive(true);
         m_StartGame.SetActive(true);
         m_gameOption.SetActive(false);
+        ToggleMenu(true);
+    }
+
+    private void ToggleMenu(bool activateMenu)
+    {
+        m_camera.gameObject.SetActive(activateMenu);
+        m_eventSystem.gameObject.SetActive(activateMenu);
+        this.gameObject.SetActive(activateMenu);
     }
 
 
@@ -136,8 +173,8 @@ public class MainMenu : MonoBehaviour
     {
         if (m_userBallChoosen == null)
         {
-            //m_anim.Play("OnePlayerChoose", -1, 0f);
             m_userBallChoosen = m_BallOnePlayer;
+            m_gameType = GameType.OnePlayer;
             Invoke("OnActivateBallTween", m_inputDelay);
         }
     }
@@ -146,8 +183,8 @@ public class MainMenu : MonoBehaviour
     {
         if (m_userBallChoosen == null)
         {
-            //m_anim.Play("TwoPlayerChoose", -1, 0f);
             m_userBallChoosen = m_BallTwoPlayer;
+            m_gameType = GameType.TwoPlayer;
             Invoke("OnActivateBallTween", m_inputDelay);
         }
     }
@@ -156,12 +193,28 @@ public class MainMenu : MonoBehaviour
     {
         if (m_userBallChoosen == null)
         {
-            //m_anim.Play("TurnsGameChoose", -1, 0f);
             m_userBallChoosen = m_BallTurns;
+            m_gameType = GameType.TurnsGame;
             Invoke("OnActivateBallTween", m_inputDelay);
         }
     }
 
+
+    public void OnTalTalGame()
+    {
+        if (m_userBallChoosen == null)
+        {
+            m_userBallChoosen = m_BallTwoPlayer;
+            m_gameType = GameType.TalTalGame;
+            Invoke("OnActivateBallTween", m_inputDelay);
+        }
+    }
+
+    public void OnHighlights()
+    {
+
+
+    }
 
     void OnActivateBallTween()
     {
@@ -199,18 +252,6 @@ public class MainMenu : MonoBehaviour
 
 
         // BackToMenu();
-
-    }
-
-    public void OnFindPlayer()
-    {
-
-
-    }
-
-    public void OnHighlights()
-    {
-
 
     }
 

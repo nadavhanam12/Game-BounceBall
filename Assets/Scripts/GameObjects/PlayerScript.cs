@@ -54,17 +54,6 @@ public class PlayerScript : MonoBehaviour
 
     #endregion
 
-    /*void OnDrawGizmosSelected()
-    {
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawSphere(m_hitZone.transform.position, m_hitZoneRadius);
-    }*/
-    void Awake()
-    {
-        //this.gameObject.SetActive(false);
-    }
-
     public void Init(PlayerArgs args)
     {
         if (!m_initialized)
@@ -91,7 +80,15 @@ public class PlayerScript : MonoBehaviour
 
             m_initialized = true;
             InitPlayer();
-            this.gameObject.SetActive(true);
+            if (m_args.PlayerIndex == PlayerIndex.Second && m_args.AutoPlay == false) //means we on one player mood, no need second player
+            {
+                this.gameObject.SetActive(false);
+            }
+            else
+            {
+                this.gameObject.SetActive(true);
+            }
+
 
         }
 
@@ -154,7 +151,7 @@ public class PlayerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if ((!isGamePaused))
+        if (!isGamePaused)
         {
             if (!m_inParalyze)
             {
@@ -563,6 +560,7 @@ public class PlayerScript : MonoBehaviour
     {
         isGamePaused = isPause;
         m_anim.enabled = !isPause;
+        m_onSlide = false;
     }
 
     public void OnTouchKickRegular()
@@ -627,6 +625,8 @@ public class PlayerScript : MonoBehaviour
                     m_curBomb = curCollider;
                     m_curBomb.gameObject.transform.parent = m_pickableSpot.transform;
                     m_curBomb.PickUp();
+                    if (m_args.ToggleBombUI != null)
+                        m_args.ToggleBombUI(true);
                 }
 
             }
@@ -642,7 +642,7 @@ public class PlayerScript : MonoBehaviour
 
     public void PlayerHitByBomb()
     {
-        print("PlayerHitByBomb");
+        //print("PlayerHitByBomb");
         ToggleSlide(false);
         m_inParalyze = true;
         m_anim.enabled = true;
@@ -651,13 +651,13 @@ public class PlayerScript : MonoBehaviour
 
     public void Revive()
     {
-        print("Revive");
+        //print("Revive");
         Invoke("ReviveAfterWait", 0.3f);
     }
 
     private void ReviveAfterWait()
     {
-        print("ReviveAfterWait");
+        //print("ReviveAfterWait");
         InitPlayer(true);
 
     }
@@ -671,6 +671,8 @@ public class PlayerScript : MonoBehaviour
             m_curBomb.SetActivateDirections(throwRight);
             m_curBomb.Activate();
             m_curBomb = null;
+            if (m_args.ToggleBombUI != null)
+                m_args.ToggleBombUI(false);
         }
     }
 

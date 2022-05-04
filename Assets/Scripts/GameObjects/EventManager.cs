@@ -67,7 +67,11 @@ public static class EventManager
         {
             var y = eventTable;
         }*/
-        if ((eventTable.ContainsKey(evnt)) && (eventTable[evnt] != null)) eventTable[evnt]();
+        if ((eventTable.ContainsKey(evnt)) && (eventTable[evnt] != null))
+        {
+            var y = eventTable;
+            eventTable[evnt]();
+        }
     }
 
 

@@ -21,6 +21,7 @@ public class TurnsUI : MonoBehaviour
 
     private int m_yourTurnTweenId = -1;
     private int m_lostTurnTweenId = -1;
+    private GameType m_gameType;
 
 
 
@@ -41,8 +42,9 @@ public class TurnsUI : MonoBehaviour
         lostTurnOptions.Add("Try Next Time!");
     }
 
-    public void Init()
+    public void Init(GameType gameType)
     {
+        m_gameType = gameType;
         m_initTextPosition = m_yourTurnText.gameObject.transform.localPosition;
         m_lostTurnText.gameObject.transform.localPosition = m_initTextPosition;
 
@@ -76,7 +78,11 @@ public class TurnsUI : MonoBehaviour
                 LeanTweenExt.LeanCancel(m_yourTurnText.gameObject, m_yourTurnTweenId);
                 m_yourTurnTweenId = -1;
             }
-            m_yourTurnText.text = GetRandomYourTurnText();
+            if (m_gameType != GameType.TalTalGame)
+            {
+                m_yourTurnText.text = GetRandomYourTurnText();
+            }
+
             LeanTween.moveLocalX
                     (m_yourTurnText.gameObject, -m_initTextPosition.x, m_playTime)
                     .setEase(animCurve)
@@ -89,7 +95,10 @@ public class TurnsUI : MonoBehaviour
                 LeanTweenExt.LeanCancel(m_lostTurnText.gameObject, m_yourTurnTweenId);
                 m_yourTurnTweenId = -1;
             }
-            m_lostTurnText.text = GetRandomLostTurnText();
+            if (m_gameType != GameType.TalTalGame)
+            {
+                m_lostTurnText.text = GetRandomLostTurnText();
+            }
             LeanTween.moveLocalX
                     (m_lostTurnText.gameObject, -m_initTextPosition.x, m_playTime)
                     .setEase(animCurve)

@@ -25,11 +25,15 @@ public class TutorialManager : MonoBehaviour
     private int curCombo = 0;
 
     private bool m_onCoolDown = false;
+    private bool m_freePlayMode = false;
+    [SerializeField] int m_firstComboLength = 2;
+    [SerializeField] int m_FreePlayComboLength = 2;
 
     public void Init(TutorialArgs args)
     {
         m_args = args;
         m_enemyTurn = false;
+        m_freePlayMode = false;
         m_args.TutorialUI.Init(m_args.GameCanvas);
         m_args.TutorialUI.OnTouchScreen = OnTouchScreen;
         InitDictionary();
@@ -51,15 +55,18 @@ public class TutorialManager : MonoBehaviour
     {
         return m_enemyTurn;
     }
+    public bool IsFreePlayMode()
+    {
+        return m_freePlayMode;
+    }
 
     //play the tutorial 
     public void Play()
     {
         this.gameObject.SetActive(true);
-
         m_args.TutorialUI.Play();
         NextPanel();
-        PauseGame();
+        Invoke("PauseGame", 0.2f);
     }
     private void NextPanel()
     {
@@ -90,26 +97,28 @@ public class TutorialManager : MonoBehaviour
         curCombo++;
         if (!m_enemyTurn)
         {
-            if ((m_curPanel == m_panels["SplitBallPanel"]) && (curCombo == 4))
+            if ((m_curPanel == m_panels["SplitBallPanel"]) && (curCombo == m_firstComboLength))
             {
-
+                if (m_args.GameType == GameType.OnePlayer)//means no need to continue in the tutorial pas this point
+                {
+                    //NextPanel(m_panels["GoodluckPanel"]);
+                    m_args.GameCanvas.CheerActivate();
+                    return;
+                }
                 m_enemyTurn = true;
-                //onShowOpponent();
-                /*Invoke("PauseGame", 0.75f);
-                Invoke("NextPanel", 0.75f);*/
-
+                m_args.GameCanvas.CheerActivate();
             }
-            else
-             if (m_curPanel == m_panels["ButtonsPanel"])
+            else if (m_curPanel == m_panels["ButtonsPanel"] && curCombo <= 2)
             {
                 Invoke("PauseGame", 0.75f);
+                Invoke("NextPanel", 1.5f);
+
                 m_args.TutorialUI.ShowComboAndNextBall(true);
-                NextPanel();
 
             }
 
         }
-        else if (curCombo == 3)
+        else if ((m_curPanel != m_panels["SplitBallPanel"]) && (curCombo == m_FreePlayComboLength))
         {
             Invoke("ShowScoreDeltaWithDelay", 2f);
         }
@@ -118,9 +127,9 @@ public class TutorialManager : MonoBehaviour
 
     private void ShowScoreDeltaWithDelay()
     {
-        Invoke("PauseGame", 0.5f);
         NextPanel();
         m_args.TutorialUI.ShowScoreDelta(true);
+        PauseGame();
     }
 
     private void PauseGame()
@@ -139,13 +148,26 @@ public class TutorialManager : MonoBehaviour
         {
             Invoke("PauseGame", 0f);
             onShowOpponent();
-            NextPanel(m_panels["EnemyPanel"]);
-            m_args.TutorialUI.HideButton();
-            Invoke("ResumeGame", 3f);
-            Invoke("HideEnemyPanel", 3f);
+            if (m_args.GameType == GameType.TalTalGame)
+            {
+                NextPanel(m_panels["EnemyPanel-KickKick"]);
+            }
+            else
+            {
+                NextPanel(m_panels["EnemyPanel-Turns"]);
+            }
+            //m_args.TutorialUI.HideButton();
+            //Invoke("ResumeGame", 3f);
+            //Invoke("HideEnemyPanel", 3f);
+        }
+        else if (m_args.GameType == GameType.OnePlayer && curCombo >= m_firstComboLength)
+        {
+            PauseGame();
+            FinishedTutorial();
         }
         curCombo = 0;
     }
+
     private void HideEnemyPanel()
     {
         m_args.TutorialUI.HidePanel(m_panels["EnemyPanel"]);
@@ -163,41 +185,29 @@ public class TutorialManager : MonoBehaviour
         if (m_curPanel == m_panels["WelcomePanel"])
         {
             //Welcome
-            m_curPanel++;//to skip the buttons panel
+            //m_curPanel++;//to skip the buttons panel
             m_args.TutorialUI.ShowComboAndNextBall(true);
 
             NextPanel();
-            m_args.TutorialUI.HideButton();
-            ResumeGame();
         }
         else if (m_curPanel == m_panels["ButtonsPanel"])
         {
             //Buttons
             m_args.TutorialUI.HidePanel(m_curPanel);
+            ResumeGame();
+            //NextPanel();
         }
         else if (m_curPanel == m_panels["SplitBallPanel"])
         {
             //SplitBall
             m_args.TutorialUI.HideButton();
-            Invoke("ResumeGame", 0.0f);
+            Invoke("ResumeGame", 0.5f);
         }
-        else if (m_curPanel == m_panels["NiceComboPanel"])
-        {
-            //nice combo panel
-            NextPanel();
-        }
-        else if (m_curPanel == m_panels["LosePanel"])
-        {
-            //how to lose turn
-            m_args.TutorialUI.HidePanel(m_curPanel);
-            Invoke("ResumeGame", 0.75f);
-
-
-        }
-        else if (m_curPanel == m_panels["EnemyPanel"])
+        else if ((m_curPanel == m_panels["EnemyPanel-Turns"]) || (m_curPanel == m_panels["EnemyPanel-KickKick"]))
         {
             //say hello to opponent
-            m_args.TutorialUI.HidePanel(m_curPanel);
+            m_args.TutorialUI.HideButton();
+            m_freePlayMode = true;
             Invoke("ResumeGame", 0.5f);
         }
         else if (m_curPanel == m_panels["ScorePanel"])

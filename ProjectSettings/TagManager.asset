@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - mainMenu
+  - GameLowerBound
   layers:
   - Default
   - TransparentFX
