@@ -63,13 +63,11 @@ public class CheerScript : MonoBehaviour
     }
 
 
-    public void Activate()
+    public void Activate(bool withTextAndInit)
     {
         if (!m_isRunning)
         {
             m_isRunning = true;
-
-            m_cheerText.text = GetRandomCheerText();
 
             this.gameObject.SetActive(true);
             //.setEase(LeanTweenType.easeOutQuad)
@@ -89,11 +87,16 @@ public class CheerScript : MonoBehaviour
                 (CrowdRight.gameObject, m_initCrowdRightPosition.x, m_playTime / 4)
                 .setDelay(m_playTime / 2));
 
-            LeanTween.moveLocalX
-            (m_cheerText.gameObject, -m_initTextPosition.x, m_playTime)
-            .setEase(animCurve)
-            .setOnComplete(
-                () => Deactivate());
+            if (withTextAndInit)
+            {
+                m_cheerText.text = GetRandomCheerText();
+                LeanTween.moveLocalX
+                           (m_cheerText.gameObject, -m_initTextPosition.x, m_playTime)
+                           .setEase(animCurve)
+                           .setOnComplete(
+                               () => Deactivate());
+            }
+
         }
         else
         {

@@ -8,6 +8,8 @@ public class TurnsUI : MonoBehaviour
 
     [SerializeField] private TMP_Text m_yourTurnText;
     [SerializeField] private TMP_Text m_lostTurnText;
+    [SerializeField] private TMP_Text m_gravityIncreaseText;
+    [SerializeField] private TMP_Text m_timeEnd;
     private Vector3 m_initTextPosition;
 
     [SerializeField] private float m_playTime = 1.5f;
@@ -47,10 +49,12 @@ public class TurnsUI : MonoBehaviour
         m_gameType = gameType;
         m_initTextPosition = m_yourTurnText.gameObject.transform.localPosition;
         m_lostTurnText.gameObject.transform.localPosition = m_initTextPosition;
+        m_gravityIncreaseText.gameObject.SetActive(false);
 
         m_MoveTextX = (m_initTextPosition.x * 2);
         InitYourTurnOptions();
         InitLostTurnOptions();
+        InitTimeEnd();
         //Invoke("Activate", 1f);
     }
 
@@ -117,6 +121,35 @@ public class TurnsUI : MonoBehaviour
     public void Deactivate(bool isPlayerTurn)
     {
         InitValues(isPlayerTurn);
+    }
+
+    public void GravityIncrease()
+    {
+        m_gravityIncreaseText.gameObject.SetActive(true);
+        LeanTween.moveY
+        (m_gravityIncreaseText.rectTransform, 150, m_playTime)
+        .setEase(LeanTweenType.easeOutSine)
+        .setOnComplete(InitGravityText);
+    }
+
+    private void InitGravityText()
+    {
+        m_gravityIncreaseText.gameObject.SetActive(false);
+        m_gravityIncreaseText.rectTransform.anchoredPosition = new Vector2(0, -300);
+    }
+
+    public void ActivateTimeEnd()
+    {
+        m_timeEnd.gameObject.SetActive(true);
+        LeanTween.moveLocalX
+                    (m_timeEnd.gameObject, 0, m_playTime)
+                    //.setEase(animCurve)
+                    ;
+    }
+
+    private void InitTimeEnd()
+    {
+        m_timeEnd.gameObject.SetActive(false);
     }
 
 

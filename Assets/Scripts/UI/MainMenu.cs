@@ -71,6 +71,8 @@ public class MainMenu : MonoBehaviour
         m_posBallTwoPlayer = m_BallTwoPlayer.transform.localPosition;
         m_posBallTurns = m_BallTurns.transform.localPosition;
 
+        SetPlayerPrefs();
+
 
         m_gameOption.SetActive(false);
         m_StartGame.SetActive(true);
@@ -253,6 +255,22 @@ public class MainMenu : MonoBehaviour
 
         // BackToMenu();
 
+    }
+
+    private void SetPlayerPrefs()
+    {
+        if (!PlayerPrefs.HasKey("CompletedTutorialSinglePlayer"))
+        {
+            PlayerPrefs.SetInt("CompletedTutorialSinglePlayer", 0);
+        }
+        if (!PlayerPrefs.HasKey("CompletedTutorialKickKick"))
+        {
+            PlayerPrefs.SetInt("CompletedTutorialKickKick", 0);
+        }
+        if (!PlayerPrefs.HasKey("CompletedTutorialTurns"))
+        {
+            PlayerPrefs.SetInt("CompletedTutorialTurns", 0);
+        }
     }
 
 }

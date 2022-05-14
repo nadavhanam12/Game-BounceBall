@@ -123,6 +123,8 @@ public class GameCanvasScript : MonoBehaviour
     private void OnTimeIsOver()
     {
         m_onTimeIsOver();
+        TurnsUI.ActivateTimeEnd();
+        CheerActivate(false);
     }
 
     void Destroy()
@@ -148,9 +150,10 @@ public class GameCanvasScript : MonoBehaviour
         CurPlayerUI = GetComponentInChildren<CurPlayerUI>(true);
     }
 
-    public void CheerActivate()
+    public void CheerActivate(bool withTextAndInit = true)
     {
-        CheerObject.Activate();
+        CheerObject.Activate(withTextAndInit);
+        m_args.ConfettiManager.Activate();
     }
 
 
@@ -191,9 +194,9 @@ public class GameCanvasScript : MonoBehaviour
         CountdownUI.SetActive(false);
         EventManager.Broadcast(EVENT.EventOnCountdownEnds);
     }
-    public void UpdateNextBallColor(Color color)
+    public void UpdateNextBallColor(Color curColor, Color[] nextColors)
     {
-        NextColorUI.SetColor(color);
+        NextColorUI.SetNextBallImage(curColor, nextColors);
     }
     public void SetCombo(int curCombo)
     {
@@ -248,6 +251,10 @@ public class GameCanvasScript : MonoBehaviour
     public void ShowBombUI(bool toShow)
     {
         BombUI.gameObject.SetActive(toShow);
+    }
+    public void GravityIncrease()
+    {
+        TurnsUI.GravityIncrease();
     }
 
 

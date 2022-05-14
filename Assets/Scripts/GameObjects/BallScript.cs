@@ -59,7 +59,6 @@ public class BallScript : MonoBehaviour
     #endregion
 
 
-
     public void Init(BallArgs args, int ballIndex)
     {
         if (!m_initialized)
@@ -180,7 +179,7 @@ public class BallScript : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (!isGamePaused)
+        if (!isGamePaused && m_initialized)
         {
 
             if (gameObject.activeInHierarchy)
@@ -298,7 +297,16 @@ public class BallScript : MonoBehaviour
         m_curTweenId = curTween.id;
     }
 
+    public void InitGravity()
+    {
+        m_rigidBody.gravityScale = m_args.m_gravity;
+    }
 
+    public void AddToGravity(float gravityAdded)
+    {
+        if (m_rigidBody.gravityScale <= m_args.BallMaxGravity)
+            m_rigidBody.gravityScale += gravityAdded;
+    }
 
 
 }

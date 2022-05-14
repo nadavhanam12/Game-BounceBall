@@ -163,7 +163,8 @@ public class TutorialManager : MonoBehaviour
         else if (m_args.GameType == GameType.OnePlayer && curCombo >= m_firstComboLength)
         {
             PauseGame();
-            FinishedTutorial();
+            NextPanel(m_panels["GoodluckPanel"]);
+            //FinishedTutorial();
         }
         curCombo = 0;
     }

@@ -13,6 +13,8 @@ public class GameCanvasArgs
     public Color PlayerColor2;
     public Texture PlayerImage2;
 
+    public ConfettiManager ConfettiManager;
+
 
 
 }

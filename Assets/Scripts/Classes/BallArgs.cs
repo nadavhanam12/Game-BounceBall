@@ -19,6 +19,8 @@ public class BallArgs
     public float m_startVelocityX = 0.25f;
     public float BallTorqueMultiplier = 1f;
 
+    public float BallMaxGravity = 3f;
+
 
 
 

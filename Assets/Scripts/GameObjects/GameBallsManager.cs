@@ -28,23 +28,31 @@ public class GameBallsManager : MonoBehaviour
     [SerializeField] private int m_ballsPoolSize;
     [SerializeField] private GameObject m_ballsHitVFX;
 
+    [SerializeField][Range(0.2f, 1)] private float m_gravityAdded;
+    [SerializeField] private int m_gravityChangeRate;
+
+
 
     #endregion
 
 
     #region private
 
+    private Queue<Color> m_colorQueue;
+    private Color[] m_nextColorArray;
+
     private GameBallsManagerArgs m_args;
     private bool m_initialized = false;
     private Queue<BallHitVisual> m_hitVisualsQueue = new Queue<BallHitVisual>();
     private Color m_curRequiredColor;
-    private GameCanvasScript m_gameCanvas;
 
     private bool isGamePaused = false;
     private BallScript[] m_ballsArray;
     private BallScript firstBall;
     private int m_nextBallIndex;
     private int m_correctBallIndex;
+
+    private int m_curCombo;
 
 
     #endregion
@@ -66,10 +74,20 @@ public class GameBallsManager : MonoBehaviour
         {
 
             m_args = args;
-
+            m_curCombo = 0;
             InitBalls();
             InitHitBallVisuals();
+            InitColorQueue();
             m_initialized = true;
+        }
+    }
+
+    void InitColorQueue()
+    {
+        m_colorQueue = new Queue<Color>();
+        for (int i = 0; i < 4; i++)
+        {
+            m_colorQueue.Enqueue(GenerateRandomColor());
         }
     }
     void InitHitBallVisuals()
@@ -113,6 +131,11 @@ public class GameBallsManager : MonoBehaviour
         if (!IsBallsInPLay())
         {
             GameManagerOnTurnLost();
+            m_curCombo = 0;
+            foreach (BallScript ball in m_ballsArray)
+            {
+                ball.InitGravity();
+            }
         }
 
 
@@ -185,8 +208,11 @@ public class GameBallsManager : MonoBehaviour
 
         BallScript otherBall = GetNextBall();
         if (otherBall == null) { return; }
-        Color color1 = GenerateRandomColor(Color.black);
-        Color color2 = GenerateRandomColor(color1);
+
+        Color color1 = m_colorQueue.Dequeue();
+        Color color2 = GenerateRandomColor();
+        m_colorQueue.Enqueue(GenerateRandomColor());
+
         if (m_args.GameType == GameType.TurnsGame)
         {
             if (playerIndex == PlayerIndex.Second)
@@ -217,6 +243,8 @@ public class GameBallsManager : MonoBehaviour
 
         ball.OnHitPlay(kickType, distanceX, color1, true);
         otherBall.OnHitPlay(kickType, (-1) * distanceX, color2, false);
+
+        UpdateCurCombo();
     }
 
     float RandomDisX()
@@ -244,7 +272,8 @@ public class GameBallsManager : MonoBehaviour
     void UpdateNextBallColor(Color color)
     {
         m_curRequiredColor = color;
-        m_args.GameCanvas.UpdateNextBallColor(color);
+        m_nextColorArray = m_colorQueue.ToArray();
+        m_args.GameCanvas.UpdateNextBallColor(color, m_nextColorArray);
 
     }
 
@@ -261,16 +290,10 @@ public class GameBallsManager : MonoBehaviour
         return rnd <= 4;
     }
 
-    private Color GenerateRandomColor(Color curHitColor)
+    private Color GenerateRandomColor()
     {
-        Color choosenColor = curHitColor;
-        while (choosenColor == curHitColor)
-        {
-            int rnd = Random.Range(0, ballColors.Count);
-            choosenColor = ballColors[rnd];
-        }
-        return choosenColor;
-        //return Color.yellow;
+        int rnd = Random.Range(0, ballColors.Count);
+        return ballColors[rnd];
     }
 
 
@@ -334,4 +357,22 @@ public class GameBallsManager : MonoBehaviour
     {
         return m_ballsArray[m_correctBallIndex].gameObject.transform.position;
     }
+
+    void UpdateCurCombo()
+    {
+        m_curCombo++;
+        if (m_curCombo % m_gravityChangeRate == 0)
+        {
+            print("Adding gravity: " + m_gravityAdded);
+            m_args.GameCanvas.GravityIncrease();
+            foreach (BallScript ball in m_ballsArray)
+            {
+                ball.AddToGravity(m_gravityAdded);
+
+            }
+        }
+
+
+    }
 }
+

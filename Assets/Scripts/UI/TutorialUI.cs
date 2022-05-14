@@ -18,7 +18,7 @@ public class TutorialUI : MonoBehaviour
     public void Init(GameCanvasScript gameCanvas)
     {
         m_gameCanvas = gameCanvas;
-        m_buttonNext = GetComponentInChildren<Button>();
+        m_buttonNext = GetComponentInChildren<Button>(true);
 
         InitPanels();
         gameObject.SetActive(false);

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,6 +41,7 @@ public class GameManagerScript : MonoBehaviour
     private GameBallsManager m_ballsManager;
     private TutorialManager m_tutorialManager;
     private PickablesManager m_pickablesManager;
+    private ConfettiManager m_confettiManager;
 
 
     #endregion
@@ -50,6 +52,7 @@ public class GameManagerScript : MonoBehaviour
     [SerializeField] private bool m_shouldPlayTutorial = false;
     [SerializeField] private bool m_shouldPlayCountdown = false;
     [SerializeField] private bool m_shouldStartWithMenu = false;
+    [SerializeField] private int m_singlePlayerCheerFrequency = 5;
 
     #endregion
 
@@ -131,8 +134,8 @@ public class GameManagerScript : MonoBehaviour
         this.gameObject.SetActive(true);
         m_shouldRestart = false;
 
-        //m_playerData1.PlayerScript.PlayIdle();
-        //m_playerData2.PlayerScript.PlayIdle();
+        if (m_mainMenu != null)
+            m_shouldPlayTutorial = !PlayerPrefsHasCompletedTutorial(m_gameArgs.GameType);
 
         if (m_shouldPlayTutorial)
         {
@@ -160,6 +163,8 @@ public class GameManagerScript : MonoBehaviour
         InitScoreAndCombo();
         m_curPlayerTurn = PlayerIndex.First;
         m_gameCanvas.SetCurPlayerUI(m_curPlayerTurn == PlayerIndex.First);
+
+        UpdatePlayerPrefsCompletedTutorial(m_gameArgs.GameType);
 
         AfterTutorial();
     }
@@ -216,8 +221,13 @@ public class GameManagerScript : MonoBehaviour
     {
         EventManager.Broadcast(EVENT.EventStartGameScene);
         InitGameMood();
-        m_pickablesManager.FinishInitialize();
-        m_pickablesManager.GeneratePickables();
+
+        if (m_gameArgs.GameType != GameType.OnePlayer)
+        {
+            m_pickablesManager.FinishInitialize();
+            m_pickablesManager.GeneratePickables();
+        }
+
         SetGamePause(false);
         if (m_gameArgs.GameType == GameType.TurnsGame)
         {
@@ -238,6 +248,7 @@ public class GameManagerScript : MonoBehaviour
         InitGameCanvas();
         InitTutorial();
         InitPickablesManager();
+        InitConfettiManager();
 
         //InitSequenceManager();
         //Invoke("InitGameMood", 1f);
@@ -253,8 +264,13 @@ public class GameManagerScript : MonoBehaviour
         //m_sequenceManager = GetComponentInChildren<SequenceManager>();
         m_tutorialManager = GetComponentInChildren<TutorialManager>();
         m_pickablesManager = GetComponentInChildren<PickablesManager>();
+        m_confettiManager = GetComponentInChildren<ConfettiManager>();
 
 
+    }
+    private void InitConfettiManager()
+    {
+        m_confettiManager.Init(m_gameBounds);
     }
 
     private void InitPickablesManager()
@@ -451,6 +467,7 @@ public class GameManagerScript : MonoBehaviour
         canvasArgs.PlayerColor2 = m_playerData2.Color;
         canvasArgs.PlayerImage1 = m_playerData1.Image;
         canvasArgs.PlayerImage2 = m_playerData2.Image;
+        canvasArgs.ConfettiManager = m_confettiManager;
         m_gameCanvas.Init(canvasArgs);
         m_gameCanvas.m_onTimeIsOver = TimeIsOver;
 
@@ -613,7 +630,7 @@ public class GameManagerScript : MonoBehaviour
             {
                 return;
             }
-            else if (m_playerData1.CurScore % 4 == 0)
+            else if (m_playerData1.CurScore % m_singlePlayerCheerFrequency == 0)
             {
                 m_gameCanvas.CheerActivate();
                 EventManager.Broadcast(EVENT.EventCombo);
@@ -706,12 +723,9 @@ public class GameManagerScript : MonoBehaviour
                 m_playerData1.PlayerScript.Win();
                 m_playerData1.PlayerScript.Win();
             }
-
-            Invoke("EndGame", 3f);
-
         }
 
-
+        Invoke("EndGame", 5f);
 
     }
 
@@ -742,10 +756,60 @@ public class GameManagerScript : MonoBehaviour
         }
         else
         {
-            m_shouldRestart = true;
+            //m_shouldRestart = true;
             TimeIsOver();
         }
 
+    }
+
+    private bool PlayerPrefsHasCompletedTutorial(GameType gameType)
+    {
+        if (!PlayerPrefs.HasKey("CompletedTutorialSinglePlayer"))
+        {
+            PlayerPrefs.SetInt("CompletedTutorialSinglePlayer", 0);
+            return false;
+        }
+        if (!PlayerPrefs.HasKey("CompletedTutorialKickKick"))
+        {
+            PlayerPrefs.SetInt("CompletedTutorialKickKick", 0);
+            return false;
+        }
+        if (!PlayerPrefs.HasKey("CompletedTutorialTurns"))
+        {
+            PlayerPrefs.SetInt("CompletedTutorialTurns", 0);
+            return false;
+        }
+
+        switch (gameType)
+        {
+            case (GameType.OnePlayer):
+                return Convert.ToBoolean(PlayerPrefs.GetInt("CompletedTutorialSinglePlayer"));
+            case (GameType.TalTalGame):
+                return Convert.ToBoolean(PlayerPrefs.GetInt("CompletedTutorialKickKick"));
+            case (GameType.TurnsGame):
+                return Convert.ToBoolean(PlayerPrefs.GetInt("CompletedTutorialTurns"));
+            default:
+                return false;
+
+        }
+    }
+
+    private void UpdatePlayerPrefsCompletedTutorial(GameType gameType)
+    {
+        switch (gameType)
+        {
+            case (GameType.OnePlayer):
+                PlayerPrefs.SetInt("CompletedTutorialSinglePlayer", 1);
+                break;
+            case (GameType.TalTalGame):
+                PlayerPrefs.SetInt("CompletedTutorialKickKick", 1);
+                break;
+            case (GameType.TurnsGame):
+                PlayerPrefs.SetInt("CompletedTutorialTurns", 1);
+                break;
+
+
+        }
     }
 
 
