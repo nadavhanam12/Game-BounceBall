@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Analytics;
 using UnityEngine.SceneManagement;
 using static PlayerScript;
 
@@ -66,7 +67,6 @@ public class GameManagerScript : MonoBehaviour
     private bool m_isGamePause;
     private GameArgs m_gameArgs;
     private PlayerIndex m_curPlayerTurn = PlayerIndex.First;
-    private bool m_onMobileDevice = false;
     private bool m_inTutorial = false;
 
     private bool m_shouldRestart;
@@ -115,9 +115,6 @@ public class GameManagerScript : MonoBehaviour
 
     public void StartGameScene()
     {
-#if UNITY_ANDROID && !UNITY_EDITOR
-            m_onMobileDevice = true;
-#endif
 
         if (NoMenuStartPage.gameObject.activeInHierarchy)
         {
@@ -128,6 +125,12 @@ public class GameManagerScript : MonoBehaviour
             m_gameArgs = new GameArgs(GameType);
             //m_gameArgs = new GameArgs(GameType.TurnsGame);
         }
+
+        AnalyticsManager.CommitData(
+                    "Match_Started",
+                    new Dictionary<string, object> {
+                 { "GameMode", m_gameArgs.GameType }
+                         });
 
         Init();
         m_gameBoundsData.gameObject.SetActive(false);
@@ -699,7 +702,7 @@ public class GameManagerScript : MonoBehaviour
 
     }
 
-    public void TimeIsOver()
+    public void GameIsOver()
     {
         //print("Time is over");
         if (!m_isGamePause)
@@ -716,20 +719,36 @@ public class GameManagerScript : MonoBehaviour
             else if (m_playerData1.CurScore < m_playerData2.CurScore)
             {
                 m_playerData1.PlayerScript.Lose();
-                m_playerData1.PlayerScript.Win();
+                m_playerData2.PlayerScript.Win();
             }
             else
             {
                 m_playerData1.PlayerScript.Win();
-                m_playerData1.PlayerScript.Win();
+                m_playerData2.PlayerScript.Win();
             }
         }
 
-        Invoke("EndGame", 5f);
+
+
+        Invoke("ExitScene", 5f);
 
     }
 
-    private void EndGame()
+    private void TimeIsOver()
+    {
+        PlayerIndex winner = m_playerData1.CurScore > m_playerData2.CurScore ? PlayerIndex.First : PlayerIndex.Second;
+        AnalyticsManager.CommitData(
+                   "Match_Ended",
+                   new Dictionary<string, object> {
+                 { "Match Mode", m_gameArgs.GameType },
+                  { "Match Winner", winner },
+                  { "Match Score Delta", Math.Abs(m_playerData1.CurScore-m_playerData2.CurScore)}
+                });
+
+        GameIsOver();
+    }
+
+    private void ExitScene()
     {
         if ((!m_shouldRestart) && (m_mainMenu != null))
         {
@@ -750,6 +769,14 @@ public class GameManagerScript : MonoBehaviour
     }
     private void OnRestart()
     {
+        PlayerIndex winner = m_playerData1.CurScore > m_playerData2.CurScore ? PlayerIndex.First : PlayerIndex.Second;
+        AnalyticsManager.CommitData(
+           "Retry_Button_Pressed",
+           new Dictionary<string, object> {
+                 { "Match Mode", m_gameArgs.GameType },
+                  { "Match Winner", winner },
+                  { "Match Score Delta", Math.Abs(m_playerData1.CurScore-m_playerData2.CurScore)}
+        });
         if (m_inTutorial)
         {
             FinishedTutorial();
@@ -757,7 +784,7 @@ public class GameManagerScript : MonoBehaviour
         else
         {
             //m_shouldRestart = true;
-            TimeIsOver();
+            GameIsOver();
         }
 
     }

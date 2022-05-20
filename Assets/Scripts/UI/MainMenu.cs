@@ -60,6 +60,9 @@ public class MainMenu : MonoBehaviour
     {
         Application.targetFrameRate = 60;
 
+        AnalyticsManager.CommitData(
+                    "App_Launched");
+
         m_anim = GetComponent<Animator>();
         m_camera = Camera.main;
         m_eventSystem = EventSystem.current;
@@ -121,7 +124,7 @@ public class MainMenu : MonoBehaviour
 
     public async void StartGameScene()
     {
-        Debug.Log("StartGame");
+        //Debug.Log("StartGame");
 
         AsyncOperation operation = SceneManager.LoadSceneAsync(m_gameSceneName, LoadSceneMode.Additive);
         while (!operation.isDone)

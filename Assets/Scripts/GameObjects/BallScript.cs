@@ -42,9 +42,6 @@ public class BallScript : MonoBehaviour
     private bool isGamePaused;
     private ParticleSystem m_curBallTrail;
     private bool m_isTrailEmmiting = false;
-
-    private string animName = "BallRegularHitSide1";
-
     private SpriteRenderer m_spriteRenderer;
     private int m_ballIndex = -1;
     private Color m_curColor = Color.white;

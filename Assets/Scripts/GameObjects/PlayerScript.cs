@@ -38,7 +38,6 @@ public class PlayerScript : MonoBehaviour
     private bool m_currentlyInTurn = true;
 
     private PlayerArgs m_args;
-    private bool isRunning = false;
     private bool isJumping = false;
     private bool isJumpingUp = false;
     private bool isJumpingDown = false;
@@ -492,6 +491,14 @@ public class PlayerScript : MonoBehaviour
     {
         if (!isGamePaused)
         {
+            string kickDataEvent = kickType == KickType.Regular ? "Kick_Regular" : "Kick_Special";
+            AnalyticsManager.CommitData(
+               kickDataEvent,
+               new Dictionary<string, object> {
+                 { "Player Index", m_args.PlayerIndex }
+
+            });
+
             //if (!m_inAnimation)
             if ((!m_inKickCooldown) && (!m_inParalyze))
             {
@@ -542,6 +549,7 @@ public class PlayerScript : MonoBehaviour
 
     private void OnJump()
     {
+
         //print("jump");
         if (m_curBomb != null)
         {
@@ -550,6 +558,12 @@ public class PlayerScript : MonoBehaviour
         }
         if (!isJumping)
         {
+            AnalyticsManager.CommitData(
+  "Jump",
+  new Dictionary<string, object> {
+                 { "Player Index", m_args.PlayerIndex }
+
+});
             isJumping = true;
             isJumpingUp = true;
         }
@@ -643,6 +657,12 @@ public class PlayerScript : MonoBehaviour
     public void PlayerHitByBomb()
     {
         //print("PlayerHitByBomb");
+        AnalyticsManager.CommitData(
+          "Player_Hit_By_Bomb",
+          new Dictionary<string, object> {
+                 { "Player Index", m_args.PlayerIndex }
+
+        });
         ToggleSlide(false);
         m_inParalyze = true;
         m_anim.enabled = true;
@@ -666,6 +686,12 @@ public class PlayerScript : MonoBehaviour
     {
         if (m_curBomb != null)
         {
+            AnalyticsManager.CommitData(
+  "Bomb_Throw",
+  new Dictionary<string, object> {
+                 { "Player Index", m_args.PlayerIndex }
+
+});
             //print("Player ActivateBomb");
             bool throwRight = transform.localScale.x > 0;
             m_curBomb.SetActivateDirections(throwRight);

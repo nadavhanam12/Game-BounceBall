@@ -9,7 +9,6 @@ public class PickablesManager : MonoBehaviour
     [SerializeField] private int m_bombsMaxNumber;
     [SerializeField] private float m_timeBetweenGenerates = 3f;
     [SerializeField] private float m_pickablesGravity;
-    [SerializeField] private float m_pickUpDistance = 1f;
     [SerializeField] private float m_bombHitZoneRadius = 1f;
 
     [SerializeField] private float m_bombVelocityX;
