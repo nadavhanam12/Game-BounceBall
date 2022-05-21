@@ -62,14 +62,8 @@ public static class EventManager
     // Fires the event
     public static void Broadcast(EVENT evnt)
     {
-        //if (eventTable.ContainsKey(evnt)) eventTable[evnt]();
-        /*if (evnt == EVENT.EventCombo)
-        {
-            var y = eventTable;
-        }*/
         if ((eventTable.ContainsKey(evnt)) && (eventTable[evnt] != null))
         {
-            var y = eventTable;
             eventTable[evnt]();
         }
     }

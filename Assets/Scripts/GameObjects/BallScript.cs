@@ -40,8 +40,7 @@ public class BallScript : MonoBehaviour
     private BallArgs m_args;
 
     private bool isGamePaused;
-    private ParticleSystem m_curBallTrail;
-    private bool m_isTrailEmmiting = false;
+    private TrailRenderer m_curBallTrail;
     private SpriteRenderer m_spriteRenderer;
     private int m_ballIndex = -1;
     private Color m_curColor = Color.white;
@@ -49,7 +48,7 @@ public class BallScript : MonoBehaviour
     private int m_curTweenId = -1;
     private Rigidbody2D m_rigidBody;
     private CircleCollider2D m_collider;
-    public bool BallHasFallen = false;
+    [HideInInspector] public bool BallHasFallen = false;
 
     private Vector2 waitingForce = Vector2.zero;
 
@@ -64,7 +63,7 @@ public class BallScript : MonoBehaviour
             //print("init ballscript");
             //m_particles = gameObject.GetComponentInChildren<ParticleSystem>();
             m_spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-            m_curBallTrail = GetComponentInChildren<ParticleSystem>();
+            m_curBallTrail = GetComponentInChildren<TrailRenderer>();
             m_rigidBody = GetComponent<Rigidbody2D>();
             m_collider = GetComponent<CircleCollider2D>();
 
@@ -161,12 +160,10 @@ public class BallScript : MonoBehaviour
     {
         m_curColor = color;
         m_spriteRenderer.color = m_curColor;
-        /*m_colorGradientParticles.color.gradient.colorKeys[0].color = m_curColor;
-        m_colorGradientTrail.colorKeys[0].color = m_curColor;*/
+
         if (m_curBallTrail != null)
         {
-            var particlesMain = m_curBallTrail.main;
-            particlesMain.startColor = m_curColor;
+            m_curBallTrail.startColor = m_curColor;
         }
 
 
@@ -182,23 +179,9 @@ public class BallScript : MonoBehaviour
             if (gameObject.activeInHierarchy)
             {
                 CheckBounds();
-                CheckEmitTrail();
             }
         }
 
-    }
-
-    void CheckEmitTrail()
-    {
-        bool inSpeedToEmit = Math.Abs(m_rigidBody.velocity.y) >= m_speedEmitTrail;
-        if ((inSpeedToEmit) && (!m_isTrailEmmiting))
-        {
-            m_isTrailEmmiting = true;
-        }
-        else if ((!inSpeedToEmit) && (m_isTrailEmmiting))
-        {
-            m_isTrailEmmiting = false;
-        }
     }
     private async void BallFallen()
     {
@@ -230,6 +213,7 @@ public class BallScript : MonoBehaviour
         {
             //print("Reached left bound");
             //m_curVelocityX *= -1;
+            m_curBallTrail.emitting = false;
             ballPosition.x = m_args.Bounds.GameRightBound - 3;
             this.gameObject.transform.localPosition = ballPosition;
         }
@@ -237,8 +221,13 @@ public class BallScript : MonoBehaviour
         {
             //print("Reached right bound");
             //m_curVelocityX *= -1;
+            m_curBallTrail.emitting = false;
             ballPosition.x = m_args.Bounds.GameLeftBound + 3;
             this.gameObject.transform.localPosition = ballPosition;
+        }
+        else if (!m_curBallTrail.emitting)
+        {
+            m_curBallTrail.emitting = true;
         }
 
     }

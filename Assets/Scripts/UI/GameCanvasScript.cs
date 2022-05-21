@@ -127,7 +127,7 @@ public class GameCanvasScript : MonoBehaviour
         CheerActivate(false);
     }
 
-    void Destroy()
+    void OnDestroy()
     {
         EventManager.RemoveHandler(EVENT.EventOnTimeOver, OnTimeIsOver);
     }

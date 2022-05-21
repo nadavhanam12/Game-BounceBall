@@ -75,14 +75,6 @@ public class MainMenu : MonoBehaviour
         m_posBallTurns = m_BallTurns.transform.localPosition;
 
         SetPlayerPrefs();
-
-
-        m_gameOption.SetActive(false);
-        m_StartGame.SetActive(true);
-
-
-
-
     }
 
     void Start()
@@ -90,22 +82,19 @@ public class MainMenu : MonoBehaviour
         //Debug.Log("StartApp");
         EventManager.Broadcast(EVENT.EventStartApp);
 
-    }
-    public void StartGamePressed()
-    {
-        m_StartGame.SetActive(false);
-        m_gameOption.SetActive(true);
+        m_gameOption.SetActive(false);
+        m_StartGame.SetActive(true);
 
+
+    }
+    public void StartButtonPressed()
+    {
+        /*m_StartGame.SetActive(false);
+        m_gameOption.SetActive(true);*/
+        m_anim.Play("TransitionCircle");
         EventManager.Broadcast(EVENT.EventMainMenu);
-
-        ApplyRandomTweens();
     }
 
-
-    private void ApplyRandomTweens()
-    {
-
-    }
 
     public Texture ChooseRandomBackground()
     {

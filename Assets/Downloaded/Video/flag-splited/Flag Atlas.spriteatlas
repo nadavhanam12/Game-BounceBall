@@ -1,0 +1,156 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Flag Atlas
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings:
+    - serializedVersion: 3
+      m_BuildTarget: DefaultTexturePlatform
+      m_MaxTextureSize: 2048
+      m_ResizeAlgorithm: 0
+      m_TextureFormat: -1
+      m_TextureCompression: 1
+      m_CompressionQuality: 50
+      m_CrunchedCompression: 1
+      m_AllowsAlphaSplitting: 0
+      m_Overridden: 0
+      m_AndroidETC2FallbackOverride: 0
+      m_ForceMaximumCompressionQuality_BC6H_BC7: 0
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 1
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: f022301512a13a74ba0f56c26faac07e, type: 3}
+    totalSpriteSurfaceArea: 3276800
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 95a09e101d0c4ef42b147ce504d13e7d, type: 3}
+  - {fileID: 21300000, guid: 9a0aa070801d689418bf891df629dc59, type: 3}
+  - {fileID: 21300000, guid: 7abc0370e72af9b4c909056fb8acd21c, type: 3}
+  - {fileID: 21300000, guid: 539d7dd16223cc34aacff92098ad520b, type: 3}
+  - {fileID: 21300000, guid: 108be3f1946b5f44ebfac707eccdd1da, type: 3}
+  - {fileID: 21300000, guid: ab9a8f326e912d741b70353512a054d1, type: 3}
+  - {fileID: 21300000, guid: 3f5126738bdf1f94e9edefb8501e89da, type: 3}
+  - {fileID: 21300000, guid: 8bcfecf34a10a03478dcbff3841b178d, type: 3}
+  - {fileID: 21300000, guid: 86ffc704bc187fa4a8d5cc88cbb721d3, type: 3}
+  - {fileID: 21300000, guid: 792ae8c42ca2ec74e90f5ae676d96fd4, type: 3}
+  - {fileID: 21300000, guid: 102967e4add8d954ebf99722948e56d4, type: 3}
+  - {fileID: 21300000, guid: cb7cca5561b743f40b7dc64d569f04b2, type: 3}
+  - {fileID: 21300000, guid: 19fd2d26aa1fa7c4eb2ec16c499bc8e7, type: 3}
+  - {fileID: 21300000, guid: 22244f564878bc843af4d412c589c54c, type: 3}
+  - {fileID: 21300000, guid: ecafd276664afcb458642c3b42c8938a, type: 3}
+  - {fileID: 21300000, guid: 9c4ad5960f7b2c44184953f76bb8ef31, type: 3}
+  - {fileID: 21300000, guid: 5e890af6c4a3c104cb7e6a6887b62084, type: 3}
+  - {fileID: 21300000, guid: bd957547ebcf0f545a8379ff97e88c51, type: 3}
+  - {fileID: 21300000, guid: fad78947398dca64b829556f79a86e77, type: 3}
+  - {fileID: 21300000, guid: 5c31216744f3b854f949ff11d89f8adb, type: 3}
+  - {fileID: 21300000, guid: 3c8ac87775420b54abc5920d695fdf73, type: 3}
+  - {fileID: 21300000, guid: 3c6f7ff7175183248806d51a6e9a25a7, type: 3}
+  - {fileID: 21300000, guid: 9aa02d189a3c21a4a829019be44e32cb, type: 3}
+  - {fileID: 21300000, guid: ed396a28659e7a54caaca610f49d7dcd, type: 3}
+  - {fileID: 21300000, guid: a8cdc038da21136419f5504efdd2b273, type: 3}
+  - {fileID: 21300000, guid: d0d5e7c8cb941854883c2713e9588f4e, type: 3}
+  - {fileID: 21300000, guid: c21269192b13d0a45bf1a7007d0ca3fd, type: 3}
+  - {fileID: 21300000, guid: 850ff8992c3b9d74fb96fabaf07aa198, type: 3}
+  - {fileID: 21300000, guid: 92ca80b9dea46c14e8b26d9aa6d53906, type: 3}
+  - {fileID: 21300000, guid: cb040bc958ce88f4f92bc5ba74e26573, type: 3}
+  - {fileID: 21300000, guid: 1abb72f99dd4f9a499b7b88aaaf024a5, type: 3}
+  - {fileID: 21300000, guid: ee7dd41a3504a274aa908acc56e2443a, type: 3}
+  - {fileID: 21300000, guid: e8fcab4a7242a914d9fb92dc90ef47fb, type: 3}
+  - {fileID: 21300000, guid: 8e032f4a236a01144aeea729ae6d16a5, type: 3}
+  - {fileID: 21300000, guid: 8caad1ba3a87955448ebfad5a724c9ab, type: 3}
+  - {fileID: 21300000, guid: 4549f8ba6473bbe42ac8425df22c7a2f, type: 3}
+  - {fileID: 21300000, guid: 3c2afb3ba35b3b64b934a7614fc8d769, type: 3}
+  - {fileID: 21300000, guid: ef8ae66b2912f7542b6947efcde873e3, type: 3}
+  - {fileID: 21300000, guid: 4fec7f8b4197ab14696233ce864c3322, type: 3}
+  - {fileID: 21300000, guid: fa8d10bb5bf01a348b86feb3ed0447c3, type: 3}
+  - {fileID: 21300000, guid: f75e02eb33cb6694cb27a81d11b2f16a, type: 3}
+  - {fileID: 21300000, guid: 119ce6fb99519eb4ab18dae51531e15d, type: 3}
+  - {fileID: 21300000, guid: 7b6c362c857cc0e4fb168f374d8e1084, type: 3}
+  - {fileID: 21300000, guid: f656416c3bdf25b449d82fdc68ffd731, type: 3}
+  - {fileID: 21300000, guid: bae2ebfc67195fe43ac1f695324e3b05, type: 3}
+  - {fileID: 21300000, guid: 1739294d073f83e408e6615971548264, type: 3}
+  - {fileID: 21300000, guid: 76aaf2bdc70045344b141a3821eb790a, type: 3}
+  - {fileID: 21300000, guid: 953e507ec957d9e4ab3ffa7490f69c9d, type: 3}
+  - {fileID: 21300000, guid: bf1d5f9f13881e1418cb925110b1830d, type: 3}
+  - {fileID: 21300000, guid: b43ff0cfd699b9b4990050dd3fc3c8a2, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - frame_23_delay-0.1s
+  - frame_32_delay-0.1s
+  - frame_46_delay-0.1s
+  - frame_44_delay-0.1s
+  - frame_24_delay-0.1s
+  - frame_36_delay-0.1s
+  - frame_12_delay-0.1s
+  - frame_40_delay-0.1s
+  - frame_16_delay-0.1s
+  - frame_00_delay-0.1s
+  - frame_07_delay-0.1s
+  - frame_38_delay-0.1s
+  - frame_47_delay-0.1s
+  - frame_01_delay-0.1s
+  - frame_03_delay-0.1s
+  - frame_48_delay-0.1s
+  - frame_14_delay-0.1s
+  - frame_13_delay-0.1s
+  - frame_10_delay-0.1s
+  - frame_09_delay-0.1s
+  - frame_17_delay-0.1s
+  - frame_21_delay-0.1s
+  - frame_11_delay-0.1s
+  - frame_34_delay-0.1s
+  - frame_22_delay-0.1s
+  - frame_20_delay-0.1s
+  - frame_27_delay-0.1s
+  - frame_05_delay-0.1s
+  - frame_49_delay-0.1s
+  - frame_30_delay-0.1s
+  - frame_26_delay-0.1s
+  - frame_08_delay-0.1s
+  - frame_29_delay-0.1s
+  - frame_31_delay-0.1s
+  - frame_35_delay-0.1s
+  - frame_18_delay-0.1s
+  - frame_25_delay-0.1s
+  - frame_37_delay-0.1s
+  - frame_04_delay-0.1s
+  - frame_39_delay-0.1s
+  - frame_15_delay-0.1s
+  - frame_06_delay-0.1s
+  - frame_28_delay-0.1s
+  - frame_42_delay-0.1s
+  - frame_43_delay-0.1s
+  - frame_02_delay-0.1s
+  - frame_41_delay-0.1s
+  - frame_33_delay-0.1s
+  - frame_19_delay-0.1s
+  - frame_45_delay-0.1s
+  m_RenderDataMap: {}
+  m_Tag: Flag Atlas
+  m_IsVariant: 0

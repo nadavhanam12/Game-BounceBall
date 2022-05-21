@@ -9,7 +9,6 @@ public class CurPlayerUI : MonoBehaviour
 
     [SerializeField] RawImage m_image;
     private int m_curTweenId = -1;
-    private Vector3 m_textInitScale;
     private int m_curCombo;
     private Vector3 m_imageScale;
 
@@ -24,7 +23,6 @@ public class CurPlayerUI : MonoBehaviour
 
     public void Init(Texture playerImage1, Texture playerImage2)
     {
-        m_textInitScale = transform.localScale;
         m_curCombo = 0;
         m_imageScale = m_image.rectTransform.localScale;
         m_playerImage1 = playerImage1;
@@ -41,16 +39,14 @@ public class CurPlayerUI : MonoBehaviour
             if ((isPlayerTurn) && (m_imageScale.x != 1))
             {
                 m_imageScale.x = 1;
-                m_image.rectTransform.localScale = m_imageScale;
             }
             else if ((!isPlayerTurn) && (m_imageScale.x != -1))
             {
                 m_imageScale.x = -1;
-                m_image.rectTransform.localScale = m_imageScale;
             }
 
 
-            if ((m_curTweenId == -1) && (m_curCombo != 0))
+            if ((m_curTweenId == -1))
             {
                 ScaleUp();
             }
@@ -59,15 +55,14 @@ public class CurPlayerUI : MonoBehaviour
     }
     private void ScaleUp()
     {
-        m_curTweenId =
-        LeanTween.scale(m_image.gameObject, m_textInitScale * 2, m_timeToTween)
+        m_curTweenId = LeanTween.scale(m_image.gameObject, m_imageScale * 2, m_timeToTween)
                 .setOnComplete(ScaleDown)
                 .id;
     }
     private void ScaleDown()
     {
         m_curTweenId =
-        LeanTween.scale(m_image.gameObject, m_textInitScale, m_timeToTween)
+        LeanTween.scale(m_image.gameObject, m_imageScale, m_timeToTween)
                 .setOnComplete(FinishTween)
                 .id;
     }

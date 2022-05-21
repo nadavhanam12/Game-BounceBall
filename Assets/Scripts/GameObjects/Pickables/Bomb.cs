@@ -107,7 +107,8 @@ public class Bomb : MonoBehaviour, IPickable
                 break;
             case Status.FreeInScene:
                 //print("FreeInScene");
-                m_anim.Play("IdleAnim");
+                if (m_anim.isActiveAndEnabled)
+                    m_anim.Play("IdleAnim");
                 m_rigidBody.gravityScale = m_args.Gravity;
                 gameObject.SetActive(true);
                 break;
@@ -142,7 +143,8 @@ public class Bomb : MonoBehaviour, IPickable
                     m_rigidBody.gravityScale = 0;
                     m_rigidBody.velocity = Vector2.zero;
                     m_particleSystem.gameObject.SetActive(false);
-                    m_anim.Play("Explode");
+                    if (m_anim.isActiveAndEnabled)
+                        m_anim.Play("Explode");
                     CheckPlayersInHitZone();
                 }
 
