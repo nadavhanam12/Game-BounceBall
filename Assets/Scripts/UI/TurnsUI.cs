@@ -127,7 +127,7 @@ public class TurnsUI : MonoBehaviour
     {
         m_gravityIncreaseText.gameObject.SetActive(true);
         LeanTween.moveY
-        (m_gravityIncreaseText.rectTransform, 150, m_playTime * 2)
+        (m_gravityIncreaseText.rectTransform, 150, m_playTime)
         .setEase(LeanTweenType.easeOutSine)
         .setOnComplete(InitGravityText);
     }

@@ -363,7 +363,7 @@ public class GameBallsManager : MonoBehaviour
         m_curCombo++;
         if (m_curCombo % m_gravityChangeRate == 0)
         {
-            print("Adding gravity: " + m_gravityAdded);
+            //print("Adding gravity: " + m_gravityAdded);
             m_args.GameCanvas.GravityIncrease();
             foreach (BallScript ball in m_ballsArray)
             {

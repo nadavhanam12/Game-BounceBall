@@ -291,18 +291,20 @@ public class PlayerScript : MonoBehaviour
         Vector3 playerPos = transform.position;
         if (direction.x <= 0)//he is moving left
         {
-            if (playerPos.x - 2 < m_args.Bounds.GameLeftBound)
+            if (playerPos.x - m_args.playerStats.PlayerBoundDistanceTrigger < m_args.Bounds.GameLeftBound)
             {
-                playerPos.x = m_args.Bounds.GameRightBound;
-                transform.position = playerPos;
+                /*playerPos.x = m_args.Bounds.GameRightBound;
+                transform.position = playerPos;*/
+                return false;
             }
         }
         else //he is moving right
         {
-            if (playerPos.x + 2 > m_args.Bounds.GameRightBound)
+            if (playerPos.x + m_args.playerStats.PlayerBoundDistanceTrigger > m_args.Bounds.GameRightBound)
             {
-                playerPos.x = m_args.Bounds.GameLeftBound;
-                transform.position = playerPos;
+                /*playerPos.x = m_args.Bounds.GameLeftBound;
+                transform.position = playerPos;*/
+                return false;
             }
 
         }
@@ -429,7 +431,7 @@ public class PlayerScript : MonoBehaviour
         {
             gameObject.transform.rotation = m_initialRotation;
             Vector3 positionUpper = m_initialPosition;
-            positionUpper.y += 8f;
+            positionUpper.y += m_args.playerStats.m_startHeight;
             gameObject.transform.position = positionUpper;
             gameObject.transform.localScale = m_initialScale;
 
@@ -531,7 +533,7 @@ public class PlayerScript : MonoBehaviour
         m_onSlide = shouldSlide;
         if (m_onSlide)
         {
-            Vector3 dir = gameObject.transform.localScale.x == 1 ? Vector3.right : Vector3.left;
+            Vector3 dir = gameObject.transform.localScale.x > 0 ? Vector3.right : Vector3.left;
             dir *= m_args.playerStats.SlideSpeed;
             StartCoroutine(Slide(dir));
         }

@@ -163,6 +163,7 @@ public class BallScript : MonoBehaviour
 
         if (m_curBallTrail != null)
         {
+            m_curBallTrail.enabled = true;
             m_curBallTrail.startColor = m_curColor;
         }
 
@@ -209,21 +210,32 @@ public class BallScript : MonoBehaviour
     private void CheckBounds()
     {
         Vector3 ballPosition = this.gameObject.transform.position;
-        if (ballPosition.x - 2 < m_args.Bounds.GameLeftBound)
+        if ((ballPosition.x - m_args.BallBoundDistanceTrigger < m_args.Bounds.GameLeftBound) && (m_rigidBody.velocity.x < 0))
         {
             //print("Reached left bound");
-            //m_curVelocityX *= -1;
-            m_curBallTrail.emitting = false;
-            ballPosition.x = m_args.Bounds.GameRightBound - 3;
-            this.gameObject.transform.localPosition = ballPosition;
+            Vector2 tempVelocity = m_rigidBody.velocity;
+            if (Math.Abs(tempVelocity.x) > 0.5)
+                tempVelocity.x *= -1;
+            else
+                tempVelocity.x = 0.5f;
+            m_rigidBody.velocity = tempVelocity;
+            /*m_curBallTrail.emitting = false;
+            ballPosition.x = m_args.Bounds.GameRightBound - m_args.BallBoundDistanceSpawn;
+            this.gameObject.transform.localPosition = ballPosition;*/
         }
-        else if (ballPosition.x + 2 > m_args.Bounds.GameRightBound)
+        else if ((ballPosition.x + m_args.BallBoundDistanceTrigger > m_args.Bounds.GameRightBound) && (m_rigidBody.velocity.x > 0))
         {
             //print("Reached right bound");
-            //m_curVelocityX *= -1;
-            m_curBallTrail.emitting = false;
-            ballPosition.x = m_args.Bounds.GameLeftBound + 3;
-            this.gameObject.transform.localPosition = ballPosition;
+            Vector2 tempVelocity = m_rigidBody.velocity;
+            if (Math.Abs(tempVelocity.x) > 0.5)
+                tempVelocity.x *= -1;
+            else
+                tempVelocity.x = 0.5f;
+
+            m_rigidBody.velocity = tempVelocity;
+            /*m_curBallTrail.emitting = false;
+            ballPosition.x = m_args.Bounds.GameLeftBound + m_args.BallBoundDistanceSpawn;
+            this.gameObject.transform.localPosition = ballPosition;*/
         }
         else if (!m_curBallTrail.emitting)
         {
@@ -274,10 +286,11 @@ public class BallScript : MonoBehaviour
 
     private void FadeOut()
     {
+        m_curBallTrail.enabled = false;
         LTDescr curTween =
         LeanTweenExt.MyLeanAlphaSpriteRenderer
         (m_spriteRenderer, 0, m_args.m_ballTimeFadeOut)
-        .setEase(LeanTweenType.easeOutSine)
+        .setEase(LeanTweenType.easeOutQuart)
         .setOnComplete(
             () => this.gameObject.SetActive(false));
         m_curTweenId = curTween.id;

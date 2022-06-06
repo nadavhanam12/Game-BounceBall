@@ -402,7 +402,7 @@ public class GameManagerScript : MonoBehaviour
             shouldSwitchTurn = false;
         }
 
-        await Task.Delay(1000);
+        await Task.Delay(2000);
         InitPlayersStatus();
 
         await Task.Delay(1000);

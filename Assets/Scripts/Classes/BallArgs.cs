@@ -21,8 +21,12 @@ public class BallArgs
 
     public float BallMaxGravity = 3f;
 
+    public float BallBoundDistanceTrigger = 1f;
+    public float BallBoundDistanceSpawn = 1f;
+
 
 
 
 
 }
+
