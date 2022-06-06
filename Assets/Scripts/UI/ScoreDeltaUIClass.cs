@@ -57,7 +57,6 @@ public class ScoreDeltaUIClass : MonoBehaviour
             {
                 RemoveNormalScore();
                 InitSliders();
-
             }
             else if (m_gameType == GameType.TalTalGame || m_gameType == GameType.OnePlayer)
             {
