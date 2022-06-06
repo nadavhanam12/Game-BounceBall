@@ -39,8 +39,8 @@ public class AnalyticsManager : MonoBehaviour
         AnalyticsResult analyticsResult = Analytics.CustomEvent(eventName);
         //Debug.Log("analyticsResult: " + analyticsResult);
 
-        /*Debug.Log("------------------------------------------------------------------------------");
-        Debug.Log("eventName: " + eventName);*/
+        Debug.Log("------------------------------------------------------------------------------");
+        Debug.Log("eventName: " + eventName);
 
     }
 
@@ -53,9 +53,9 @@ public class AnalyticsManager : MonoBehaviour
         }
         AnalyticsResult analyticsResult = Analytics.CustomEvent(eventName, dir);
         //Debug.Log("analyticsResult: " + analyticsResult);
-        /*Debug.Log("------------------------------------------------------------------------------");
+        Debug.Log("------------------------------------------------------------------------------");
         Debug.Log("eventName: " + eventName + " Data: ");
-        foreach (KeyValuePair<string, object> kvp in dir)
+        /*foreach (KeyValuePair<string, object> kvp in dir)
             Debug.Log("Key = " + kvp.Key + " Value = " + kvp.Value);*/
     }
 

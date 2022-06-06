@@ -16,6 +16,7 @@
     "com.unity.mobile.android-logcat": "1.2.3",
     "com.unity.mobile.notifications": "1.4.2",
     "com.unity.quicksearch": "2.0.2",
+    "com.unity.services.analytics": "1.0.5",
     "com.unity.shadergraph": "10.5.1",
     "com.unity.test-framework": "1.1.27",
     "com.unity.textmeshpro": "3.0.6",

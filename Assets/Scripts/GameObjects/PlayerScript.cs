@@ -264,12 +264,9 @@ public class PlayerScript : MonoBehaviour
 
     void AnimSetTrigger(string triggerName)
     {
-        //if (!m_inAnimation)
-        if (true)
-        {
+        //print(triggerName);
+        m_anim.SetTrigger(triggerName);
 
-            m_anim.SetTrigger(triggerName);
-        }
     }
 
     void SpinPlayerToDirection(Vector3 direction)
@@ -394,20 +391,18 @@ public class PlayerScript : MonoBehaviour
 
     public void Win()
     {
-        /* m_onWinLoseAnim = true;
-         m_anim.enabled = true;
-         m_anim.ResetAllAnimatorTriggers();
-
-         m_anim.Play("Win", -1, 0f);*/
+        m_onWinLoseAnim = true;
+        m_anim.enabled = true;
+        m_anim.Play("Win", -1, 0f);
+        //AnimSetTrigger("Win Trigger");
     }
 
     public void Lose()
     {
-        /*m_onWinLoseAnim = true;
+        m_onWinLoseAnim = true;
         m_anim.enabled = true;
-        //m_anim.Play("Lose", -1, 0f);
-        m_anim.ResetAllAnimatorTriggers();
-        AnimSetTrigger("Lose Trigger");*/
+        m_anim.Play("Lose", -1, 0f);
+        //AnimSetTrigger("Lose Trigger");
     }
 
 
@@ -419,7 +414,8 @@ public class PlayerScript : MonoBehaviour
         //gameObject.transform.localRotation = m_initialRotation;
         //gameObject.transform.localPosition = m_initialPosition;
         //gameObject.transform.localScale = m_initialScale;
-        //m_anim.SetTrigger("Idle Trigger");
+        m_anim.enabled = true;
+        m_anim.Play("Idle", -1, 0f);
         m_inParalyze = false;
         if (m_onSlide)
         {
@@ -427,7 +423,7 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
-    public void InitPlayer(bool initPos = false)
+    public void InitPlayer(bool initPos = true)
     {
         if (initPos)
         {
@@ -442,7 +438,6 @@ public class PlayerScript : MonoBehaviour
         }
 
 
-        //m_anim.SetTrigger("Idle Trigger");
         FinishAnimation();
         m_onWinLoseAnim = false;
         ShowPlayer();
