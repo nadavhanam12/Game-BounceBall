@@ -75,18 +75,14 @@ public class MainMenu : MonoBehaviour
         m_posBallTurns = m_BallTurns.transform.localPosition;
 
         SetPlayerPrefs();
-    }
 
-    void Start()
-    {
-        //Debug.Log("StartApp");
         EventManager.Broadcast(EVENT.EventStartApp);
 
-        m_gameOption.SetActive(false);
         m_StartGame.SetActive(true);
-
+        m_gameOption.SetActive(false);
 
     }
+
     public void StartButtonPressed()
     {
         /*m_StartGame.SetActive(false);
@@ -169,7 +165,7 @@ public class MainMenu : MonoBehaviour
         {
             m_userBallChoosen = m_BallOnePlayer;
             m_gameType = GameType.OnePlayer;
-            Invoke("OnActivateBallTween", m_inputDelay);
+            OnActivateBallTween();
         }
     }
 
@@ -179,7 +175,7 @@ public class MainMenu : MonoBehaviour
         {
             m_userBallChoosen = m_BallTwoPlayer;
             m_gameType = GameType.TwoPlayer;
-            Invoke("OnActivateBallTween", m_inputDelay);
+            OnActivateBallTween();
         }
     }
 
@@ -189,7 +185,7 @@ public class MainMenu : MonoBehaviour
         {
             m_userBallChoosen = m_BallTurns;
             m_gameType = GameType.TurnsGame;
-            Invoke("OnActivateBallTween", m_inputDelay);
+            OnActivateBallTween();
         }
     }
 
@@ -200,8 +196,14 @@ public class MainMenu : MonoBehaviour
         {
             m_userBallChoosen = m_BallTwoPlayer;
             m_gameType = GameType.TalTalGame;
-            Invoke("OnActivateBallTween", m_inputDelay);
+            OnActivateBallTween();
         }
+    }
+
+
+    private void OnActivateBallTween()
+    {
+        m_anim.Play("TransitionCircleEndScene");
     }
 
     public void OnHighlights()
@@ -210,44 +212,6 @@ public class MainMenu : MonoBehaviour
 
     }
 
-    void OnActivateBallTween()
-    {
-        EventManager.Broadcast(EVENT.EventButtonClick);
-
-        GameObject ballObject = m_userBallChoosen;
-        Vector3 ballObjectPosition = ballObject.transform.localPosition;
-        LeanTween.rotateZ(ballObject, -1080, m_timeToTween);
-
-        LeanTween.moveLocalY(ballObject, ballObjectPosition.y + m_highMove, m_timeToTween / 4f)
-        .setEase(LeanTweenType.easeOutSine)
-        .setLoopPingPong(1).
-        setOnComplete(
-         () =>
-         {
-             LeanTween.moveLocalY(ballObject, ballObjectPosition.y + (m_highMove / 3), m_timeToTween / 6f)
-             .setEase(LeanTweenType.easeOutSine)
-             .setLoopPingPong(1);
-         });
-        //LeanTween.moveLocalY(m_BallTwoPlayer, m_highMove, m_timeToTween).setEase(LeanTweenType.easeInBounce);
-        LeanTween.moveLocalX(ballObject, 0, m_timeToTween / 2f)
-        //.setEase(LeanTweenType.easeInOutSine)
-        .setOnComplete(
-         () =>
-         {
-             LeanTween.moveLocalX(ballObject, (-1) * ballObjectPosition.x, m_timeToTween / 2f)
-             //.setEase(LeanTweenType.easeInOutSine)
-             .setOnComplete(() =>
-             {
-
-                 ballObject.SetActive(false);
-                 Invoke("StartGameScene", 0.05f);
-             });
-         });
-
-
-        // BackToMenu();
-
-    }
 
     private void SetPlayerPrefs()
     {

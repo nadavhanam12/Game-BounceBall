@@ -67,6 +67,7 @@ public class TutorialManager : MonoBehaviour
         m_args.TutorialUI.Play();
         NextPanel();
         Invoke("PauseGame", 0.2f);
+        AnalyticsManager.CommitData("Tutorial_Started");
     }
     private void NextPanel()
     {
@@ -231,6 +232,7 @@ public class TutorialManager : MonoBehaviour
     private void FinishedTutorial()
     {
         //print("FinishedTutorial");
+        AnalyticsManager.CommitData("Tutorial_Completed");
         OnFinishTutorial();
         //TurnOff();
     }
