@@ -104,6 +104,11 @@ public class GameManagerScript : MonoBehaviour
                 StartGameScene();
             }
         }
+        else
+        {
+            m_shouldPlayCountdown = true;
+            m_matchTime = 60;
+        }
 
 
     }

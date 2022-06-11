@@ -364,26 +364,28 @@ public class PlayerScript : MonoBehaviour
         {
             if (deltaX > 0)
             {
-                if (Mathf.Abs(deltaX) < m_halfFieldDistance)//if the distance is less then half field then its better to move the other side
+                OnMoveX(Vector3.right);
+                /*if (Mathf.Abs(deltaX) < m_halfFieldDistance)//if the distance is less then half field then its better to move the other side
                 {
                     OnMoveX(Vector3.right);
                 }
                 else
                 {
                     OnMoveX(Vector3.left);
-                }
+                }*/
 
             }
             else
             {
-                if (Mathf.Abs(deltaX) <= m_halfFieldDistance)//if the distance is less then half field then its better to move the other side
-                {
-                    OnMoveX(Vector3.left);
-                }
-                else
-                {
-                    OnMoveX(Vector3.right);
-                }
+                OnMoveX(Vector3.left);
+                /*if (Mathf.Abs(deltaX) <= m_halfFieldDistance)//if the distance is less then half field then its better to move the other side
+                 {
+                     OnMoveX(Vector3.left);
+                 }
+                 else
+                 {
+                     OnMoveX(Vector3.right);
+                 }*/
             }
         }
 

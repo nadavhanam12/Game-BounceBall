@@ -278,6 +278,14 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 300
       objectReference: {fileID: 0}
+    - target: {fileID: 6515700986542717030, guid: b8d79ac7370d1c5488fea66b8d5c3a41, type: 3}
+      propertyPath: m_CullingMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6515700986542717030, guid: b8d79ac7370d1c5488fea66b8d5c3a41, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6647725647591350025, guid: b8d79ac7370d1c5488fea66b8d5c3a41, type: 3}
       propertyPath: m_fontSize
       value: 125
@@ -298,6 +306,14 @@ PrefabInstance:
       propertyPath: m_enableAutoSizing
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7652562760139525892, guid: b8d79ac7370d1c5488fea66b8d5c3a41, type: 3}
+      propertyPath: m_Player1
+      value: 
+      objectReference: {fileID: 751110947}
+    - target: {fileID: 7652562760139525892, guid: b8d79ac7370d1c5488fea66b8d5c3a41, type: 3}
+      propertyPath: m_Player2
+      value: 
+      objectReference: {fileID: 701461937}
     - target: {fileID: 8733437426076999687, guid: b8d79ac7370d1c5488fea66b8d5c3a41, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -402,6 +418,16 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &701461937 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1267961310, guid: b8d79ac7370d1c5488fea66b8d5c3a41, type: 3}
+  m_PrefabInstance: {fileID: 162571982}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &751110947 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1717167821, guid: b8d79ac7370d1c5488fea66b8d5c3a41, type: 3}
+  m_PrefabInstance: {fileID: 162571982}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1685502585
 GameObject:
   m_ObjectHideFlags: 0

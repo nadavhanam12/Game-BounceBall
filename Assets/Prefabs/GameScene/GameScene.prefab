@@ -1101,10 +1101,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f1ffacfbfe168843bb87eb43a637ff0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_bombsMaxNumber: 3
+  m_bombsMaxNumber: 0
   m_timeBetweenGenerates: 3
   m_pickablesGravity: 1
-  m_pickUpDistance: 2.5
   m_bombHitZoneRadius: 1
   m_bombVelocityX: 12
   m_bombVelocityY: 10
@@ -1216,7 +1215,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4525438849365356703}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 15, y: -5, z: 0}
+  m_LocalPosition: {x: 5, y: -7, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 583772043532331049}
@@ -1247,7 +1246,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4525438849407261826}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -15, y: -5, z: 0}
+  m_LocalPosition: {x: -5, y: -7, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 5331467120359085935}
@@ -1309,14 +1308,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3befba924ce909f44993ac73a5d37215, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GameType: 0
+  GameType: 3
   m_gameBoundsData: {fileID: 2800763266729549041}
   m_playerContainer1: {fileID: 4525438849407261826}
   m_playerContainer2: {fileID: 4525438849365356703}
   NoMenuStartPage: {fileID: 3098511428524071670}
   m_matchTime: 60
   m_countDownDelay: 1
-  m_shouldPlayTutorial: 0
+  m_shouldPlayTutorial: 1
   m_shouldPlayCountdown: 0
   m_shouldStartWithMenu: 0
   m_singlePlayerCheerFrequency: 5
@@ -1442,25 +1441,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerStats:
-    m_hitZoneRadius: 4
-    m_movingSpeed: 0.65
+    m_hitZoneRadius: 3
+    m_movingSpeed: 0.25
     m_jumpSpeed: 0.5
     m_maxHeight: 2
-    m_autoPlayDifficult: 7
-    AutoPlayBallDistance: 2
+    m_startHeight: 2
+    m_autoPlayDifficult: 14
+    AutoPlayBallDistance: 1
     KickCooldown: 0.125
-    SlideSpeed: 1.75
+    SlideSpeed: 2
+    PlayerBoundDistanceTrigger: 1
+    PlayerBoundDistanceSpawn: 1
   ballArgs:
     m_gravity: 1.5
     BallHitPowerY: 8
-    BallMinimumHitPowerX: 6
-    BallMaximumHitPowerX: 6
+    BallMinimumHitPowerX: 3
+    BallMaximumHitPowerX: 4
     m_ballReflectPower: 2
     m_ballTimeFadeOut: 2
     m_startVelocityY: 6
-    m_startVelocityX: 5
-    BallTorqueMultiplier: 0.75
+    m_startVelocityX: 1
+    BallTorqueMultiplier: 0.5
     BallMaxGravity: 3
+    BallBoundDistanceTrigger: 0.5
+    BallBoundDistanceSpawn: 0.5
   PlayerData1:
     Name: Player
     PlayerIndex: 1
@@ -1478,10 +1482,13 @@ MonoBehaviour:
       m_movingSpeed: 0.35
       m_jumpSpeed: 0.6
       m_maxHeight: 2
+      m_startHeight: 2
       m_autoPlayDifficult: 50
       AutoPlayBallDistance: 2
       KickCooldown: 0.5
       SlideSpeed: 0
+      PlayerBoundDistanceTrigger: 1
+      PlayerBoundDistanceSpawn: 1
   PlayerData2:
     Name: PC
     PlayerIndex: 2
@@ -1499,10 +1506,13 @@ MonoBehaviour:
       m_movingSpeed: 0.5
       m_jumpSpeed: 0.5
       m_maxHeight: 2
+      m_startHeight: 2
       m_autoPlayDifficult: 50
       AutoPlayBallDistance: 2
       KickCooldown: 0.5
       SlideSpeed: 0
+      PlayerBoundDistanceTrigger: 1
+      PlayerBoundDistanceSpawn: 1
 --- !u!1 &6263577512216549388
 GameObject:
   m_ObjectHideFlags: 0
@@ -1764,6 +1774,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_firstComboLength: 3
   m_FreePlayComboLength: 6
+  m_cooldownLength: 2
 --- !u!1 &6672108399129916488
 GameObject:
   m_ObjectHideFlags: 0
@@ -1984,6 +1995,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PumpkinHead
       objectReference: {fileID: 0}
+    - target: {fileID: 7561251731163679782, guid: ad3cd2c51ef520648a8f7247c3daf399, type: 3}
+      propertyPath: m_LocalScale.x
+      value: -0.5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ad3cd2c51ef520648a8f7247c3daf399, type: 3}
 --- !u!4 &583772043532331049 stripped
@@ -2016,7 +2031,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 839180561258614345, guid: 0de77305bfa73084e9899cfb8f007d9d, type: 3}
       propertyPath: playOnAwake
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 839180561258614345, guid: 0de77305bfa73084e9899cfb8f007d9d, type: 3}
       propertyPath: moveWithTransform
@@ -2072,7 +2087,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 839180561258614345, guid: 0de77305bfa73084e9899cfb8f007d9d, type: 3}
       propertyPath: VelocityModule.x.minScalar
-      value: 80
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 839180561258614345, guid: 0de77305bfa73084e9899cfb8f007d9d, type: 3}
       propertyPath: RotationModule.separateAxes
@@ -2099,12 +2114,24 @@ PrefabInstance:
       value: 0.33333334
       objectReference: {fileID: 0}
     - target: {fileID: 839180561258614345, guid: 0de77305bfa73084e9899cfb8f007d9d, type: 3}
+      propertyPath: InitialModule.startLifetime.scalar
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 839180561258614345, guid: 0de77305bfa73084e9899cfb8f007d9d, type: 3}
       propertyPath: InitialModule.startRotation.scalar
-      value: 3.1415925
+      value: 2.3561945
+      objectReference: {fileID: 0}
+    - target: {fileID: 839180561258614345, guid: 0de77305bfa73084e9899cfb8f007d9d, type: 3}
+      propertyPath: InitialModule.startLifetime.minScalar
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 839180561258614345, guid: 0de77305bfa73084e9899cfb8f007d9d, type: 3}
+      propertyPath: InitialModule.startLifetime.minMaxState
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 839180561258614345, guid: 0de77305bfa73084e9899cfb8f007d9d, type: 3}
       propertyPath: EmissionModule.m_Bursts.Array.data[0].countCurve.scalar
-      value: 1000
+      value: 2000
       objectReference: {fileID: 0}
     - target: {fileID: 6722910366696879239, guid: 0de77305bfa73084e9899cfb8f007d9d, type: 3}
       propertyPath: m_Name
@@ -2212,6 +2239,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4950080136276580310, guid: bfd2a1b6483f95442a3b86683fcd6540, type: 3}
+      propertyPath: m_Offset.x
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7492209328908160068, guid: bfd2a1b6483f95442a3b86683fcd6540, type: 3}
       propertyPath: m_Name
       value: RedHatBoy
@@ -2230,13 +2261,65 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 4525438849032664985}
     m_Modifications:
+    - target: {fileID: 1074688300564628624, guid: 5de221d8bb2e7ba4e818ea8d8b0bde00, type: 3}
+      propertyPath: m_Time
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1074688300564628624, guid: 5de221d8bb2e7ba4e818ea8d8b0bde00, type: 3}
+      propertyPath: m_MinVertexDistance
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1074688300564628624, guid: 5de221d8bb2e7ba4e818ea8d8b0bde00, type: 3}
+      propertyPath: m_Parameters.alignment
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1074688300564628624, guid: 5de221d8bb2e7ba4e818ea8d8b0bde00, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
+    - target: {fileID: 1074688300564628624, guid: 5de221d8bb2e7ba4e818ea8d8b0bde00, type: 3}
+      propertyPath: m_Parameters.numCapVertices
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 1074688300564628624, guid: 5de221d8bb2e7ba4e818ea8d8b0bde00, type: 3}
+      propertyPath: m_Parameters.numCornerVertices
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 1074688300564628624, guid: 5de221d8bb2e7ba4e818ea8d8b0bde00, type: 3}
+      propertyPath: m_Parameters.colorGradient.ctime0
+      value: 21395
+      objectReference: {fileID: 0}
+    - target: {fileID: 1074688300564628624, guid: 5de221d8bb2e7ba4e818ea8d8b0bde00, type: 3}
+      propertyPath: m_Parameters.colorGradient.key0.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1074688300564628624, guid: 5de221d8bb2e7ba4e818ea8d8b0bde00, type: 3}
+      propertyPath: m_Parameters.colorGradient.key0.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1074688300564628624, guid: 5de221d8bb2e7ba4e818ea8d8b0bde00, type: 3}
+      propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].value
+      value: 0.5631087
+      objectReference: {fileID: 0}
     - target: {fileID: 1414002396731875246, guid: 5de221d8bb2e7ba4e818ea8d8b0bde00, type: 3}
       propertyPath: m_Name
       value: Ball
       objectReference: {fileID: 0}
+    - target: {fileID: 2509038780523812086, guid: 5de221d8bb2e7ba4e818ea8d8b0bde00, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5010673099128000095, guid: 5de221d8bb2e7ba4e818ea8d8b0bde00, type: 3}
       propertyPath: m_RootOrder
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5010673099128000095, guid: 5de221d8bb2e7ba4e818ea8d8b0bde00, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 5010673099128000095, guid: 5de221d8bb2e7ba4e818ea8d8b0bde00, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.75
       objectReference: {fileID: 0}
     - target: {fileID: 5010673099128000095, guid: 5de221d8bb2e7ba4e818ea8d8b0bde00, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2366,7 +2449,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 839180561258614345, guid: 0de77305bfa73084e9899cfb8f007d9d, type: 3}
       propertyPath: VelocityModule.x.minScalar
-      value: -80
+      value: -100
       objectReference: {fileID: 0}
     - target: {fileID: 839180561258614345, guid: 0de77305bfa73084e9899cfb8f007d9d, type: 3}
       propertyPath: RotationModule.separateAxes
@@ -2393,12 +2476,24 @@ PrefabInstance:
       value: 0.33333334
       objectReference: {fileID: 0}
     - target: {fileID: 839180561258614345, guid: 0de77305bfa73084e9899cfb8f007d9d, type: 3}
+      propertyPath: InitialModule.startLifetime.scalar
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 839180561258614345, guid: 0de77305bfa73084e9899cfb8f007d9d, type: 3}
       propertyPath: InitialModule.startRotation.scalar
-      value: 3.1415925
+      value: 2.3561945
+      objectReference: {fileID: 0}
+    - target: {fileID: 839180561258614345, guid: 0de77305bfa73084e9899cfb8f007d9d, type: 3}
+      propertyPath: InitialModule.startLifetime.minScalar
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 839180561258614345, guid: 0de77305bfa73084e9899cfb8f007d9d, type: 3}
+      propertyPath: InitialModule.startLifetime.minMaxState
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 839180561258614345, guid: 0de77305bfa73084e9899cfb8f007d9d, type: 3}
       propertyPath: EmissionModule.m_Bursts.Array.data[0].countCurve.scalar
-      value: 1000
+      value: 2000
       objectReference: {fileID: 0}
     - target: {fileID: 6722910366696879239, guid: 0de77305bfa73084e9899cfb8f007d9d, type: 3}
       propertyPath: m_Name
@@ -2578,6 +2673,14 @@ PrefabInstance:
     - target: {fileID: 125765754324526438, guid: 37b1913998774a741a27bcdee1e9f3f5, type: 3}
       propertyPath: m_RootOrder
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 125765754324526438, guid: 37b1913998774a741a27bcdee1e9f3f5, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 125765754324526438, guid: 37b1913998774a741a27bcdee1e9f3f5, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 125765754324526438, guid: 37b1913998774a741a27bcdee1e9f3f5, type: 3}
       propertyPath: m_LocalPosition.x

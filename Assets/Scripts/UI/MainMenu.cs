@@ -24,6 +24,8 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private GameObject m_BallOnePlayer;
     [SerializeField] private GameObject m_BallTwoPlayer;
     [SerializeField] private GameObject m_BallTurns;
+    [SerializeField] private GameObject m_Player1;
+    [SerializeField] private GameObject m_Player2;
 
 
 
@@ -87,7 +89,7 @@ public class MainMenu : MonoBehaviour
     {
         /*m_StartGame.SetActive(false);
         m_gameOption.SetActive(true);*/
-        m_anim.Play("TransitionCircle");
+        m_anim.SetTrigger("Start_Pressed");
         EventManager.Broadcast(EVENT.EventMainMenu);
     }
 
@@ -203,13 +205,15 @@ public class MainMenu : MonoBehaviour
 
     private void OnActivateBallTween()
     {
-        m_anim.Play("TransitionCircleEndScene");
+        m_anim.SetTrigger("Match_Start");
     }
 
-    public void OnHighlights()
+    public void AdvanceMenu()
     {
-
-
+        m_gameOption.SetActive(true);
+        m_StartGame.SetActive(false);
+        m_Player1.SetActive(true);
+        m_Player2.SetActive(true);
     }
 
 

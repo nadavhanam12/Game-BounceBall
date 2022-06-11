@@ -238,7 +238,15 @@ public class GameCanvasScript : MonoBehaviour
     }
     public void ShowComboAndNextBall(bool shouldShow)
     {
-        transform.Find("Combo&BallColor").gameObject.SetActive(shouldShow);
+        if (shouldShow)
+        {
+            transform.Find("Combo&BallColor").gameObject.transform.localScale = Vector3.one;
+        }
+        else
+        {
+            transform.Find("Combo&BallColor").gameObject.transform.localScale = Vector3.zero;
+        }
+
     }
     public void ShowSkipButton(bool toShow)
     {

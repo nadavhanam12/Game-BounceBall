@@ -99,6 +99,7 @@ public class NextColorScript : MonoBehaviour
         m_nextColors = nextColors;
         m_colorsQueue.Enqueue(curColor);
         StartCoroutine(PullColors());
+
     }
 
     private IEnumerator PullColors()

@@ -30,6 +30,7 @@ public class ScoreDeltaUIClass : MonoBehaviour
 
     private PlayerIndex m_playerInLead;
     private int m_curDelta = 0;
+    private string m_timeLeftString;
 
 
 
@@ -109,8 +110,16 @@ public class ScoreDeltaUIClass : MonoBehaviour
             //float minutes = Mathf.FloorToInt(timeToDisplay / 60);
             float seconds = Mathf.FloorToInt(timeToDisplay % 60);
             float milliSeconds = (timeToDisplay % 1) * 100;
-            m_timeTextSeconds.text = string.Format("{0:00}", seconds);
-            //m_timeTextMilliseconds.text = string.Format("{0:00}", milliSeconds);
+            m_timeLeftString = string.Format("{0:00}", seconds);
+
+            if (timeToDisplay <= 4f && m_timeLeftString != m_timeTextSeconds.text)
+            {
+                print("timeToDisplay <= 4f");
+                Color newColor = m_timeTextSeconds.color == Color.red ? Color.white : Color.red;
+                m_timeTextSeconds.color = newColor;
+                LeanTween.scale(m_timeTextSeconds.gameObject, new Vector3(1.5f, 1.5f, 1.5f), 0.2f).setLoopPingPong(1);
+            }
+            m_timeTextSeconds.text = m_timeLeftString;
         }
     }
 
