@@ -137,13 +137,19 @@ public class GameManagerScript : MonoBehaviour
                  { "GameMode", m_gameArgs.GameType }
                          });
 
+        if (m_mainMenu != null)
+            m_shouldPlayTutorial = !PlayerPrefsHasCompletedTutorial();
+
+        if (m_shouldPlayTutorial)
+        {
+            m_gameArgs.GameType = GameType.TalTalGame;
+            GameType = GameType.TalTalGame;
+        }
         Init();
         m_gameBoundsData.gameObject.SetActive(false);
         this.gameObject.SetActive(true);
         m_shouldRestart = false;
 
-        if (m_mainMenu != null)
-            m_shouldPlayTutorial = !PlayerPrefsHasCompletedTutorial(m_gameArgs.GameType);
 
         if (m_shouldPlayTutorial)
         {
@@ -172,7 +178,7 @@ public class GameManagerScript : MonoBehaviour
         m_curPlayerTurn = PlayerIndex.First;
         m_gameCanvas.SetCurPlayerUI(m_curPlayerTurn == PlayerIndex.First);
 
-        UpdatePlayerPrefsCompletedTutorial(m_gameArgs.GameType);
+        UpdatePlayerPrefsCompletedTutorial();
 
         AfterTutorial();
     }
@@ -198,8 +204,12 @@ public class GameManagerScript : MonoBehaviour
         tutorialArgs.TutorialUI = m_gameCanvas.GetTutorialUI();
         m_tutorialManager.Init(tutorialArgs);
         m_tutorialManager.Pause = SetGamePause;
-        m_tutorialManager.OnFinishTutorial = FinishedTutorial;
+        m_tutorialManager.onFinishTutorial = FinishedTutorial;
+        m_tutorialManager.onInitPlayers = InitPlayerOneStatus;
         m_tutorialManager.onShowOpponent = () => m_playerData2.PlayerScript.ShowPlayer();
+        m_tutorialManager.onRemoveAllBalls = m_ballsManager.RemoveAllBalls;
+        m_tutorialManager.onGenerateNewBall =
+            (PlayerIndex playerIndex, PlayerIndex nextPlayerIndex) => { m_ballsManager.OnNewBallInScene(playerIndex, nextPlayerIndex); };
 
     }
 
@@ -420,6 +430,10 @@ public class GameManagerScript : MonoBehaviour
         m_playerData1.PlayerScript.InitPlayer();
         m_playerData2.PlayerScript.InitPlayer();
     }
+    private void InitPlayerOneStatus()
+    {
+        m_playerData1.PlayerScript.InitPlayer();
+    }
 
     void SwitchPlayerTurnAfterWait(bool throwNewBall = true, bool shouldSwitchTurn = true)
     {
@@ -532,29 +546,27 @@ public class GameManagerScript : MonoBehaviour
         if (m_inTutorial)
         {
             m_tutorialManager.OnBallLost();
-            if (!m_tutorialManager.IsEnemyTurn())
+            if (m_tutorialManager.GetCurStage() != StageInTutorial.PracticeOpponentGamePlay)
             {
+                if (m_tutorialManager.GetCurStage() == StageInTutorial.PracticeSlideGamePlay)
+                {
+                    m_ballsManager.OnNewBallInScene(PlayerIndex.First, PlayerIndex.Second);
+                    return;
+                }
                 m_ballsManager.OnNewBallInScene(PlayerIndex.First);
             }
             else
             {
-                if (m_curPlayerTurn == PlayerIndex.First) //for the first turn change while tutorial
+                if (m_gameArgs.GameType == GameType.TalTalGame)
                 {
-                    m_playerData2.PlayerScript.ShowPlayer();
-                    if (m_gameArgs.GameType == GameType.TalTalGame)
-                    {
-                        SwitchPlayerTurn(true);
-                    }
-                    else
-                    {
-                        SwitchPlayerTurn(false);
-                    }
-
+                    SwitchPlayerTurn(true);
                 }
                 else
                 {
-                    m_ballsManager.OnNewBallInScene(PlayerIndex.Second);
+                    SwitchPlayerTurn(false);
                 }
+
+
             }
 
         }
@@ -602,18 +614,18 @@ public class GameManagerScript : MonoBehaviour
         }
 
         KickType kickType = KickType.Regular;
-        if (playerIndex == PlayerIndex.First)
+        /*if (playerIndex == PlayerIndex.First)
+        {*/
+        switch (kickType)
         {
-            switch (kickType)
-            {
-                case KickType.Special:
-                    EventManager.Broadcast(EVENT.EventSpecialKick);
-                    break;
-                default:
-                    EventManager.Broadcast(EVENT.EventNormalKick);
-                    break;
-            }
+            case KickType.Special:
+                EventManager.Broadcast(EVENT.EventSpecialKick);
+                break;
+            default:
+                EventManager.Broadcast(EVENT.EventNormalKick);
+                break;
         }
+        //}
 
         if (m_gameArgs.GameType == GameType.TalTalGame)
         {
@@ -641,7 +653,7 @@ public class GameManagerScript : MonoBehaviour
             else if (m_playerData1.CurScore % m_singlePlayerCheerFrequency == 0)
             {
                 m_gameCanvas.CheerActivate();
-                EventManager.Broadcast(EVENT.EventCombo);
+
             }
 
             return;
@@ -673,7 +685,6 @@ public class GameManagerScript : MonoBehaviour
             if ((!m_inTutorial) && (m_curPlayerTurn == PlayerIndex.First))
             {
                 m_gameCanvas.CheerActivate();
-                EventManager.Broadcast(EVENT.EventCombo);
             }
             playerArgs.CurScore += (nextComboData.ScoreBonus);
             //print("nextComboData.ScoreBonus: " + nextComboData.ScoreBonus);
@@ -794,54 +805,14 @@ public class GameManagerScript : MonoBehaviour
 
     }
 
-    private bool PlayerPrefsHasCompletedTutorial(GameType gameType)
+    private bool PlayerPrefsHasCompletedTutorial()
     {
-        if (!PlayerPrefs.HasKey("CompletedTutorialSinglePlayer"))
-        {
-            PlayerPrefs.SetInt("CompletedTutorialSinglePlayer", 0);
-            return false;
-        }
-        if (!PlayerPrefs.HasKey("CompletedTutorialKickKick"))
-        {
-            PlayerPrefs.SetInt("CompletedTutorialKickKick", 0);
-            return false;
-        }
-        if (!PlayerPrefs.HasKey("CompletedTutorialTurns"))
-        {
-            PlayerPrefs.SetInt("CompletedTutorialTurns", 0);
-            return false;
-        }
-
-        switch (gameType)
-        {
-            case (GameType.OnePlayer):
-                return Convert.ToBoolean(PlayerPrefs.GetInt("CompletedTutorialSinglePlayer"));
-            case (GameType.TalTalGame):
-                return Convert.ToBoolean(PlayerPrefs.GetInt("CompletedTutorialKickKick"));
-            case (GameType.TurnsGame):
-                return Convert.ToBoolean(PlayerPrefs.GetInt("CompletedTutorialTurns"));
-            default:
-                return false;
-
-        }
+        return Convert.ToBoolean(PlayerPrefs.GetInt("CompletedTutorial"));
     }
 
-    private void UpdatePlayerPrefsCompletedTutorial(GameType gameType)
+    private void UpdatePlayerPrefsCompletedTutorial()
     {
-        switch (gameType)
-        {
-            case (GameType.OnePlayer):
-                PlayerPrefs.SetInt("CompletedTutorialSinglePlayer", 1);
-                break;
-            case (GameType.TalTalGame):
-                PlayerPrefs.SetInt("CompletedTutorialKickKick", 1);
-                break;
-            case (GameType.TurnsGame):
-                PlayerPrefs.SetInt("CompletedTutorialTurns", 1);
-                break;
-
-
-        }
+        PlayerPrefs.SetInt("CompletedTutorial", 1);
 
     }
 

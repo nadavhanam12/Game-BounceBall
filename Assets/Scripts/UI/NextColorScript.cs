@@ -33,6 +33,7 @@ public class NextColorScript : MonoBehaviour
     [SerializeField][Range(0, 1)] private float m_refreshRate;
     [SerializeField] private int initStartBall = 3;
     private Color m_nextColor;
+    private ParticleSystem m_particleSystem;
 
     private Queue<Color> m_colorsQueue;
     private Color[] m_nextColors;
@@ -49,6 +50,7 @@ public class NextColorScript : MonoBehaviour
             m_initialized = true;
             m_curBallCount = initStartBall;
             m_colorsQueue = new Queue<Color>();
+            m_particleSystem = GetComponentInChildren<ParticleSystem>();
 
             InitBallsArray();
 
@@ -94,8 +96,10 @@ public class NextColorScript : MonoBehaviour
         m_curBallCount = initStartBall;
     }
 
-    public void SetNextBallImage(Color curColor, Color[] nextColors)
+    public void SetNextBallImage(Color curColor, Color[] nextColors, bool shouldEmitParticles)
     {
+        if ((shouldEmitParticles) && (m_nextColor != initColor))
+            EmitBallParticles(m_nextColor);
         m_nextColors = nextColors;
         m_colorsQueue.Enqueue(curColor);
         StartCoroutine(PullColors());
@@ -236,6 +240,13 @@ public class NextColorScript : MonoBehaviour
         m_ballComponentToReset.Image.rectTransform.anchoredPosition = m_ballsArray[m_ballsArray.Length - 1].OriginalPosition;
         m_ballComponentToReset.CurIndexInOrder = m_ballsArray.Length - 1;
         //m_ballComponentToReset.Image.color = initColor;
+    }
+
+    private void EmitBallParticles(Color color)
+    {
+        ParticleSystem.MainModule main = m_particleSystem.main;
+        main.startColor = color;
+        m_particleSystem.Emit(60);
     }
 
 }

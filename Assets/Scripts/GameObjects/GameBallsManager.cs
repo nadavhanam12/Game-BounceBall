@@ -221,7 +221,7 @@ public class GameBallsManager : MonoBehaviour
                 color2.a = m_opponentBallAlpha;
             }
         }
-        UpdateNextBallColor(color1);
+        UpdateNextBallColor(color1, true);
 
         Vector2 ballPos = ball.GetPosition();
         float distanceX = RandomDisX();
@@ -269,11 +269,11 @@ public class GameBallsManager : MonoBehaviour
             return -1;
         }
     }
-    void UpdateNextBallColor(Color color)
+    void UpdateNextBallColor(Color color, bool shouldEmitParticles)
     {
         m_curRequiredColor = color;
         m_nextColorArray = m_colorQueue.ToArray();
-        m_args.GameCanvas.UpdateNextBallColor(color, m_nextColorArray);
+        m_args.GameCanvas.UpdateNextBallColor(color, m_nextColorArray, shouldEmitParticles);
 
     }
 
@@ -326,7 +326,7 @@ public class GameBallsManager : MonoBehaviour
         }
         int disXMultiplier = nextPlayerIndex == PlayerIndex.First ? -1 : 1;
         ball.OnNewBallInScene(color, disXMultiplier);
-        UpdateNextBallColor(color);
+        UpdateNextBallColor(color, false);
         /*if (isGamePaused)
         {
             SetGamePause(isGamePaused);

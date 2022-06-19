@@ -59,6 +59,10 @@ public class GameCanvasScript : MonoBehaviour
     const string backgroundsPath = "BackGround";
 
     private GameCanvasArgs m_args;
+    private bool CanMove = true;
+    private bool CanKick = true;
+    private bool CanSlide = true;
+    private bool CanJump = true;
 
 
     #endregion
@@ -70,13 +74,13 @@ public class GameCanvasScript : MonoBehaviour
         ScoreUIDelta.SetGamePause(isGamePaused);
 
     }
-    public void OnKickSpecialInput() { m_OnTouchKickSpecial(); }
-    public void OnKickRegularInput() { m_OnTouchKickRegular(); }
-    public void OnJumpInput() { m_OnTouchJump(); }
-    public void OnMoveRightInputPressed() { EventManager.Broadcast(EVENT.EventOnRightPressed); }
-    public void OnMoveLeftInputPressed() { EventManager.Broadcast(EVENT.EventOnLeftPressed); }
-    public void OnMoveRightInputReleased() { EventManager.Broadcast(EVENT.EventOnRightReleased); }
-    public void OnMoveLeftInputReleased() { EventManager.Broadcast(EVENT.EventOnLeftReleased); }
+    public void OnKickSpecialInput() { if (CanSlide) m_OnTouchKickSpecial(); }
+    public void OnKickRegularInput() { if (CanKick) m_OnTouchKickRegular(); }
+    public void OnJumpInput() { if (CanJump) m_OnTouchJump(); }
+    public void OnMoveRightInputPressed() { if (CanMove) EventManager.Broadcast(EVENT.EventOnRightPressed); }
+    public void OnMoveLeftInputPressed() { if (CanMove) EventManager.Broadcast(EVENT.EventOnLeftPressed); }
+    public void OnMoveRightInputReleased() { if (CanMove) EventManager.Broadcast(EVENT.EventOnRightReleased); }
+    public void OnMoveLeftInputReleased() { if (CanMove) EventManager.Broadcast(EVENT.EventOnLeftReleased); }
     public void OnRestart() { EventManager.Broadcast(EVENT.EventOnRestart); }
 
 
@@ -154,6 +158,7 @@ public class GameCanvasScript : MonoBehaviour
     {
         CheerObject.Activate(withTextAndInit);
         m_args.ConfettiManager.Activate();
+        EventManager.Broadcast(EVENT.EventCombo);
     }
 
 
@@ -194,9 +199,9 @@ public class GameCanvasScript : MonoBehaviour
         CountdownUI.SetActive(false);
         EventManager.Broadcast(EVENT.EventOnCountdownEnds);
     }
-    public void UpdateNextBallColor(Color curColor, Color[] nextColors)
+    public void UpdateNextBallColor(Color curColor, Color[] nextColors, bool shouldEmitParticles)
     {
-        NextColorUI.SetNextBallImage(curColor, nextColors);
+        NextColorUI.SetNextBallImage(curColor, nextColors, shouldEmitParticles);
     }
     public void SetCombo(int curCombo)
     {
@@ -263,6 +268,19 @@ public class GameCanvasScript : MonoBehaviour
     public void GravityIncrease()
     {
         TurnsUI.GravityIncrease();
+    }
+    public void ActiveOnlySlideButton()
+    {
+        CanMove = false;
+        CanJump = false;
+        CanKick = false;
+    }
+    public void ActiveButtons()
+    {
+        CanMove = true;
+        CanJump = true;
+        CanKick = true;
+        CanSlide = true;
     }
 
 

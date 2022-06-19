@@ -1446,7 +1446,7 @@ MonoBehaviour:
     m_jumpSpeed: 0.5
     m_maxHeight: 2
     m_startHeight: 2
-    m_autoPlayDifficult: 14
+    m_autoPlayDifficult: 10
     AutoPlayBallDistance: 1
     KickCooldown: 0.125
     SlideSpeed: 2
@@ -1772,7 +1772,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e8f0113683340e46a1791f867f8b694, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_firstComboLength: 3
+  m_firstComboLength: 4
   m_FreePlayComboLength: 6
   m_cooldownLength: 2
 --- !u!1 &6672108399129916488

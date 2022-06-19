@@ -219,18 +219,11 @@ public class MainMenu : MonoBehaviour
 
     private void SetPlayerPrefs()
     {
-        if (!PlayerPrefs.HasKey("CompletedTutorialSinglePlayer"))
+        if (!PlayerPrefs.HasKey("CompletedTutorial"))
         {
-            PlayerPrefs.SetInt("CompletedTutorialSinglePlayer", 0);
+            PlayerPrefs.SetInt("CompletedTutorial", 0);
         }
-        if (!PlayerPrefs.HasKey("CompletedTutorialKickKick"))
-        {
-            PlayerPrefs.SetInt("CompletedTutorialKickKick", 0);
-        }
-        if (!PlayerPrefs.HasKey("CompletedTutorialTurns"))
-        {
-            PlayerPrefs.SetInt("CompletedTutorialTurns", 0);
-        }
+
     }
 
 }
