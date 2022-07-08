@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -23,11 +24,14 @@ public class TutorialUI : MonoBehaviour
     public GameObject m_highlightBtn2;
     private Animator m_AnimSpeechBubble;
 
+    public TMP_Text m_welcomeText;
+
     public void Init(GameCanvasScript gameCanvas)
     {
         m_gameCanvas = gameCanvas;
 
         DisablePanels();
+        SetPlayerName();
         gameObject.SetActive(false);
         PlayerSpeechBubble.SetActive(false);
         m_AnimSpeechBubble = PlayerSpeechBubble.GetComponent<Animator>();
@@ -35,14 +39,23 @@ public class TutorialUI : MonoBehaviour
         m_highlightBtn.SetActive(false);
         m_highlightBtn2.SetActive(false);
     }
-
+    void SetPlayerName()
+    {
+        if (PlayerPrefs.HasKey("PlayerName"))
+        {
+            string name = PlayerPrefs.GetString("PlayerName");
+            string text = m_welcomeText.text;
+            text = text.Replace("player", name);
+            m_welcomeText.text = text;
+        }
+    }
     public void Play()
     {
         gameObject.SetActive(true);
         m_gameCanvas.ShowSkipButton(true);
 
         m_gameCanvas.ShowScoreDelta(false);
-        m_gameCanvas.ShowComboAndNextBall(false);
+        //m_gameCanvas.ShowComboAndNextBall(false);
         PlayerSpeechBubble.SetActive(true);
 
         //KickBtn.SetActive(false);

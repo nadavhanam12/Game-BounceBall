@@ -138,7 +138,7 @@ public class GameManagerScript : MonoBehaviour
                          });
 
         if (m_mainMenu != null)
-            m_shouldPlayTutorial = !PlayerPrefsHasCompletedTutorial();
+            m_shouldPlayTutorial = !PlayerPrefsHasCompletedTutorial();// false;
 
         if (m_shouldPlayTutorial)
         {
@@ -154,6 +154,7 @@ public class GameManagerScript : MonoBehaviour
         if (m_shouldPlayTutorial)
         {
             StartTutorial();
+            //AfterTutorial();
         }
         else
         {

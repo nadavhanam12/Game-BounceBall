@@ -217,6 +217,7 @@ public class TutorialManager : MonoBehaviour
         switch (m_curStageTutorial)
         {
             case StageInTutorial.WelcomePlayerText:
+                AnalyticsManager.CommitData("tutorial_start");
                 NextPanel(1);
                 onRemoveAllBalls();
                 break;
@@ -226,7 +227,13 @@ public class TutorialManager : MonoBehaviour
                 StartCoroutine(GenerateBallWithDelay(0.75f));
                 break;
             case StageInTutorial.BallSplitText1:
+                AnalyticsManager.CommitData(
+                       "tutorial_step",
+                       new Dictionary<string, object> {
+                 { "stage", "kick_example" }
+                    });
                 m_args.TutorialUI.ShowComboAndNextBall(true);
+
                 NextPanel();
                 break;
             case StageInTutorial.BallSplitText2:
@@ -236,6 +243,11 @@ public class TutorialManager : MonoBehaviour
                 break;
             case StageInTutorial.PracticeKickFinishText:
                 NextPanel();
+                AnalyticsManager.CommitData(
+                       "tutorial_step",
+                       new Dictionary<string, object> {
+                 { "stage", "kick_practice" }
+                    });
 
                 break;
             case StageInTutorial.SlideIntroductionText:
@@ -255,6 +267,11 @@ public class TutorialManager : MonoBehaviour
                 onInitPlayers();
                 onShowOpponent();
                 m_args.GameCanvas.ActiveButtons();
+                AnalyticsManager.CommitData(
+                       "tutorial_step",
+                       new Dictionary<string, object> {
+                 { "stage", "slide_example" }
+                    });
                 break;
             case StageInTutorial.OpponentAppears:
                 NextPanel();
@@ -270,6 +287,11 @@ public class TutorialManager : MonoBehaviour
                 NextPanel();
                 break;
             case StageInTutorial.PointsMechanismText:
+                AnalyticsManager.CommitData(
+                           "tutorial_step",
+                           new Dictionary<string, object> {
+                 { "stage", "opponent_practice" }
+                        });
                 onRemoveAllBalls();
                 NextPanel();
                 break;
@@ -277,6 +299,7 @@ public class TutorialManager : MonoBehaviour
                 NextPanel();
                 break;
             case StageInTutorial.BounceThatBallText:
+                AnalyticsManager.CommitData("tutorial_complete");
                 FinishedTutorial();
                 //Invoke("onGenerateNewBall", 1.5f);
                 break;

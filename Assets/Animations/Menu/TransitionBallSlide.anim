@@ -6,7 +6,7 @@ AnimationClip:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: TransitionCircle
+  m_Name: TransitionBallSlide
   serializedVersion: 6
   m_Legacy: 0
   m_Compressed: 0
@@ -413,7 +413,7 @@ AnimationClip:
   m_HasMotionFloatCurves: 0
   m_Events:
   - time: 1
-    functionName: AdvanceMenuName
+    functionName: OpenMenuGameOptions
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

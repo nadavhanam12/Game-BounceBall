@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
@@ -19,6 +20,7 @@ public class MainMenu : MonoBehaviour
     #region serialized
 
     [SerializeField] private GameObject m_StartGame;
+    [SerializeField] private GameObject m_gameName;
     [SerializeField] private GameObject m_gameOption;
     [SerializeField] private RawImage m_background;
     [SerializeField] private GameObject m_BallOnePlayer;
@@ -26,6 +28,8 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private GameObject m_BallTurns;
     [SerializeField] private GameObject m_Player1;
     [SerializeField] private GameObject m_Player2;
+    [SerializeField] private TMP_InputField m_nameTMP;
+    [SerializeField] private GameObject m_ballName;
 
 
 
@@ -49,7 +53,6 @@ public class MainMenu : MonoBehaviour
     private Camera m_camera;
     private EventSystem m_eventSystem;
     private string m_gameSceneName = "GameScene";
-
 
     #endregion
 
@@ -82,6 +85,7 @@ public class MainMenu : MonoBehaviour
 
         m_StartGame.SetActive(true);
         m_gameOption.SetActive(false);
+        m_gameName.SetActive(false);
 
     }
 
@@ -91,6 +95,20 @@ public class MainMenu : MonoBehaviour
         m_gameOption.SetActive(true);*/
         m_anim.SetTrigger("Start_Pressed");
         EventManager.Broadcast(EVENT.EventMainMenu);
+    }
+
+    public void NameEntered()
+    {
+        string newName = m_nameTMP.text;
+        print("Name entered: " + newName);
+        if (newName == "")
+        {
+            m_nameTMP.Select();
+            return;
+        }
+
+        PlayerPrefs.SetString("PlayerName", newName);
+        m_anim.SetTrigger("Name_Entered");
     }
 
 
@@ -151,6 +169,7 @@ public class MainMenu : MonoBehaviour
         m_StartGame.SetActive(true);
         m_gameOption.SetActive(false);
         ToggleMenu(true);
+
     }
 
     private void ToggleMenu(bool activateMenu)
@@ -208,12 +227,17 @@ public class MainMenu : MonoBehaviour
         m_anim.SetTrigger("Match_Start");
     }
 
-    public void AdvanceMenu()
+    public void AdvanceMenuName()
     {
-        m_gameOption.SetActive(true);
+        m_gameName.SetActive(true);
         m_StartGame.SetActive(false);
         m_Player1.SetActive(true);
         m_Player2.SetActive(true);
+    }
+    public void OpenMenuGameOptions()
+    {
+        m_gameOption.SetActive(true);
+        m_gameName.SetActive(false);
     }
 
 
@@ -222,6 +246,10 @@ public class MainMenu : MonoBehaviour
         if (!PlayerPrefs.HasKey("CompletedTutorial"))
         {
             PlayerPrefs.SetInt("CompletedTutorial", 0);
+        }
+        if (!PlayerPrefs.HasKey("PlayerName"))
+        {
+            PlayerPrefs.SetString("PlayerName", "Player");
         }
 
     }

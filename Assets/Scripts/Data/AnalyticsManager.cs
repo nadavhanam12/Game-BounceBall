@@ -11,7 +11,8 @@ public class AnalyticsManager : MonoBehaviour
     public static AnalyticsManager Instance = null;
     private static List<string> m_eventsList = new List<string>
     { "App_Launched","Match_Started","Match_Ended","Kick_Regular","Kick_Special","Jump","Bomb_Throw","Player_Hit_By_Bomb",
-    "Retry_Button_Pressed","Tutorial_Started","Tutorial_Completed" };
+    "Retry_Button_Pressed","Tutorial_Started","Tutorial_Completed",
+    "tutorial_start","tutorial_step","tutorial_complete" };
 
     private void Awake()
     {
