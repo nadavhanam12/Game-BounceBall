@@ -41,8 +41,6 @@ public class PlayerScript : MonoBehaviour
     private bool isJumping = false;
     private bool isJumpingUp = false;
     private bool isJumpingDown = false;
-    private bool m_runRightFromTouch = false;
-    private bool m_runLeftFromTouch = false;
 
     private bool m_inKickCooldown = false;
     private bool m_onWinLoseAnim = false;
@@ -99,36 +97,24 @@ public class PlayerScript : MonoBehaviour
 
     void InitListeners()
     {
-        EventManager.AddHandler(EVENT.EventOnRightPressed, ToogleRunRightOn);
-        EventManager.AddHandler(EVENT.EventOnRightReleased, ToogleRunRightOff);
-        EventManager.AddHandler(EVENT.EventOnLeftPressed, ToogleRunLeftOn);
-        EventManager.AddHandler(EVENT.EventOnLeftReleased, ToogleRunLeftOff);
+        EventManager.AddHandler(EVENT.EventOnRightPressed, MoveRight);
+        EventManager.AddHandler(EVENT.EventOnLeftPressed, MoveLeft);
 
     }
     void RemoveListeners()
     {
-        EventManager.RemoveHandler(EVENT.EventOnRightPressed, ToogleRunRightOn);
-        EventManager.RemoveHandler(EVENT.EventOnRightReleased, ToogleRunRightOff);
-        EventManager.RemoveHandler(EVENT.EventOnLeftPressed, ToogleRunLeftOn);
-        EventManager.RemoveHandler(EVENT.EventOnLeftReleased, ToogleRunLeftOff);
+        EventManager.RemoveHandler(EVENT.EventOnRightPressed, MoveRight);
+        EventManager.RemoveHandler(EVENT.EventOnLeftPressed, MoveLeft);
 
     }
 
-    private void ToogleRunLeftOn()
+    void MoveRight()
     {
-        m_runLeftFromTouch = true;
+        OnMoveX(Vector2.right);
     }
-    private void ToogleRunLeftOff()
+    void MoveLeft()
     {
-        m_runLeftFromTouch = false;
-    }
-    private void ToogleRunRightOn()
-    {
-        m_runRightFromTouch = true;
-    }
-    private void ToogleRunRightOff()
-    {
-        m_runRightFromTouch = false;
+        OnMoveX(Vector2.left);
     }
 
     void UpdateColor()
@@ -156,8 +142,6 @@ public class PlayerScript : MonoBehaviour
             {
                 if (!m_args.AutoPlay)
                 {
-                    GetPlayerKickFromKeyboard();
-                    GetPlayerMovement();
                     GetJump();
                 }
                 else
@@ -217,48 +201,21 @@ public class PlayerScript : MonoBehaviour
 
     }
 
-    void GetPlayerKickFromKeyboard()
-    {
-        if (Input.GetKeyDown(KeyCode.D))
-        {
-            OnJump();
-        }
-        else if (Input.GetKeyDown(KeyCode.S))
-        {
-            OnKickPlay(KickType.Regular);
-        }
-        else if (Input.GetKeyDown(KeyCode.A))
-        {
-            OnKickPlay(KickType.Special);
-        }
-
-    }
-    void GetPlayerMovement()
-    {
-        if (Input.GetKey(KeyCode.Z) || Input.GetKey(KeyCode.LeftArrow) || m_runLeftFromTouch)
-        {
-            OnMoveX(Vector3.left);
-        }
-        else if (Input.GetKey(KeyCode.X) || Input.GetKey(KeyCode.RightArrow) || m_runRightFromTouch)
-        {
-            OnMoveX(Vector3.right);
-        }
-        else if (!m_onWinLoseAnim)
-        {
-            //print("Idle Trigger");
-            AnimSetTrigger("Idle Trigger");
-        }
-    }
 
 
 
-    public void OnMoveX(Vector3 direction)
+    public void OnMoveX(Vector2 direction)
     {
         if (CheckPlayerInBounds(direction))
         {
             AnimSetTrigger("Running Trigger");
             SpinPlayerToDirection(direction);
             transform.Translate(direction * m_args.playerStats.m_movingSpeed, Space.World);
+        }
+        else if (m_onSlide)
+        {
+            m_inParalyze = false;
+            ToggleSlide(false);
         }
     }
 
@@ -583,6 +540,15 @@ public class PlayerScript : MonoBehaviour
     public void OnTouchJump()
     {
         OnJump();
+    }
+    public void OnPlayIdle()
+    {
+        if (!m_inParalyze)
+        {
+            AnimSetTrigger("Idle Trigger");
+            m_anim.Play("Idle", -1, 0f);
+        }
+
     }
     public void OnTouchKickSpecial()
     {

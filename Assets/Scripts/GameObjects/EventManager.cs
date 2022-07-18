@@ -19,8 +19,6 @@ public enum EVENT
     EventOnCountdownEnds,
     EventOnRightPressed,
     EventOnLeftPressed,
-    EventOnRightReleased,
-    EventOnLeftReleased,
 }; // ... Other events
 
 public static class EventManager

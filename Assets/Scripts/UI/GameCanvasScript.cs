@@ -19,6 +19,8 @@ public class GameCanvasScript : MonoBehaviour
     public OnTouchKickRegular m_OnTouchKickRegular;
     public delegate void OnTouchJump();
     public OnTouchJump m_OnTouchJump;
+    public delegate void OnPlayIdle();
+    public OnPlayIdle m_OnPlayIdle;
     public delegate void OnTouchKickSpecial();
     public OnTouchKickSpecial m_OnTouchKickSpecial;
 
@@ -77,10 +79,9 @@ public class GameCanvasScript : MonoBehaviour
     public void OnKickSpecialInput() { if (CanSlide) m_OnTouchKickSpecial(); }
     public void OnKickRegularInput() { if (CanKick) m_OnTouchKickRegular(); }
     public void OnJumpInput() { if (CanJump) m_OnTouchJump(); }
+    public void OnInputEnd() { m_OnPlayIdle(); }
     public void OnMoveRightInputPressed() { if (CanMove) EventManager.Broadcast(EVENT.EventOnRightPressed); }
     public void OnMoveLeftInputPressed() { if (CanMove) EventManager.Broadcast(EVENT.EventOnLeftPressed); }
-    public void OnMoveRightInputReleased() { if (CanMove) EventManager.Broadcast(EVENT.EventOnRightReleased); }
-    public void OnMoveLeftInputReleased() { if (CanMove) EventManager.Broadcast(EVENT.EventOnLeftReleased); }
     public void OnRestart() { EventManager.Broadcast(EVENT.EventOnRestart); }
 
 

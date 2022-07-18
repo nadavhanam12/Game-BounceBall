@@ -44,12 +44,8 @@ public class MainMenu : MonoBehaviour
     private Vector3 m_posBallTwoPlayer;
     private Vector3 m_posBallTurns;
     const string backgroundsPath = "BackGround";
-    private int m_highMove = 150;
-    private float m_timeToTween = 1f;
     private GameObject m_userBallChoosen = null;
     private GameType m_gameType;
-    private float m_inputDelay = 0.0f;
-
     private Camera m_camera;
     private EventSystem m_eventSystem;
     private string m_gameSceneName = "GameScene";

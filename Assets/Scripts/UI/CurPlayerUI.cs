@@ -9,7 +9,6 @@ public class CurPlayerUI : MonoBehaviour
 
     [SerializeField] RawImage m_image;
     private int m_curTweenId = -1;
-    private int m_curCombo;
     private Vector3 m_imageScale;
 
     [Range(0.05f, 1f)] public float m_timeToTween = 0.2f;
@@ -23,7 +22,6 @@ public class CurPlayerUI : MonoBehaviour
 
     public void Init(Texture playerImage1, Texture playerImage2)
     {
-        m_curCombo = 0;
         m_imageScale = m_image.rectTransform.localScale;
         m_playerImage1 = playerImage1;
         m_playerImage2 = playerImage2;

@@ -114,7 +114,6 @@ public class ScoreDeltaUIClass : MonoBehaviour
 
             if (timeToDisplay <= 4f && m_timeLeftString != m_timeTextSeconds.text)
             {
-                print("timeToDisplay <= 4f");
                 Color newColor = m_timeTextSeconds.color == Color.red ? Color.white : Color.red;
                 m_timeTextSeconds.color = newColor;
                 LeanTween.scale(m_timeTextSeconds.gameObject, new Vector3(1.5f, 1.5f, 1.5f), 0.2f).setLoopPingPong(1);

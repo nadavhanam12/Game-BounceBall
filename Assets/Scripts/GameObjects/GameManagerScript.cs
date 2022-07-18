@@ -44,6 +44,8 @@ public class GameManagerScript : MonoBehaviour
     private PickablesManager m_pickablesManager;
     private ConfettiManager m_confettiManager;
 
+    private IinputManager m_inputManager;
+
 
     #endregion
 
@@ -268,6 +270,7 @@ public class GameManagerScript : MonoBehaviour
         InitTutorial();
         InitPickablesManager();
         InitConfettiManager();
+        InitInputManager();
 
         //InitSequenceManager();
         //Invoke("InitGameMood", 1f);
@@ -286,7 +289,20 @@ public class GameManagerScript : MonoBehaviour
         m_confettiManager = GetComponentInChildren<ConfettiManager>();
 
 
+
     }
+    void InitInputManager()
+    {
+#if UNITY_EDITOR
+        m_inputManager = gameObject.AddComponent<KeyboardInputManager>();
+        m_inputManager.Init(m_gameCanvas);
+        m_inputManager = gameObject.AddComponent<MouseInputManager>();
+#else
+    m_inputManager = gameObject.AddComponent<MobileInputManager>();
+#endif
+        m_inputManager.Init(m_gameCanvas);
+    }
+
     private void InitConfettiManager()
     {
         m_confettiManager.Init(m_gameBounds);
@@ -497,6 +513,7 @@ public class GameManagerScript : MonoBehaviour
         m_gameCanvas.m_OnTouchKickRegular = m_playerData1.PlayerScript.OnTouchKickRegular;
         m_gameCanvas.m_OnTouchKickSpecial = m_playerData1.PlayerScript.OnTouchKickSpecial;
         m_gameCanvas.m_OnTouchJump = m_playerData1.PlayerScript.OnTouchJump;
+        m_gameCanvas.m_OnPlayIdle = m_playerData1.PlayerScript.OnPlayIdle;
 
 
 
