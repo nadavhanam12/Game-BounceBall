@@ -26,32 +26,32 @@ public abstract class IinputManager : MonoBehaviour
 
     protected void OnKickRegularInput()
     {
-        print("OnKickRegularInput");
+        //print("OnKickRegularInput");
         m_gameCanvas.OnKickRegularInput();
     }
     protected void OnKickSpecialInput()
     {
-        print("OnKickSpecialInput");
+        //print("OnKickSpecialInput");
         m_gameCanvas.OnKickSpecialInput();
     }
     protected void OnMoveLeftInputPressed()
     {
-        print("OnMoveLeftInputPressed");
+        //print("OnMoveLeftInputPressed");
         m_gameCanvas.OnMoveLeftInputPressed();
     }
     protected void OnMoveRightInputPressed()
     {
-        print("OnMoveRightInputPressed");
+        //print("OnMoveRightInputPressed");
         m_gameCanvas.OnMoveRightInputPressed();
     }
     protected void OnJumpInput()
     {
-        print("OnJumpInput");
+        //print("OnJumpInput");
         m_gameCanvas.OnJumpInput();
     }
     protected void OnInputEnd()
     {
-        print("OnInputEnd");
+        //print("OnInputEnd");
         m_gameCanvas.OnInputEnd();
     }
 }

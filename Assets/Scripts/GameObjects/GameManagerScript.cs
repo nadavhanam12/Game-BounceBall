@@ -296,10 +296,8 @@ public class GameManagerScript : MonoBehaviour
 #if UNITY_EDITOR
         m_inputManager = gameObject.AddComponent<KeyboardInputManager>();
         m_inputManager.Init(m_gameCanvas);
-        m_inputManager = gameObject.AddComponent<MouseInputManager>();
-#else
-    m_inputManager = gameObject.AddComponent<MobileInputManager>();
 #endif
+        m_inputManager = gameObject.AddComponent<MobileInputManager>();
         m_inputManager.Init(m_gameCanvas);
     }
 
@@ -792,15 +790,21 @@ public class GameManagerScript : MonoBehaviour
         {
             if (m_mainMenu == null)
             {
-                SceneManager.LoadSceneAsync("Root");
+                Scene mainMenuScene = SceneManager.GetSceneByName("Root");
+                if (mainMenuScene.IsValid())
+                    SceneManager.LoadSceneAsync("Root");
+                else
+                    SceneManager.LoadSceneAsync("GameScene");
             }
             else
             {
                 m_mainMenu.OnRestart();
-
             }
         }
     }
+
+
+
     private void OnRestart()
     {
         PlayerIndex winner = m_playerData1.CurScore > m_playerData2.CurScore ? PlayerIndex.First : PlayerIndex.Second;

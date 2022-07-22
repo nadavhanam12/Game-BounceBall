@@ -132,8 +132,9 @@ public class MainMenu : MonoBehaviour
         {
             await Task.Delay(30);
         }
-        m_gameManager = FindObjectOfType<GameManagerScript>(true);
         ToggleMenu(false);
+        m_gameManager = FindObjectOfType<GameManagerScript>(true);
+
         if (m_gameManager != null)
         {
             GameArgs args = new GameArgs(m_gameType);
@@ -225,7 +226,11 @@ public class MainMenu : MonoBehaviour
 
     public void AdvanceMenuName()
     {
-        m_gameName.SetActive(true);
+        if (PlayerPrefs.GetString("PlayerName") == "Player")
+            m_gameName.SetActive(true);
+        else
+            m_gameOption.SetActive(true);
+
         m_StartGame.SetActive(false);
         m_Player1.SetActive(true);
         m_Player2.SetActive(true);

@@ -217,6 +217,7 @@ public class TutorialManager : MonoBehaviour
         switch (m_curStageTutorial)
         {
             case StageInTutorial.WelcomePlayerText:
+
                 AnalyticsManager.CommitData("tutorial_start");
                 NextPanel(1);
                 onRemoveAllBalls();

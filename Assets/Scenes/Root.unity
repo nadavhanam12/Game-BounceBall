@@ -182,9 +182,21 @@ PrefabInstance:
       propertyPath: m_text
       value: "\u200B"
       objectReference: {fileID: 0}
+    - target: {fileID: 1765729745219079031, guid: b8d79ac7370d1c5488fea66b8d5c3a41, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1785238051464471722, guid: b8d79ac7370d1c5488fea66b8d5c3a41, type: 3}
       propertyPath: m_CharacterLimit
       value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 2327680394042737866, guid: b8d79ac7370d1c5488fea66b8d5c3a41, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4534745394033969890, guid: b8d79ac7370d1c5488fea66b8d5c3a41, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5486990507838108750, guid: b8d79ac7370d1c5488fea66b8d5c3a41, type: 3}
       propertyPath: m_Name

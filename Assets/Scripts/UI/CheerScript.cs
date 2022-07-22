@@ -73,7 +73,7 @@ public class CheerScript : MonoBehaviour
             //.setEase(LeanTweenType.easeOutQuad)
             LeanTween.moveLocalX
             (CrowdLeft.gameObject, m_crowdMoveDistance, m_playTime / 4)
-            .setEase(LeanTweenType.easeOutQuart)
+            .setEase(LeanTweenType.easeOutBounce)
             .setOnComplete(
                 () => LeanTween.moveLocalX
                 (CrowdLeft.gameObject, m_initCrowdLeftPosition.x, m_playTime / 4)
@@ -81,7 +81,7 @@ public class CheerScript : MonoBehaviour
 
             LeanTween.moveLocalX
             (CrowdRight.gameObject, -m_crowdMoveDistance, m_playTime / 4)
-            .setEase(LeanTweenType.easeOutQuart)
+            .setEase(LeanTweenType.easeOutBounce)
             .setOnComplete(
                 () => LeanTween.moveLocalX
                 (CrowdRight.gameObject, m_initCrowdRightPosition.x, m_playTime / 4)

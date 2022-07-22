@@ -445,18 +445,21 @@ public class PlayerScript : MonoBehaviour
 
     public void OnKickPlay(KickType kickType)
     {
-        if (!isGamePaused)
+        if ((!isGamePaused) && (!m_inParalyze))
         {
-            string kickDataEvent = kickType == KickType.Regular ? "Kick_Regular" : "Kick_Special";
-            AnalyticsManager.CommitData(
-               kickDataEvent,
-               new Dictionary<string, object> {
+            if (!m_args.AutoPlay)
+            {
+                string kickDataEvent = kickType == KickType.Regular ? "Kick_Regular" : "Kick_Special";
+                AnalyticsManager.CommitData(
+                   kickDataEvent,
+                   new Dictionary<string, object> {
                  { "Player Index", m_args.PlayerIndex }
 
-            });
+                });
+            }
 
-            //if (!m_inAnimation)
-            if ((!m_inKickCooldown) && (!m_inParalyze))
+
+            if ((!m_args.AutoPlay) || (!m_inKickCooldown))
             {
 
                 m_curKickType = kickType;
