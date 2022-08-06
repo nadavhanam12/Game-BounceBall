@@ -15,8 +15,10 @@ public class BallArgs
 
     public float m_ballReflectPower = 1f;
     public float m_ballTimeFadeOut = 1f;
-    public float m_startVelocityY = 0.2f;
-    public float m_startVelocityX = 0.25f;
+    public float m_ballTimeFadeIn = 1f;
+
+    public float m_startForceY = 1f;
+    public float m_startForceX = 3f;
     public float BallTorqueMultiplier = 1f;
 
     public float BallMaxGravity = 3f;

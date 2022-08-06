@@ -22,6 +22,7 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private GameObject m_StartGame;
     [SerializeField] private GameObject m_gameName;
     [SerializeField] private GameObject m_gameOption;
+    [SerializeField] private GameObject m_gameCredits;
     [SerializeField] private RawImage m_background;
     [SerializeField] private GameObject m_BallOnePlayer;
     [SerializeField] private GameObject m_BallTwoPlayer;
@@ -82,6 +83,7 @@ public class MainMenu : MonoBehaviour
         m_StartGame.SetActive(true);
         m_gameOption.SetActive(false);
         m_gameName.SetActive(false);
+        m_gameCredits.SetActive(false);
 
     }
 
@@ -253,6 +255,14 @@ public class MainMenu : MonoBehaviour
             PlayerPrefs.SetString("PlayerName", "Player");
         }
 
+    }
+
+    public void OnCreditPage(bool toShow)
+    {
+        m_gameCredits.SetActive(toShow);
+        m_gameOption.SetActive(!toShow);
+        m_Player1.SetActive(!toShow);
+        m_Player2.SetActive(!toShow);
     }
 
 }

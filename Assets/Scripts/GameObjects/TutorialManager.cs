@@ -40,7 +40,7 @@ public class TutorialManager : MonoBehaviour
     public OnInitPlayers onInitPlayers;
     public delegate void OnRemoveAllBalls();
     public OnRemoveAllBalls onRemoveAllBalls;
-    public delegate void OnGenerateNewBall(PlayerIndex playerIndex, PlayerIndex nextPlayerIndex);
+    public delegate void OnGenerateNewBall(bool randomDirection, Vector2Int directionVector);
     public OnGenerateNewBall onGenerateNewBall;
 
     public delegate void onPause(bool isPause);
@@ -99,7 +99,7 @@ public class TutorialManager : MonoBehaviour
     {
         m_curStageTutorial = (StageInTutorial)index;
         m_args.TutorialUI.OpenPanel(m_curStageTutorial);
-        Debug.Log("Stage: " + m_curStageTutorial);
+        //Debug.Log("Stage: " + m_curStageTutorial);
         StartCoroutine("StartCoolDown");
     }
     public StageInTutorial GetCurStage()
@@ -118,12 +118,10 @@ public class TutorialManager : MonoBehaviour
     }
 
 
-    private IEnumerator GenerateBallWithDelay(float delay)
+    private IEnumerator GenerateBallWithDelay(float delay, bool shoudlThrowRandomDirection, Vector2Int directionToThrow)
     {
-        print("WaitForSeconds 1");
         yield return new WaitForSeconds(delay);
-        print("WaitForSeconds 2");
-        onGenerateNewBall(PlayerIndex.First, PlayerIndex.First);
+        onGenerateNewBall(shoudlThrowRandomDirection, directionToThrow);
     }
 
     //player hit the ball on tutorial
@@ -146,10 +144,7 @@ public class TutorialManager : MonoBehaviour
                     }
                     else if (curCombo == m_firstComboLength)
                     {
-                        PauseGame();
                         m_args.GameCanvas.CheerActivate();
-                        NextPanel();
-
                     }
                     break;
                 case StageInTutorial.PracticeSlideGamePlay:
@@ -177,9 +172,16 @@ public class TutorialManager : MonoBehaviour
     {
         switch (m_curStageTutorial)
         {
-
+            case StageInTutorial.PracticeKickGamePlay:
+                if (curCombo >= m_firstComboLength)
+                {
+                    PauseGame();
+                    NextPanel();
+                }
+                break;
             case StageInTutorial.PracticeSlideGamePlay:
                 onInitPlayers();
+                m_args.GameCanvas.ToggleSingleInput("Slide", true);
                 break;
             case StageInTutorial.PracticeOpponentGamePlay:
                 //onInitPlayers();
@@ -225,11 +227,11 @@ public class TutorialManager : MonoBehaviour
             case StageInTutorial.KickTheBallText:
                 NextPanel(2);
                 Invoke("ResumeGame", 0.5f);
-                StartCoroutine(GenerateBallWithDelay(0.75f));
+                StartCoroutine(GenerateBallWithDelay(0.75f, true, Vector2Int.zero));
                 break;
             case StageInTutorial.BallSplitText1:
                 AnalyticsManager.CommitData(
-                       "tutorial_step",
+                       "Tutorial_Step",
                        new Dictionary<string, object> {
                  { "stage", "kick_example" }
                     });
@@ -245,7 +247,7 @@ public class TutorialManager : MonoBehaviour
             case StageInTutorial.PracticeKickFinishText:
                 NextPanel();
                 AnalyticsManager.CommitData(
-                       "tutorial_step",
+                       "Tutorial_Step",
                        new Dictionary<string, object> {
                  { "stage", "kick_practice" }
                     });
@@ -259,17 +261,19 @@ public class TutorialManager : MonoBehaviour
             case StageInTutorial.SlideExplanationText:
                 NextPanel();
                 ResumeGame();
-                StartCoroutine(GenerateBallWithDelay(1f));
-                m_args.GameCanvas.ActiveOnlySlideButton();
+                StartCoroutine(GenerateBallWithDelay(1f, false, Vector2Int.right));
+                //m_args.GameCanvas.ActiveOnlySlideButton();
+                m_args.GameCanvas.ToggleAllowOneSlide(true);
                 break;
             case StageInTutorial.PracticeSlideFinishText:
+                m_args.GameCanvas.ToggleAllowOneSlide(false);
                 NextPanel();
                 onRemoveAllBalls();
                 onInitPlayers();
                 onShowOpponent();
                 m_args.GameCanvas.ActiveButtons();
                 AnalyticsManager.CommitData(
-                       "tutorial_step",
+                       "Tutorial_Step",
                        new Dictionary<string, object> {
                  { "stage", "slide_example" }
                     });
@@ -283,13 +287,13 @@ public class TutorialManager : MonoBehaviour
                 break;
             case StageInTutorial.TurnsUIExplanationText:
                 Invoke("ResumeGame", 1.5f);
-                StartCoroutine(GenerateBallWithDelay(1.5f));
+                StartCoroutine(GenerateBallWithDelay(1.5f, true, Vector2Int.zero));
                 m_freePlayMode = true;
                 NextPanel();
                 break;
             case StageInTutorial.PointsMechanismText:
                 AnalyticsManager.CommitData(
-                           "tutorial_step",
+                           "Tutorial_Step",
                            new Dictionary<string, object> {
                  { "stage", "opponent_practice" }
                         });

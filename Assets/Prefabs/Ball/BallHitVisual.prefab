@@ -46,8 +46,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ScaleDownFromOriginalScale: 0.585
-  timeToPlay: 0.4
-  ScaleFactor: 2.5
+  timeToPlay: 0.5
+  ScaleFactor: 1.5
+  IdleTime: 3
 --- !u!95 &4345121352574712494
 Animator:
   serializedVersion: 3

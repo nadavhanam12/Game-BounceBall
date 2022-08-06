@@ -39,12 +39,17 @@ public class ScoreDeltaUIClass : MonoBehaviour
 
     private float timeRemaining;
     private GameType m_gameType;
+    bool m_shouldRun = true;
 
     #endregion
 
     public void SetGamePause(bool isPause)
     {
         isGamePaused = isPause;
+    }
+    public void ActivateTimer(bool toActivate)
+    {
+        m_shouldRun = toActivate;
     }
 
     public void Init(GameType gameType)
@@ -85,9 +90,10 @@ public class ScoreDeltaUIClass : MonoBehaviour
     }
 
 
+
     void Update()
     {
-        if ((!isGamePaused) && m_initialized)
+        if ((!isGamePaused) && m_initialized && m_shouldRun)
         {
             if (timeRemaining > 0)
             {

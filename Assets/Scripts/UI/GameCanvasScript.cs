@@ -65,8 +65,6 @@ public class GameCanvasScript : MonoBehaviour
     private bool CanKick = true;
     private bool CanSlide = true;
     private bool CanJump = true;
-    private bool m_shouldGetInput = true;
-
 
     #endregion
 
@@ -77,12 +75,16 @@ public class GameCanvasScript : MonoBehaviour
         ScoreUIDelta.SetGamePause(isGamePaused);
 
     }
-    public void OnKickSpecialInput() { if (CanSlide & m_shouldGetInput) m_OnTouchKickSpecial(); }
-    public void OnKickRegularInput() { if (CanKick & m_shouldGetInput) m_OnTouchKickRegular(); }
-    public void OnJumpInput() { if (CanJump & m_shouldGetInput) m_OnTouchJump(); }
+    public void ActivateTimer(bool activate)
+    {
+        ScoreUIDelta.ActivateTimer(activate);
+    }
+    public void OnKickSpecialInput() { if (CanSlide) m_OnTouchKickSpecial(); }
+    public void OnKickRegularInput() { if (CanKick) m_OnTouchKickRegular(); }
+    public void OnJumpInput() { if (CanJump) m_OnTouchJump(); }
     public void OnInputEnd() { m_OnPlayIdle(); }
-    public void OnMoveRightInputPressed() { if (CanMove & m_shouldGetInput) EventManager.Broadcast(EVENT.EventOnRightPressed); }
-    public void OnMoveLeftInputPressed() { if (CanMove & m_shouldGetInput) EventManager.Broadcast(EVENT.EventOnLeftPressed); }
+    public void OnMoveRightInputPressed() { if (CanMove) EventManager.Broadcast(EVENT.EventOnRightPressed); }
+    public void OnMoveLeftInputPressed() { if (CanMove) EventManager.Broadcast(EVENT.EventOnLeftPressed); }
     public void OnRestart() { EventManager.Broadcast(EVENT.EventOnRestart); }
 
 
@@ -271,6 +273,17 @@ public class GameCanvasScript : MonoBehaviour
     {
         TurnsUI.GravityIncrease();
     }
+    private void DisableSlaide()
+    {
+        ToggleSingleInput("Slide", false);
+    }
+    public void ToggleAllowOneSlide(bool isOn)
+    {
+        if (isOn)
+            m_OnTouchKickSpecial += DisableSlaide;
+        else
+            m_OnTouchKickSpecial -= DisableSlaide;
+    }
     public void ActiveOnlySlideButton()
     {
         CanMove = false;
@@ -284,10 +297,32 @@ public class GameCanvasScript : MonoBehaviour
         CanKick = true;
         CanSlide = true;
     }
-
-    public void ToggleInput(bool shouldGetInput)
+    public void ToggleAllInput(bool shouldGetInput)
     {
-        m_shouldGetInput = shouldGetInput;
+        CanMove = shouldGetInput;
+        CanKick = shouldGetInput;
+        CanSlide = shouldGetInput;
+        CanJump = shouldGetInput;
+    }
+
+
+    public void ToggleSingleInput(string actionString, bool shouldGetInput)
+    {
+        switch (actionString)
+        {
+            case "Move":
+                CanMove = shouldGetInput;
+                break;
+            case "RegKick":
+                CanKick = shouldGetInput;
+                break;
+            case "Slide":
+                CanSlide = shouldGetInput;
+                break;
+            case "Jump":
+                CanJump = shouldGetInput;
+                break;
+        }
     }
 
 

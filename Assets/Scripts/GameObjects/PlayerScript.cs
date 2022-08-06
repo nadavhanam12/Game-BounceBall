@@ -43,6 +43,7 @@ public class PlayerScript : MonoBehaviour
     private bool isJumpingDown = false;
 
     private bool m_inKickCooldown = false;
+    private bool m_inInitCooldown = false;
     private bool m_onWinLoseAnim = false;
     bool m_onSlide = false;
     private float m_halfFieldDistance;
@@ -97,15 +98,20 @@ public class PlayerScript : MonoBehaviour
 
     void InitListeners()
     {
-        EventManager.AddHandler(EVENT.EventOnRightPressed, MoveRight);
-        EventManager.AddHandler(EVENT.EventOnLeftPressed, MoveLeft);
+        if (!m_args.AutoPlay)
+        {
+            EventManager.AddHandler(EVENT.EventOnRightPressed, MoveRight);
+            EventManager.AddHandler(EVENT.EventOnLeftPressed, MoveLeft);
+        }
 
     }
     void RemoveListeners()
     {
-        EventManager.RemoveHandler(EVENT.EventOnRightPressed, MoveRight);
-        EventManager.RemoveHandler(EVENT.EventOnLeftPressed, MoveLeft);
-
+        if (!m_args.AutoPlay)
+        {
+            EventManager.RemoveHandler(EVENT.EventOnRightPressed, MoveRight);
+            EventManager.RemoveHandler(EVENT.EventOnLeftPressed, MoveLeft);
+        }
     }
 
     void MoveRight()
@@ -158,6 +164,7 @@ public class PlayerScript : MonoBehaviour
     {
         if (isJumping)
         {
+
             if (isJumpingUp)
             {
                 if (transform.position.y < m_args.playerStats.m_maxHeight)
@@ -311,6 +318,14 @@ public class PlayerScript : MonoBehaviour
         m_inKickCooldown = false;
         //print("m_inKickCooldown = false");
     }
+    IEnumerator InitCooldown()
+    {
+        //print("m_inKickCooldown = true");
+        m_inInitCooldown = true;
+        yield return new WaitForSeconds(m_args.playerStats.InitCooldown);
+        m_inInitCooldown = false;
+        //print("m_inKickCooldown = false");
+    }
 
     void AutoPlayMovement()
     {
@@ -386,7 +401,13 @@ public class PlayerScript : MonoBehaviour
 
     public void InitPlayer(bool initPos = true)
     {
-        if (initPos)
+        //print("InitPlayer");
+        if (m_inInitCooldown)
+        {
+            int y = 9;
+        }
+
+        if (initPos && !m_inInitCooldown)
         {
             gameObject.transform.rotation = m_initialRotation;
             Vector3 positionUpper = m_initialPosition;
@@ -396,6 +417,8 @@ public class PlayerScript : MonoBehaviour
 
             isJumping = true;
             isJumpingDown = true;
+            if (gameObject.activeInHierarchy)
+                StartCoroutine(InitCooldown());
         }
 
 
@@ -525,6 +548,8 @@ public class PlayerScript : MonoBehaviour
 });
             isJumping = true;
             isJumpingUp = true;
+
+            AnimSetTrigger("Jump Trigger");
         }
     }
 
@@ -568,9 +593,10 @@ public class PlayerScript : MonoBehaviour
     {
         m_currentlyInTurn = true;
         if (throwNewBall)
-        {
-            m_args.BallsManager.OnNewBallInScene(m_args.PlayerIndex, m_args.PlayerIndex);
-        }
+            m_args.BallsManager.OnNewBallInScene();
+
+        if (m_args.AutoPlay)
+            StartCoroutine(KickCooldown());
 
     }
     public void ShowPlayer()
@@ -645,9 +671,8 @@ public class PlayerScript : MonoBehaviour
 
     private void ReviveAfterWait()
     {
-        //print("ReviveAfterWait");
+        print("ReviveAfterWait");
         InitPlayer(true);
-
     }
 
     private void ActivateBomb()

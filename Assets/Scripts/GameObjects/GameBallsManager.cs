@@ -303,9 +303,13 @@ public class GameBallsManager : MonoBehaviour
         Destroy();
     }
 
+    public void OnNewBallInScene()
+    {
+        OnNewBallInScene(true, Vector2Int.zero);
+    }
 
     //should start new turn
-    public void OnNewBallInScene(PlayerIndex playerIndex, PlayerIndex nextPlayerIndex = PlayerIndex.First)
+    public void OnNewBallInScene(bool randomDirection, Vector2Int directionVector)
     {
         if (m_ballsArray[m_correctBallIndex].IsInScene())
         {
@@ -317,22 +321,13 @@ public class GameBallsManager : MonoBehaviour
         BallScript ball = GetNextBall();
         if (ball == null) { return; }
         Color color = Color.white;
-        if (m_args.GameType == GameType.TurnsGame)
-        {
-            if (playerIndex == PlayerIndex.Second)
-            {
-                color.a = m_opponentBallAlpha;
-            }
-        }
-        int disXMultiplier = nextPlayerIndex == PlayerIndex.First ? -1 : 1;
-        ball.OnNewBallInScene(color, disXMultiplier);
+        float disXMultiplier;
+        if (randomDirection)
+            disXMultiplier = Random.Range(-m_args.BallArgs.m_startForceX, m_args.BallArgs.m_startForceX);
+        else
+            disXMultiplier = directionVector.x;
+        ball.OnNewBallInScene(color, disXMultiplier, m_args.BallArgs.m_startForceY);
         UpdateNextBallColor(color, false);
-        /*if (isGamePaused)
-        {
-            SetGamePause(isGamePaused);
-        }*/
-
-
     }
 
     public void ApplyKick(PlayerIndex playerIndex, KickType kickType, List<BallScript> ballsHit)

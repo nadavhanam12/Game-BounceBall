@@ -169,6 +169,7 @@ public class GameManagerScript : MonoBehaviour
         m_playerData2.PlayerScript.HidePlayer();
         m_inTutorial = true;
         m_tutorialManager.Play();
+        m_gameCanvas.ActivateTimer(false);
     }
     void FinishedTutorial()
     {
@@ -188,7 +189,7 @@ public class GameManagerScript : MonoBehaviour
 
     void AfterTutorial()
     {
-
+        m_gameCanvas.ActivateTimer(true);
         if (m_shouldPlayCountdown)
         {
             Invoke("StartCountdown", m_countDownDelay);
@@ -197,6 +198,7 @@ public class GameManagerScript : MonoBehaviour
         {
             Invoke("FinishGameCountdown", m_countDownDelay);
         }
+
     }
 
     void InitTutorial()
@@ -211,8 +213,8 @@ public class GameManagerScript : MonoBehaviour
         m_tutorialManager.onInitPlayers = InitPlayerOneStatus;
         m_tutorialManager.onShowOpponent = () => m_playerData2.PlayerScript.ShowPlayer();
         m_tutorialManager.onRemoveAllBalls = m_ballsManager.RemoveAllBalls;
-        m_tutorialManager.onGenerateNewBall =
-            (PlayerIndex playerIndex, PlayerIndex nextPlayerIndex) => { m_ballsManager.OnNewBallInScene(playerIndex, nextPlayerIndex); };
+        m_tutorialManager.onGenerateNewBall = m_ballsManager.OnNewBallInScene;
+        //(PlayerIndex playerIndex, PlayerIndex nextPlayerIndex) => { m_ballsManager.OnNewBallInScene(playerIndex, nextPlayerIndex); };
 
     }
 
@@ -562,16 +564,19 @@ public class GameManagerScript : MonoBehaviour
         if (m_inTutorial)
         {
             m_tutorialManager.OnBallLost();
-            if (m_tutorialManager.GetCurStage() != StageInTutorial.PracticeOpponentGamePlay)
+
+            if (m_tutorialManager.GetCurStage() == StageInTutorial.PracticeSlideGamePlay)
             {
-                if (m_tutorialManager.GetCurStage() == StageInTutorial.PracticeSlideGamePlay)
-                {
-                    m_ballsManager.OnNewBallInScene(PlayerIndex.First, PlayerIndex.Second);
-                    return;
-                }
-                m_ballsManager.OnNewBallInScene(PlayerIndex.First);
+                m_ballsManager.OnNewBallInScene(false, Vector2Int.right);
+                return;
             }
-            else
+            if ((m_tutorialManager.GetCurStage() == StageInTutorial.FirstKickGamePlay) ||
+                (m_tutorialManager.GetCurStage() == StageInTutorial.PracticeKickGamePlay))
+            {
+                m_ballsManager.OnNewBallInScene();
+                return;
+            }
+            if (m_tutorialManager.GetCurStage() == StageInTutorial.PracticeOpponentGamePlay)
             {
                 if (m_gameArgs.GameType == GameType.TalTalGame)
                 {
@@ -584,8 +589,8 @@ public class GameManagerScript : MonoBehaviour
 
 
             }
-
         }
+
         else
         {
 
@@ -606,15 +611,13 @@ public class GameManagerScript : MonoBehaviour
                 SwitchPlayerTurn(false);
 
             }
-            else if (m_gameArgs.GameType == GameType.OnePlayer)
-            {
-                m_playerData1.CurScore = 0;
-                m_ballsManager.OnNewBallInScene(PlayerIndex.First);
-            }
             else
             {
-                //playerData.Ball1.OnNewBallInScene();
-                m_ballsManager.OnNewBallInScene(PlayerIndex.First);
+                if (m_gameArgs.GameType == GameType.OnePlayer)
+                {
+                    m_playerData1.CurScore = 0;
+                }
+                m_ballsManager.OnNewBallInScene();
             }
         }
 

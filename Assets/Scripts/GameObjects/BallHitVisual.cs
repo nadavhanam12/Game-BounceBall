@@ -13,6 +13,9 @@ public class BallHitVisual : MonoBehaviour
     [Range(0, 1)] private float ScaleDownFromOriginalScale = 0.5f;
     [SerializeField] private float timeToPlay = 1f;
     [SerializeField] private float ScaleFactor = 1f;
+    [SerializeField] private float IdleTime = 1f;
+
+
     public void Init(Vector3 scale)
     {
         gameObject.SetActive(false);
@@ -35,9 +38,11 @@ public class BallHitVisual : MonoBehaviour
         transform.position = position;
         isActive = true;
         gameObject.SetActive(true);
-        //m_anim.enabled = true;
-        //m_anim.Play("HitBallHailoAnim");
-        LeanTween.scale(gameObject, m_initialScale * ScaleFactor, timeToPlay).setOnComplete(Deactivate);
+        fadeIn();
+        LeanTween.rotateZ(gameObject, 2 * 360 + transform.rotation.z, timeToPlay + IdleTime / 2)
+        .setEase(LeanTweenType.easeOutCirc);
+        LeanTween.scale(gameObject, m_initialScale * ScaleFactor, timeToPlay)
+        .setOnComplete(fadeout);
 
     }
 
@@ -45,6 +50,17 @@ public class BallHitVisual : MonoBehaviour
     {
         int rnd = Random.Range(0, 360);
         transform.rotation = Quaternion.Euler(0, 0, rnd);
+    }
+    public void fadeIn()
+    {
+        LeanTween.alpha(gameObject, 1, timeToPlay)
+        .setEase(LeanTweenType.easeInCirc);
+    }
+    public void fadeout()
+    {
+        LeanTween.alpha(gameObject, 0.5f, IdleTime)
+        .setEase(LeanTweenType.easeInCirc)
+         .setOnComplete(Deactivate); ;
     }
 
     public void Deactivate()

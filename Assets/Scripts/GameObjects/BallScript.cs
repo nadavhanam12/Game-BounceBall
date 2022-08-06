@@ -125,13 +125,29 @@ public class BallScript : MonoBehaviour
     }
 
 
-    public void OnNewBallInScene(Color color, int disXMultiplier = 1)
+    public void OnNewBallInScene(Color color, float forceX, float forceY)
     {
         //print("OnNewBallInScene");
         this.gameObject.SetActive(true);
+        m_spriteRenderer.color = Color.white;
+        m_initialized = false;
         this.gameObject.transform.localPosition = m_initialPosition;
-        ApplyPhysics(new Vector2(m_args.m_startVelocityX * disXMultiplier, m_args.m_startVelocityY));
-        GenerateNewBall(color);
+        m_rigidBody.simulated = false;
+        m_curBallTrail.enabled = false;
+        FadeIn(() =>
+        {
+            m_rigidBody.simulated = true;
+            m_curBallTrail.enabled = true;
+            m_initialized = true;
+            ApplyPhysics(new Vector2(forceX, forceY));
+            GenerateNewBall(color);
+        }
+        );
+        /*m_rigidBody.simulated = true;
+        m_initialized = true;
+        ApplyPhysics(new Vector2(forceX, forceY));
+        GenerateNewBall(color);*/
+
 
     }
     public void GenerateNewBallInScene(Color color, Vector3 pos)
@@ -258,14 +274,16 @@ public class BallScript : MonoBehaviour
     public void SetGamePause(bool isPause)
     {
         isGamePaused = isPause;
-        m_rigidBody.simulated = !isGamePaused;
-        if (!isGamePaused && waitingForce != Vector2.zero)
+        if (m_initialized)
         {
-            ResetVelocity();
-            ApplyPhysics(waitingForce);
-            waitingForce = Vector2.zero;
+            m_rigidBody.simulated = !isGamePaused;
+            if (!isGamePaused && waitingForce != Vector2.zero)
+            {
+                ResetVelocity();
+                ApplyPhysics(waitingForce);
+                waitingForce = Vector2.zero;
+            }
         }
-
     }
 
     public void ResetVelocity()
@@ -296,6 +314,18 @@ public class BallScript : MonoBehaviour
         .setEase(LeanTweenType.easeOutQuart)
         .setOnComplete(
             () => this.gameObject.SetActive(false));
+        m_curTweenId = curTween.id;
+    }
+    private void FadeIn(Action actionOnComplete)
+    {
+        Color curColor = m_spriteRenderer.color;
+        curColor.a = 0.2f;
+        m_spriteRenderer.color = curColor;
+        LTDescr curTween =
+        LeanTweenExt.MyLeanAlphaSpriteRenderer
+        (m_spriteRenderer, 1, m_args.m_ballTimeFadeIn)
+        .setEase(LeanTweenType.easeInSine)
+        .setOnComplete(actionOnComplete);
         m_curTweenId = curTween.id;
     }
 
