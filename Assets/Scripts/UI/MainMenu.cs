@@ -70,7 +70,7 @@ public class MainMenu : MonoBehaviour
         m_eventSystem = EventSystem.current;
         backgroundsList = Resources.LoadAll<Texture2D>(backgroundsPath);
 
-        m_background.texture = ChooseRandomBackground();
+        //m_background.texture = ChooseRandomBackground();
 
         m_posBallOnePlayer = m_BallOnePlayer.transform.localPosition;
         m_posBallTwoPlayer = m_BallTwoPlayer.transform.localPosition;
@@ -123,18 +123,22 @@ public class MainMenu : MonoBehaviour
             await Task.Delay(30);
         }
         StartGameScene();
+        UnloadMenu();
     }
 
     public async void StartGameScene()
     {
         //Debug.Log("StartGame");
-
+        m_eventSystem.gameObject.SetActive(false);
         AsyncOperation operation = SceneManager.LoadSceneAsync(m_gameSceneName, LoadSceneMode.Additive);
+        //operation.allowSceneActivation = false;
         while (!operation.isDone)
         {
             await Task.Delay(30);
+
         }
-        ToggleMenu(false);
+        //SceneManager.SetActiveScene(SceneManager.GetSceneByName("m_gameSceneName"));
+        //await Task.Delay(500);
         m_gameManager = FindObjectOfType<GameManagerScript>(true);
 
         if (m_gameManager != null)
@@ -146,6 +150,13 @@ public class MainMenu : MonoBehaviour
         {
             BackToMenu();
         }
+
+
+    }
+
+    public void UnloadMenu()
+    {
+        ToggleMenu(false);
     }
     public async void BackToMenu()
     {
@@ -173,7 +184,7 @@ public class MainMenu : MonoBehaviour
 
     private void ToggleMenu(bool activateMenu)
     {
-        m_camera.gameObject.SetActive(activateMenu);
+        //m_camera.gameObject.SetActive(activateMenu);
         m_eventSystem.gameObject.SetActive(activateMenu);
         this.gameObject.SetActive(activateMenu);
     }
@@ -181,6 +192,7 @@ public class MainMenu : MonoBehaviour
 
     public void OnOnePlayer()
     {
+        print("OnOnePlayer");
         if (m_userBallChoosen == null)
         {
             m_userBallChoosen = m_BallOnePlayer;

@@ -205,7 +205,8 @@ public class BallScript : MonoBehaviour
         //print("Ball has fallen");
         m_rigidBody.AddForce(new Vector2(0, m_args.m_ballReflectPower));
         BallHasFallen = true;
-        await Task.Delay(1000);
+        //ResetVelocity();
+        await Task.Delay(150);
         if (this)
         {
             this.gameObject.SetActive(false);

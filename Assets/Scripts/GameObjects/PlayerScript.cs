@@ -402,11 +402,6 @@ public class PlayerScript : MonoBehaviour
     public void InitPlayer(bool initPos = true)
     {
         //print("InitPlayer");
-        if (m_inInitCooldown)
-        {
-            int y = 9;
-        }
-
         if (initPos && !m_inInitCooldown)
         {
             gameObject.transform.rotation = m_initialRotation;
@@ -452,10 +447,9 @@ public class PlayerScript : MonoBehaviour
         {
             //print("hitCollider: " + hitCollider.name);
             curBallScript = hitCollider.GetComponent<BallScript>();
-            if (curBallScript != null)
-            {
+            if (curBallScript != null && !curBallScript.BallHasFallen)
                 ballsHit.Add(curBallScript);
-            }
+
         }
         return ballsHit;
     }

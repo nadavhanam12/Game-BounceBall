@@ -145,6 +145,7 @@ MonoBehaviour:
     AutoPlayBallDistance: 1
     KickCooldown: 1
     SlideSpeed: 2
+    InitCooldown: 2
     PlayerBoundDistanceTrigger: 1
     PlayerBoundDistanceSpawn: 1
   ballArgs:
@@ -153,7 +154,7 @@ MonoBehaviour:
     BallMinimumHitPowerX: 3
     BallMaximumHitPowerX: 4
     m_ballReflectPower: 2
-    m_ballTimeFadeOut: 2
+    m_ballTimeFadeOut: 1
     m_ballTimeFadeIn: 1
     m_startForceY: 3
     m_startForceX: 3
@@ -183,6 +184,7 @@ MonoBehaviour:
       AutoPlayBallDistance: 2
       KickCooldown: 0.5
       SlideSpeed: 0
+      InitCooldown: 2
       PlayerBoundDistanceTrigger: 1
       PlayerBoundDistanceSpawn: 1
   PlayerData2:
@@ -207,6 +209,7 @@ MonoBehaviour:
       AutoPlayBallDistance: 2
       KickCooldown: 0.5
       SlideSpeed: 0
+      InitCooldown: 2
       PlayerBoundDistanceTrigger: 1
       PlayerBoundDistanceSpawn: 1
 --- !u!222 &34213922
@@ -79984,7 +79987,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3befba924ce909f44993ac73a5d37215, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GameType: 3
+  GameType: 0
   m_gameBoundsData: {fileID: 2800763268125873427}
   m_playerContainer1: {fileID: 4525438850794149216}
   m_playerContainer2: {fileID: 4525438850769025405}
