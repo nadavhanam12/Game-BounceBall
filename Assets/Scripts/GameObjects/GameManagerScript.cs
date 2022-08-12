@@ -142,14 +142,10 @@ public class GameManagerScript : MonoBehaviour
         if (m_mainMenu != null)
             m_shouldPlayTutorial = !PlayerPrefsHasCompletedTutorial();// false;
 
-        if (m_shouldPlayTutorial)
-        {
-            m_gameArgs.GameType = GameType.TalTalGame;
-            GameType = GameType.TalTalGame;
-        }
         Init();
         m_gameBoundsData.gameObject.SetActive(false);
         this.gameObject.SetActive(true);
+        EventManager.Broadcast(EVENT.EventStartGameScene);
         m_shouldRestart = false;
 
 
@@ -165,7 +161,7 @@ public class GameManagerScript : MonoBehaviour
     }
     void StartTutorial()
     {
-        InitGameMood();
+        InitGameMood(false);
         m_playerData2.PlayerScript.HidePlayer();
         m_inTutorial = true;
         m_tutorialManager.Play();
@@ -175,7 +171,8 @@ public class GameManagerScript : MonoBehaviour
     {
         //should init after tutorial
         m_inTutorial = false;
-        m_playerData2.PlayerScript.ShowPlayer();
+        if (m_gameArgs.GameType == GameType.TalTalGame)
+            m_playerData2.PlayerScript.ShowPlayer();
         m_ballsManager.RemoveAllBalls();
         m_tutorialManager.TurnOff();
         InitScoreAndCombo();
@@ -214,6 +211,7 @@ public class GameManagerScript : MonoBehaviour
         m_tutorialManager.onShowOpponent = () => m_playerData2.PlayerScript.ShowPlayer();
         m_tutorialManager.onRemoveAllBalls = m_ballsManager.RemoveAllBalls;
         m_tutorialManager.onGenerateNewBall = m_ballsManager.OnNewBallInScene;
+        m_tutorialManager.onAllowOnlyJumpKick = m_ballsManager.onAllowOnlyJumpKick;
         //(PlayerIndex playerIndex, PlayerIndex nextPlayerIndex) => { m_ballsManager.OnNewBallInScene(playerIndex, nextPlayerIndex); };
 
     }
@@ -242,7 +240,7 @@ public class GameManagerScript : MonoBehaviour
 
     public void FinishGameCountdown()
     {
-        EventManager.Broadcast(EVENT.EventStartGameScene);
+
         InitGameMood();
 
         if (m_gameArgs.GameType != GameType.OnePlayer)
@@ -383,30 +381,30 @@ public class GameManagerScript : MonoBehaviour
     {
         m_sequenceManager.Init(m_gameCanvas);
     }*/
-    void InitGameMood()
+    void InitGameMood(bool throwNewBall = true)
     {
         if (m_gameArgs.GameType == GameType.TurnsGame)
         {
             m_curPlayerTurn = PlayerIndex.First;
-            m_playerData1.PlayerScript.StartTurn();
+            m_playerData1.PlayerScript.StartTurn(throwNewBall);
             m_playerData2.PlayerScript.LostTurn();
         }
         else if (m_gameArgs.GameType == GameType.TalTalGame)
         {
             m_curPlayerTurn = PlayerIndex.First;
-            m_playerData1.PlayerScript.StartTurn();
+            m_playerData1.PlayerScript.StartTurn(throwNewBall);
             m_playerData2.PlayerScript.LostTurn();
         }
         else if (m_gameArgs.GameType == GameType.OnePlayer)
         {
             m_curPlayerTurn = PlayerIndex.First;
-            m_playerData1.PlayerScript.StartTurn();
+            m_playerData1.PlayerScript.StartTurn(throwNewBall);
             m_playerData2.PlayerScript.HidePlayer();
         }
         else
         {
-            m_playerData1.PlayerScript.StartTurn();
-            m_playerData2.PlayerScript.StartTurn();
+            m_playerData1.PlayerScript.StartTurn(throwNewBall);
+            m_playerData2.PlayerScript.StartTurn(throwNewBall);
         }
     }
 
@@ -571,7 +569,8 @@ public class GameManagerScript : MonoBehaviour
                 return;
             }
             if ((m_tutorialManager.GetCurStage() == StageInTutorial.FirstKickGamePlay) ||
-                (m_tutorialManager.GetCurStage() == StageInTutorial.PracticeKickGamePlay))
+                (m_tutorialManager.GetCurStage() == StageInTutorial.PracticeKickGamePlay) ||
+                (m_tutorialManager.GetCurStage() == StageInTutorial.PracticeJumpGamePlay))
             {
                 m_ballsManager.OnNewBallInScene();
                 return;
@@ -832,12 +831,16 @@ public class GameManagerScript : MonoBehaviour
 
     private bool PlayerPrefsHasCompletedTutorial()
     {
-        return Convert.ToBoolean(PlayerPrefs.GetInt("CompletedTutorial"));
+        string playerPrefsGameTutorial = m_gameArgs.GameType == GameType.OnePlayer ?
+                    "CompletedOnePlayerTutorial" : "CompletedTalTalTutorial";
+        return Convert.ToBoolean(PlayerPrefs.GetInt(playerPrefsGameTutorial));
     }
 
     private void UpdatePlayerPrefsCompletedTutorial()
     {
-        PlayerPrefs.SetInt("CompletedTutorial", 1);
+        string playerPrefsGameTutorial = m_gameArgs.GameType == GameType.OnePlayer ?
+                    "CompletedOnePlayerTutorial" : "CompletedTalTalTutorial";
+        PlayerPrefs.SetInt(playerPrefsGameTutorial, 1);
 
     }
 

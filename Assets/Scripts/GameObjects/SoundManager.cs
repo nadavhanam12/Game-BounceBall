@@ -12,7 +12,8 @@ public class SoundManager : MonoBehaviour
     [SerializeField] private AudioClip m_soundMenuChoose;
     [SerializeField] private AudioClip m_soundMainMenuOpen;
     [SerializeField] private AudioClip m_soundStartGameScene;
-    [SerializeField] private AudioClip m_musicGeneral;
+    [SerializeField] private AudioClip m_menuBGMusic;
+    [SerializeField] private AudioClip m_gameBGMusic;
     [SerializeField] private AudioSource m_effectsSource;
     [SerializeField] private AudioSource m_musicSource;
 
@@ -51,11 +52,11 @@ public class SoundManager : MonoBehaviour
 
     private void InitEventsListeners()
     {
-        EventManager.AddHandler(EVENT.EventStartApp, PlayMusic);
+        EventManager.AddHandler(EVENT.EventStartApp, EventPlayMenuBGMusic);
         EventManager.AddHandler(EVENT.EventMainMenu, () => { PlayAudioClip(m_soundMainMenuOpen); });
         EventManager.AddHandler(EVENT.EventButtonClick, () => { PlayAudioClip(m_soundMenuChoose); });
 
-        EventManager.AddHandler(EVENT.EventStartGameScene, () => { PlayAudioClip(m_soundStartGameScene); });
+        EventManager.AddHandler(EVENT.EventStartGameScene, EventStartGameScene);
         EventManager.AddHandler(EVENT.EventCombo, () => { EventAddSoundCrowd(); });
         EventManager.AddHandler(EVENT.EventNormalKick, () => { PlayNormalKick(); });
         EventManager.AddHandler(EVENT.EventSpecialKick, () => { PlayAudioClip(m_soundSpecialKick); });
@@ -71,10 +72,10 @@ public class SoundManager : MonoBehaviour
 
     private void RemoveEventsListeners()
     {
-        EventManager.RemoveHandler(EVENT.EventStartApp, PlayMusic);
+        EventManager.RemoveHandler(EVENT.EventStartApp, EventPlayMenuBGMusic);
         EventManager.RemoveHandler(EVENT.EventMainMenu, EventAddSoundMainMenuOpen);
         EventManager.RemoveHandler(EVENT.EventButtonClick, EventAddSoundMainMenuChoose);
-        EventManager.RemoveHandler(EVENT.EventStartGameScene, EventAddSoundStartGameScene);
+        EventManager.RemoveHandler(EVENT.EventStartGameScene, EventStartGameScene);
         EventManager.RemoveHandler(EVENT.EventCombo, EventAddSoundCrowd);
         EventManager.RemoveHandler(EVENT.EventNormalKick, PlayNormalKick);
         EventManager.RemoveHandler(EVENT.EventSpecialKick, EventAddSoundSpecialKick);
@@ -126,21 +127,26 @@ public class SoundManager : MonoBehaviour
     }
 
     // Play a single clip through the music source.
-    public void PlayMusic()
+    public void PlayBGMusic(bool onMenu)
     {
-        if (!m_musicSource.isPlaying)
-        {
-            //print("PlayMusic");
-            m_musicSource.clip = m_musicGeneral;
-            m_musicSource.Play();
-        }
+        //print("PlayMusic");
+        m_musicSource.Stop();
+        m_musicSource.clip = onMenu ? m_menuBGMusic : m_gameBGMusic;
+        m_musicSource.Play();
+
 
     }
 
+    private void EventPlayMenuBGMusic() { PlayBGMusic(true); }
+    private void EventPlayGameBGMusic() { PlayBGMusic(false); }
 
     private void EventAddSoundMainMenuOpen() { PlayAudioClip(m_soundMainMenuOpen); }
     private void EventAddSoundMainMenuChoose() { PlayAudioClip(m_soundMenuChoose); }
-    private void EventAddSoundStartGameScene() { PlayAudioClip(m_soundStartGameScene); }
+    private void EventStartGameScene()
+    {
+        EventPlayGameBGMusic();
+        PlayAudioClip(m_soundStartGameScene);
+    }
     private void EventAddSoundCrowd()
     {
         int rnd = Random.Range(0, m_soundCrowd.Count - 1);

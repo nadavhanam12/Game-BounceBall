@@ -31,6 +31,8 @@ public class GameBallsManager : MonoBehaviour
     [SerializeField][Range(0.2f, 1)] private float m_gravityAdded;
     [SerializeField] private int m_gravityChangeRate;
 
+    [SerializeField] private float m_highKickHight = 0;
+
 
 
     #endregion
@@ -53,6 +55,8 @@ public class GameBallsManager : MonoBehaviour
     private int m_correctBallIndex;
 
     private int m_curCombo;
+
+    bool m_allowOnlyJumpKick = false;
 
 
     #endregion
@@ -195,9 +199,18 @@ public class GameBallsManager : MonoBehaviour
     {
         BallScript ball = m_ballsArray[ballIndex];
         if (ball.BallHasFallen)
-        {
             return;
+
+        if (m_allowOnlyJumpKick)
+        {
+            print(ball.transform.position);
+            if (ball.transform.position.y < m_highKickHight)
+            {
+                print("ball hight is lower then high kick height value");
+                return;
+            }
         }
+
         if (m_curRequiredColor != ball.GetColor())
         {//not correct color
             WrongBallHit(ballIndex);
@@ -368,6 +381,11 @@ public class GameBallsManager : MonoBehaviour
         }
 
 
+    }
+
+    public void onAllowOnlyJumpKick(bool isOn)
+    {
+        m_allowOnlyJumpKick = isOn;
     }
 }
 

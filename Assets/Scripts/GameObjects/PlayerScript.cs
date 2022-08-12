@@ -19,8 +19,7 @@ public class PlayerScript : MonoBehaviour
 
     #endregion
     #region serialized 
-    [SerializeField] private SpriteRenderer Body;
-    [SerializeField] private GameObject LegContainer;
+    [SerializeField] private SpriteRenderer playerSprite;
     private CircleCollider2D m_hitZone;
     [SerializeField] private GameObject m_pickableSpot;
 
@@ -126,8 +125,7 @@ public class PlayerScript : MonoBehaviour
     void UpdateColor()
     {
         //update player colors
-        Body.color = m_args.Color;
-
+        //playerSprite.color = m_args.Color;
     }
 
 
@@ -494,11 +492,11 @@ public class PlayerScript : MonoBehaviour
                         ReachHitPosition();
                         break;
                 }
-                //print(animName);
-                //AnimSetTrigger(triggerName);
-                m_anim.ResetTrigger(triggerName);
-                m_anim.SetTrigger(triggerName);
-                //ReachHitPosition();
+                if (!isJumping)
+                {
+                    m_anim.ResetTrigger(triggerName);
+                    m_anim.SetTrigger(triggerName);
+                }
                 StartCoroutine(KickCooldown());
 
 
@@ -595,13 +593,11 @@ public class PlayerScript : MonoBehaviour
     }
     public void ShowPlayer()
     {
-        LegContainer.SetActive(true);
-        Body.gameObject.SetActive(true);
+        playerSprite.gameObject.SetActive(true);
     }
     public void HidePlayer()
     {
-        LegContainer.SetActive(false);
-        Body.gameObject.SetActive(false);
+        playerSprite.gameObject.SetActive(false);
     }
 
     IEnumerator Slide(Vector3 slideDirection)

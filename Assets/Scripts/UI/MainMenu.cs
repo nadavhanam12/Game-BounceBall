@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -31,6 +32,8 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private GameObject m_Player2;
     [SerializeField] private TMP_InputField m_nameTMP;
     [SerializeField] private GameObject m_ballName;
+    [SerializeField] private GameObject m_pleasePlaySinglePlayerObject;
+
 
 
 
@@ -112,7 +115,7 @@ public class MainMenu : MonoBehaviour
 
     public Texture ChooseRandomBackground()
     {
-        int rnd = Random.Range(0, backgroundsList.Length);
+        int rnd = UnityEngine.Random.Range(0, backgroundsList.Length);
         return backgroundsList[rnd];
     }
     public async void OnRestart()
@@ -226,6 +229,11 @@ public class MainMenu : MonoBehaviour
     {
         if (m_userBallChoosen == null)
         {
+            if (!Convert.ToBoolean(PlayerPrefs.GetInt("CompletedOnePlayerTutorial")))
+            {
+                m_pleasePlaySinglePlayerObject.SetActive(true);
+                return;
+            }
             m_userBallChoosen = m_BallTwoPlayer;
             m_gameType = GameType.TalTalGame;
             OnActivateBallTween();
@@ -258,15 +266,12 @@ public class MainMenu : MonoBehaviour
 
     private void SetPlayerPrefs()
     {
-        if (!PlayerPrefs.HasKey("CompletedTutorial"))
-        {
-            PlayerPrefs.SetInt("CompletedTutorial", 0);
-        }
+        if (!PlayerPrefs.HasKey("CompletedOnePlayerTutorial"))
+            PlayerPrefs.SetInt("CompletedOnePlayerTutorial", 0);
+        if (!PlayerPrefs.HasKey("CompletedTalTalTutorial"))
+            PlayerPrefs.SetInt("CompletedTalTalTutorial", 0);
         if (!PlayerPrefs.HasKey("PlayerName"))
-        {
             PlayerPrefs.SetString("PlayerName", "Player");
-        }
-
     }
 
     public void OnCreditPage(bool toShow)

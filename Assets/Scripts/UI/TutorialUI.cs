@@ -122,6 +122,22 @@ public class TutorialUI : MonoBehaviour
                 m_AnimSpeechBubble.SetTrigger("NextStage");
                 m_handGestures.StopGesture();
                 break;
+            case StageInTutorial.JumpExplanationText:
+                m_AnimSpeechBubble.SetTrigger("NextStage");
+                break;
+            case StageInTutorial.PracticeJumpGamePlay:
+                m_gameCanvas.ToggleAllInput(true);
+                m_gameCanvas.ToggleSingleInput("Slide", false);
+                m_AnimSpeechBubble.SetTrigger("NextStage");
+                Panels[2].SetActive(true);
+                m_handGestures.PlayJumpGesture();
+                break;
+            case StageInTutorial.PracticeJumpFinishText:
+                m_gameCanvas.ToggleAllInput(false);
+                m_AnimSpeechBubble.SetTrigger("NextStage");
+                Panels[2].SetActive(false);
+                m_handGestures.StopGesture();
+                break;
             case StageInTutorial.SlideIntroductionText:
                 SlideBtn.SetActive(true);
                 m_AnimSpeechBubble.SetTrigger("NextStage");
@@ -132,17 +148,17 @@ public class TutorialUI : MonoBehaviour
             case StageInTutorial.PracticeSlideGamePlay:
                 m_gameCanvas.ToggleSingleInput("Slide", true);
                 m_AnimSpeechBubble.SetTrigger("NextStage");
-                Panels[2].SetActive(true);
+                Panels[3].SetActive(true);
                 m_handGestures.PlaySlideKickGesture();
                 break;
             case StageInTutorial.PracticeSlideFinishText:
                 m_gameCanvas.ToggleAllInput(false);
                 m_AnimSpeechBubble.SetTrigger("NextStage");
-                Panels[2].SetActive(false);
+                Panels[3].SetActive(false);
                 m_handGestures.StopGesture();
                 break;
             case StageInTutorial.OpponentAppears:
-                m_AnimSpeechBubble.SetTrigger("NextStage");
+                m_AnimSpeechBubble.SetTrigger("ShowOpponent");
                 JumpBtn.SetActive(true);
                 HighlightBtn(Player2Location);
                 break;
@@ -158,12 +174,12 @@ public class TutorialUI : MonoBehaviour
             case StageInTutorial.PracticeOpponentGamePlay:
                 m_gameCanvas.ToggleAllInput(true);
                 m_AnimSpeechBubble.SetTrigger("NextStage");
-                Panels[3].SetActive(true);
+                Panels[4].SetActive(true);
                 break;
             case StageInTutorial.PointsMechanismText:
                 m_gameCanvas.ToggleAllInput(false);
                 m_AnimSpeechBubble.SetTrigger("NextStage");
-                Panels[3].SetActive(false);
+                Panels[4].SetActive(false);
                 HighlightBtn(Player1Score);
                 HighlightBtn2(Player2Score);
                 break;
@@ -171,7 +187,7 @@ public class TutorialUI : MonoBehaviour
                 m_AnimSpeechBubble.SetTrigger("NextStage");
                 break;
             case StageInTutorial.BounceThatBallText:
-                m_AnimSpeechBubble.SetTrigger("NextStage");
+                m_AnimSpeechBubble.SetTrigger("FinishTutorial");
                 m_gameCanvas.ToggleAllInput(true);
                 break;
 

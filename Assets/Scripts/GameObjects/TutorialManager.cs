@@ -13,6 +13,9 @@ public enum StageInTutorial
     BallSplitText2,
     PracticeKickGamePlay,
     PracticeKickFinishText,
+    JumpExplanationText,
+    PracticeJumpGamePlay,
+    PracticeJumpFinishText,
     SlideIntroductionText,
     SlideExplanationText,
     PracticeSlideGamePlay,
@@ -42,6 +45,8 @@ public class TutorialManager : MonoBehaviour
     public OnRemoveAllBalls onRemoveAllBalls;
     public delegate void OnGenerateNewBall(bool randomDirection, Vector2Int directionVector);
     public OnGenerateNewBall onGenerateNewBall;
+    public delegate void OnAllowOnlyJumpKick(bool isOn);
+    public OnAllowOnlyJumpKick onAllowOnlyJumpKick;
 
     public delegate void onPause(bool isPause);
     public onPause Pause;
@@ -79,7 +84,7 @@ public class TutorialManager : MonoBehaviour
         this.gameObject.SetActive(true);
         m_args.TutorialUI.Play();
         NextPanel(0);
-        Invoke("PauseGame", 0.2f);
+        Invoke("PauseGame", 0.05f);
         AnalyticsManager.CommitData("Tutorial_Started");
 
         /*NextPanel(14);
@@ -95,11 +100,11 @@ public class TutorialManager : MonoBehaviour
         Debug.Log("Stage: " + m_curStageTutorial);
         StartCoroutine("StartCoolDown");
     }
-    private void NextPanel(int index)
+    private void NextPanel(StageInTutorial stage)
     {
-        m_curStageTutorial = (StageInTutorial)index;
+        m_curStageTutorial = stage;
         m_args.TutorialUI.OpenPanel(m_curStageTutorial);
-        //Debug.Log("Stage: " + m_curStageTutorial);
+        Debug.Log("Stage: " + m_curStageTutorial);
         StartCoroutine("StartCoolDown");
     }
     public StageInTutorial GetCurStage()
@@ -150,6 +155,16 @@ public class TutorialManager : MonoBehaviour
                 case StageInTutorial.PracticeSlideGamePlay:
                     if (curCombo == 1)
                     {
+                        curCombo = 0;
+                        m_args.GameCanvas.CheerActivate();
+                        Invoke("NextPanel", 0.75f);
+                        Invoke("PauseGame", 0.75f);
+                    }
+                    break;
+                case StageInTutorial.PracticeJumpGamePlay:
+                    if (curCombo == 1)
+                    {
+                        curCombo = 0;
                         m_args.GameCanvas.CheerActivate();
                         Invoke("NextPanel", 0.75f);
                         Invoke("PauseGame", 0.75f);
@@ -183,6 +198,7 @@ public class TutorialManager : MonoBehaviour
                 onInitPlayers();
                 m_args.GameCanvas.ToggleSingleInput("Slide", true);
                 break;
+
             case StageInTutorial.PracticeOpponentGamePlay:
                 //onInitPlayers();
                 if (curCombo >= m_FreePlayComboLength)
@@ -213,19 +229,24 @@ public class TutorialManager : MonoBehaviour
         //print("OnTouchScreen");
         if (m_onCoolDown)
         {
-            print("CANT PRESS NOW");
+            //print("CANT PRESS NOW");
             return;
         }
         switch (m_curStageTutorial)
         {
             case StageInTutorial.WelcomePlayerText:
-
-                AnalyticsManager.CommitData("tutorial_start");
-                NextPanel(1);
                 onRemoveAllBalls();
+                if (m_args.GameType == GameType.TalTalGame)
+                {
+                    onInitPlayers();
+                    onShowOpponent();
+                    NextPanel(StageInTutorial.OpponentAppears);
+                }
+                else
+                    NextPanel(StageInTutorial.KickTheBallText);
                 break;
             case StageInTutorial.KickTheBallText:
-                NextPanel(2);
+                NextPanel(StageInTutorial.FirstKickGamePlay);
                 Invoke("ResumeGame", 0.5f);
                 StartCoroutine(GenerateBallWithDelay(0.75f, true, Vector2Int.zero));
                 break;
@@ -253,6 +274,25 @@ public class TutorialManager : MonoBehaviour
                     });
 
                 break;
+            case StageInTutorial.JumpExplanationText:
+                NextPanel();
+                onRemoveAllBalls();
+                onInitPlayers();
+                ResumeGame();
+                StartCoroutine(GenerateBallWithDelay(1f, false, Vector2Int.right));
+                onAllowOnlyJumpKick(true);
+                break;
+
+            case StageInTutorial.PracticeJumpFinishText:
+                onRemoveAllBalls();
+                AnalyticsManager.CommitData(
+                       "Tutorial_Step",
+                       new Dictionary<string, object> {
+                 { "stage", "jump_example" }
+                    });
+                NextPanel();
+                onAllowOnlyJumpKick(false);
+                break;
             case StageInTutorial.SlideIntroductionText:
                 NextPanel();
                 onRemoveAllBalls();
@@ -267,16 +307,23 @@ public class TutorialManager : MonoBehaviour
                 break;
             case StageInTutorial.PracticeSlideFinishText:
                 m_args.GameCanvas.ToggleAllowOneSlide(false);
-                NextPanel();
                 onRemoveAllBalls();
-                onInitPlayers();
-                onShowOpponent();
                 m_args.GameCanvas.ActiveButtons();
                 AnalyticsManager.CommitData(
                        "Tutorial_Step",
                        new Dictionary<string, object> {
                  { "stage", "slide_example" }
                     });
+
+                //check if its a solo player tutorial
+                if (m_args.GameType == GameType.OnePlayer)
+                    NextPanel(StageInTutorial.BounceThatBallText);
+                else
+                {
+                    NextPanel();
+                    onInitPlayers();
+                    onShowOpponent();
+                }
                 break;
             case StageInTutorial.OpponentAppears:
                 NextPanel();
