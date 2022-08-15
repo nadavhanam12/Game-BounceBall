@@ -48,7 +48,6 @@ public class PlayerScript : MonoBehaviour
     private float m_halfFieldDistance;
     private Bomb m_curBomb;
 
-
     #endregion
 
     public void Init(PlayerArgs args)
@@ -424,14 +423,20 @@ public class PlayerScript : MonoBehaviour
     public void ReachHitPosition()
     {
         //print("ReachHitPosition");
-        if (m_currentlyInTurn)
+        if (m_currentlyInTurn && !m_inKickCooldown)
         {
+
             List<BallScript> ballsHit = CheckBallInHitZone();
             if (ballsHit.Count > 0)
             {
                 //print(ballsHit.Count);
                 m_args.BallsManager.ApplyKick(m_args.PlayerIndex, m_curKickType, ballsHit);
+                StartCoroutine(KickCooldown());
             }
+        }
+        else
+        {
+            //print("in kick cool down");
         }
 
     }
@@ -474,34 +479,31 @@ public class PlayerScript : MonoBehaviour
             }
 
 
-            if ((!m_args.AutoPlay) || (!m_inKickCooldown))
+            //if ((!m_args.AutoPlay) || (!m_inKickCooldown))
+
+            m_curKickType = kickType;
+            string triggerName;
+            switch (kickType)
             {
+                case (KickType.Special):
+                    triggerName = "KickSpecial Trigger";
+                    m_inParalyze = true;
+                    ToggleSlide(true);
+                    break;
 
-                m_curKickType = kickType;
-                string triggerName;
-                switch (kickType)
-                {
-                    case (KickType.Special):
-                        triggerName = "KickSpecial Trigger";
-                        m_inParalyze = true;
-                        ToggleSlide(true);
-                        break;
-
-                    default:
-                        triggerName = "KickReg Trigger";
-                        ReachHitPosition();
-                        break;
-                }
-                if (!isJumping)
-                {
-                    m_anim.ResetTrigger(triggerName);
-                    m_anim.SetTrigger(triggerName);
-                }
-                StartCoroutine(KickCooldown());
-
-
-                //anim.enabled = false;
+                default:
+                    triggerName = "KickReg Trigger";
+                    ReachHitPosition();
+                    break;
             }
+            if (!isJumping)
+            {
+                m_anim.ResetTrigger(triggerName);
+                m_anim.SetTrigger(triggerName);
+            }
+
+            //anim.enabled = false;
+
         }
     }
 

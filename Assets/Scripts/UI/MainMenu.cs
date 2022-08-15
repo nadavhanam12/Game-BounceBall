@@ -150,9 +150,7 @@ public class MainMenu : MonoBehaviour
             m_gameManager.SetGameArgs(args);
         }
         else
-        {
             BackToMenu();
-        }
 
 
     }
@@ -203,27 +201,6 @@ public class MainMenu : MonoBehaviour
             OnActivateBallTween();
         }
     }
-
-    public void OnTwoPlayer()
-    {
-        if (m_userBallChoosen == null)
-        {
-            m_userBallChoosen = m_BallTwoPlayer;
-            m_gameType = GameType.TwoPlayer;
-            OnActivateBallTween();
-        }
-    }
-
-    public void OnTurnsGame()
-    {
-        if (m_userBallChoosen == null)
-        {
-            m_userBallChoosen = m_BallTurns;
-            m_gameType = GameType.TurnsGame;
-            OnActivateBallTween();
-        }
-    }
-
 
     public void OnTalTalGame()
     {

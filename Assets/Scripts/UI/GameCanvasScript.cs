@@ -168,30 +168,12 @@ public class GameCanvasScript : MonoBehaviour
 
     public void SetScore(int scorePlayer1, int scorePlayer2, int scoreDelta, PlayerIndex playerInLead)
     {
-        /*if (ScoreUIPlayer1.GetScore() != scorePlayer1)
-        {
-            ScoreUIPlayer1.setScore(scorePlayer1);
-        }
-        if (ScoreUIPlayer2.GetScore() != scorePlayer2)
-        {
-            ScoreUIPlayer2.setScore(scorePlayer2);
-        }*/
         m_curPlayerInLead = playerInLead;
         if ((ScoreUIDelta.GetCurDelta() != scoreDelta) || (ScoreUIDelta.GetCurPlayerInLead() != m_curPlayerInLead))
         {
             ScoreUIDelta.SetScore(scoreDelta, playerInLead);
         }
     }
-
-    /*
-        public void UpdateSequenceUI(List<Sequence> newSequenceList)
-        {
-            if (!SequenceMenuUI.isInitialized())
-            {
-                SequenceMenuUI.Init();
-            }
-            SequenceMenuUI.UpdateSequenceUI(newSequenceList);
-        }*/
 
     public void StartCountdown()
     {
@@ -212,6 +194,7 @@ public class GameCanvasScript : MonoBehaviour
         if (ComboConterUI != null)
         {
             ComboConterUI.SetCombo(curCombo);
+            ScoreUIDelta.UpdateCombo(ComboConterUI.GetCurCombo());
         }
     }
     public void IncrementCombo()
@@ -219,6 +202,7 @@ public class GameCanvasScript : MonoBehaviour
         if (ComboConterUI != null)
         {
             ComboConterUI.IncrementCombo();
+            ScoreUIDelta.UpdateCombo(ComboConterUI.GetCurCombo());
         }
     }
     public void SwitchTurn(bool isPlayerTurn)
@@ -323,6 +307,15 @@ public class GameCanvasScript : MonoBehaviour
                 CanJump = shouldGetInput;
                 break;
         }
+    }
+
+    public int GetPrevBestCombo()
+    {
+        return ScoreUIDelta.GetPrevBestCombo();
+    }
+    public int GetCurBestCombo()
+    {
+        return ScoreUIDelta.GetCurBestCombo();
     }
 
 

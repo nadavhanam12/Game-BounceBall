@@ -164,8 +164,12 @@ public class GameManagerScript : MonoBehaviour
         InitGameMood(false);
         m_playerData2.PlayerScript.HidePlayer();
         m_inTutorial = true;
-        m_tutorialManager.Play();
+        Invoke("PlayTutorial", 1f);
         m_gameCanvas.ActivateTimer(false);
+    }
+    void PlayTutorial()
+    {
+        m_tutorialManager.Play();
     }
     void FinishedTutorial()
     {
@@ -250,10 +254,6 @@ public class GameManagerScript : MonoBehaviour
         }
 
         SetGamePause(false);
-        if (m_gameArgs.GameType == GameType.TurnsGame)
-        {
-            StartCoroutine(UpdateScores());
-        }
     }
 
 
@@ -383,13 +383,7 @@ public class GameManagerScript : MonoBehaviour
     }*/
     void InitGameMood(bool throwNewBall = true)
     {
-        if (m_gameArgs.GameType == GameType.TurnsGame)
-        {
-            m_curPlayerTurn = PlayerIndex.First;
-            m_playerData1.PlayerScript.StartTurn(throwNewBall);
-            m_playerData2.PlayerScript.LostTurn();
-        }
-        else if (m_gameArgs.GameType == GameType.TalTalGame)
+        if (m_gameArgs.GameType == GameType.TalTalGame)
         {
             m_curPlayerTurn = PlayerIndex.First;
             m_playerData1.PlayerScript.StartTurn(throwNewBall);
@@ -485,14 +479,6 @@ public class GameManagerScript : MonoBehaviour
         m_ballsManager.SetGamePause(isPause);
         m_pickablesManager.SetGamePause(isPause);
         m_gameCanvas.SetGamePause(isPause);
-        if (!m_isGamePause)
-        {
-            if (m_gameArgs.GameType == GameType.TurnsGame)
-            {
-                StartCoroutine(UpdateScores());
-            }
-        }
-
     }
 
     private void InitGameCanvas()
@@ -528,7 +514,7 @@ public class GameManagerScript : MonoBehaviour
 
         m_playerData1.PlayerScript.Init(m_playerData1);
 
-        if (m_gameArgs.GameType == GameType.TurnsGame || m_gameArgs.GameType == GameType.TalTalGame)
+        if (m_gameArgs.GameType == GameType.TalTalGame)
         {
             m_playerData2.AutoPlay = true;
         }
@@ -589,36 +575,27 @@ public class GameManagerScript : MonoBehaviour
 
             }
         }
+        else if (m_gameArgs.GameType == GameType.TalTalGame)
+        {
+            playerData = playerData == m_playerData1 ? m_playerData2 : m_playerData1;
+            playerData.CurScore++;
+            if (playerData == m_playerData1)
+            {
+                m_gameCanvas.CheerActivate();
+            }
+            m_gameCanvas.SetNormalScore(m_playerData1.CurScore, m_playerData2.CurScore);
+            SwitchPlayerTurn(false);
 
+        }
         else
         {
-
-
-            if (m_gameArgs.GameType == GameType.TurnsGame)
+            if (m_gameArgs.GameType == GameType.OnePlayer)
             {
-                SwitchPlayerTurn();
+                m_playerData1.CurScore = 0;
             }
-            else if (m_gameArgs.GameType == GameType.TalTalGame)
-            {
-                playerData = playerData == m_playerData1 ? m_playerData2 : m_playerData1;
-                playerData.CurScore++;
-                if (playerData == m_playerData1)
-                {
-                    m_gameCanvas.CheerActivate();
-                }
-                m_gameCanvas.SetNormalScore(m_playerData1.CurScore, m_playerData2.CurScore);
-                SwitchPlayerTurn(false);
-
-            }
-            else
-            {
-                if (m_gameArgs.GameType == GameType.OnePlayer)
-                {
-                    m_playerData1.CurScore = 0;
-                }
-                m_ballsManager.OnNewBallInScene();
-            }
+            m_ballsManager.OnNewBallInScene();
         }
+
 
     }
 
@@ -744,28 +721,39 @@ public class GameManagerScript : MonoBehaviour
             SetGamePause(true);
             m_ballsManager.TimeIsOver();//should turn off the balls
 
-
-            if (m_playerData1.CurScore > m_playerData2.CurScore)
+            if (m_gameArgs.GameType == GameType.OnePlayer)
             {
                 m_playerData1.PlayerScript.Win();
-                m_playerData2.PlayerScript.Lose();
+                int prevBestScore = m_gameCanvas.GetPrevBestCombo();
+                int curBestScore = m_gameCanvas.GetCurBestCombo();
+                if (prevBestScore < curBestScore)
+                {
+                    PlayerPrefs.SetInt("OnePlayerBestCombo", curBestScore);
+                    m_gameCanvas.OnNewBestScore(curBestScore);
+                }
+                else
+                    m_gameCanvas.OnPrevBestScore(prevBestScore);
             }
-            else if (m_playerData1.CurScore < m_playerData2.CurScore)
+            else if (m_gameArgs.GameType == GameType.TalTalGame)
             {
-                m_playerData1.PlayerScript.Lose();
-                m_playerData2.PlayerScript.Win();
-            }
-            else
-            {
-                m_playerData1.PlayerScript.Win();
-                m_playerData2.PlayerScript.Win();
+                if (m_playerData1.CurScore > m_playerData2.CurScore)
+                {
+                    m_playerData1.PlayerScript.Win();
+                    m_playerData2.PlayerScript.Lose();
+                }
+                else if (m_playerData1.CurScore < m_playerData2.CurScore)
+                {
+                    m_playerData1.PlayerScript.Lose();
+                    m_playerData2.PlayerScript.Win();
+                }
+                else
+                {
+                    m_playerData1.PlayerScript.Win();
+                    m_playerData2.PlayerScript.Win();
+                }
             }
         }
-
-
-
         Invoke("ExitScene", 5f);
-
     }
 
     private void TimeIsOver()

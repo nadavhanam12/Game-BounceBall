@@ -106,6 +106,7 @@ public class SoundManager : MonoBehaviour
 
     public void PlayAudioClip(AudioClip clipToPlay)
     {
+        //print(clipToPlay.name);
         if (m_availableForUpdate)
         {
             m_availableForUpdate = false;
@@ -145,6 +146,11 @@ public class SoundManager : MonoBehaviour
     private void EventStartGameScene()
     {
         EventPlayGameBGMusic();
+        Invoke("PlayWhisle", 1f);
+    }
+
+    void PlayWhisle()
+    {
         PlayAudioClip(m_soundStartGameScene);
     }
     private void EventAddSoundCrowd()

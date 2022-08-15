@@ -226,14 +226,6 @@ public class GameBallsManager : MonoBehaviour
         Color color2 = GenerateRandomColor();
         m_colorQueue.Enqueue(GenerateRandomColor());
 
-        if (m_args.GameType == GameType.TurnsGame)
-        {
-            if (playerIndex == PlayerIndex.Second)
-            {
-                color1.a = m_opponentBallAlpha;
-                color2.a = m_opponentBallAlpha;
-            }
-        }
         UpdateNextBallColor(color1, true);
 
         Vector2 ballPos = ball.GetPosition();

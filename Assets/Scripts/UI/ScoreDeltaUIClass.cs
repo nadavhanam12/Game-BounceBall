@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -9,12 +10,11 @@ public class ScoreDeltaUIClass : MonoBehaviour
 {
     #region serialized
 
-    [SerializeField] private Slider m_leftSlider;
-    [SerializeField] private Slider m_rightSlider;
     [SerializeField] private NormalScoreUI m_leftNormalScore;
     [SerializeField] private NormalScoreUI m_rightNormalScore;
+    [SerializeField] private RectTransform m_timeGameObject;
     [SerializeField] private TMP_Text m_timeTextSeconds;
-    [SerializeField] private TMP_Text m_timeTextMilliseconds;
+    [SerializeField] private TMP_Text m_bestComboText;
 
     #endregion
 
@@ -39,8 +39,11 @@ public class ScoreDeltaUIClass : MonoBehaviour
 
     private float timeRemaining;
     private GameType m_gameType;
-    bool m_shouldRun = true;
+    bool m_shouldRunTimer = true;
+    int m_curBestCombo = 0;
+    int m_prevBestCombo = 0;
 
+    Vector2 timePosOnOnePlayerMode = new Vector2(300, 0);
     #endregion
 
     public void SetGamePause(bool isPause)
@@ -49,7 +52,7 @@ public class ScoreDeltaUIClass : MonoBehaviour
     }
     public void ActivateTimer(bool toActivate)
     {
-        m_shouldRun = toActivate;
+        m_shouldRunTimer = toActivate;
     }
 
     public void Init(GameType gameType)
@@ -59,41 +62,39 @@ public class ScoreDeltaUIClass : MonoBehaviour
             m_initialized = true;
             m_gameType = gameType;
             m_playerInLead = PlayerIndex.First;
-            if (m_gameType == GameType.TurnsGame)
+            InitTimer();
+            if (m_gameType == GameType.TalTalGame)
+            {
+                InitNormalScore();
+                m_timeGameObject.anchoredPosition = Vector2.zero;
+            }
+            else if (m_gameType == GameType.OnePlayer)
             {
                 RemoveNormalScore();
-                InitSliders();
+                m_timeGameObject.anchoredPosition = timePosOnOnePlayerMode;
+                InitBestCombo();
             }
-            else if (m_gameType == GameType.TalTalGame || m_gameType == GameType.OnePlayer)
-            {
-                RemoveSliders();
-                InitNormalScore();
-            }
-            else
-            {
-                InitSliders();
-            }
-
-
-            InitTimer();
-
-
         }
+    }
 
-
+    private void InitBestCombo()
+    {
+        if (!PlayerPrefs.HasKey("OnePlayerBestCombo"))
+            PlayerPrefs.SetInt("OnePlayerBestCombo", 0);
+        m_prevBestCombo = PlayerPrefs.GetInt("OnePlayerBestCombo", 0);
+        m_curBestCombo = m_prevBestCombo;
+        m_bestComboText.text = m_curBestCombo.ToString();
     }
 
     void InitTimer()
     {
+        m_timeTextSeconds.gameObject.SetActive(true);
         timeRemaining = m_timeToPlay;
         DisplayTime(timeRemaining);
     }
-
-
-
     void Update()
     {
-        if ((!isGamePaused) && m_initialized && m_shouldRun)
+        if ((!isGamePaused) && m_initialized && m_shouldRunTimer)
         {
             if (timeRemaining > 0)
             {
@@ -127,29 +128,12 @@ public class ScoreDeltaUIClass : MonoBehaviour
             m_timeTextSeconds.text = m_timeLeftString;
         }
     }
-
-
-    void InitSliders()
-    {
-        m_leftSlider.gameObject.SetActive(true);
-        m_rightSlider.gameObject.SetActive(true);
-        m_leftSlider.value = 0f;
-        m_leftSlider.maxValue = 1.0f;
-        m_rightSlider.value = 0f;
-        m_rightSlider.maxValue = 1.0f;
-    }
-    void RemoveSliders()
-    {
-        m_leftSlider.gameObject.SetActive(false);
-        m_rightSlider.gameObject.SetActive(false);
-    }
     void InitNormalScore()
     {
         m_leftNormalScore.gameObject.SetActive(true);
         m_rightNormalScore.gameObject.SetActive(true);
         m_leftNormalScore.Init();
         m_rightNormalScore.Init();
-
     }
     void RemoveNormalScore()
     {
@@ -179,11 +163,6 @@ public class ScoreDeltaUIClass : MonoBehaviour
     }
     public void SetNormalScore(int scoreLeft, int scoreRight)
     {
-        if (m_gameType == GameType.TurnsGame)
-        {
-            //print("TurnsGame, please call setScore");
-            return;
-        }
         m_leftNormalScore.SetScore(scoreLeft);
         m_rightNormalScore.SetScore(scoreRight);
 
@@ -199,17 +178,23 @@ public class ScoreDeltaUIClass : MonoBehaviour
         }
         m_playerInLead = playerInLead;
         m_curDelta = scoreDelta;
-        UpdateProgressBar();
     }
 
-
-    private void UpdateProgressBar()
+    public void UpdateCombo(int newCombo)
     {
-        Slider curSlider = (m_playerInLead == PlayerIndex.First) ? m_leftSlider : m_rightSlider;
-        curSlider.value = (float)((float)m_curDelta / m_maxScore);
-        Slider curSliderToZero = (m_playerInLead == PlayerIndex.First) ? m_rightSlider : m_leftSlider;
-        curSliderToZero.value = 0;
+        if (m_curBestCombo < newCombo)
+        {
+            m_curBestCombo = newCombo;
+            m_bestComboText.text = m_curBestCombo.ToString();
+        }
+    }
 
-
+    public int GetPrevBestCombo()
+    {
+        return m_prevBestCombo;
+    }
+    public int GetCurBestCombo()
+    {
+        return m_curBestCombo;
     }
 }

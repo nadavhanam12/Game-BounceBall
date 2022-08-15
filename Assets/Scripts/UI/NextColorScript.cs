@@ -246,7 +246,7 @@ public class NextColorScript : MonoBehaviour
     {
         ParticleSystem.MainModule main = m_particleSystem.main;
         main.startColor = color;
-        m_particleSystem.Emit(60);
+        m_particleSystem.Emit(120);
     }
 
 }

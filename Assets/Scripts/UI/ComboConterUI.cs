@@ -57,5 +57,9 @@ public class ComboConterUI : MonoBehaviour
     {
         m_curTweenId = -1;
     }
+    public int GetCurCombo()
+    {
+        return m_curCombo;
+    }
 
 }

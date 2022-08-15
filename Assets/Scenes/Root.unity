@@ -686,7 +686,7 @@ Camera:
   field of view: 60
   orthographic: 1
   orthographic size: 14.3
-  m_Depth: -1
+  m_Depth: -0.5
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -6101,6 +6101,10 @@ PrefabInstance:
       propertyPath: m_menuBGMusic
       value: 
       objectReference: {fileID: 8300000, guid: 630fc00f20dca1a4a9cee2a1902db09f, type: 3}
+    - target: {fileID: 2708142022355576447, guid: d1785398d38afca4eabdee77282f4af4, type: 3}
+      propertyPath: m_soundStartGameScene
+      value: 
+      objectReference: {fileID: 8300000, guid: 4699d069aef86634f994e534ec74222b, type: 3}
     - target: {fileID: 2838336884908187814, guid: d1785398d38afca4eabdee77282f4af4, type: 3}
       propertyPath: m_RootOrder
       value: 1
@@ -6573,7 +6577,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: 9e044acca05acde42a6a2218d35a91ea, type: 3}
+  m_Texture: {fileID: 2800000, guid: e3257113e7ea1ce4a813427f42924621, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0

@@ -105,7 +105,7 @@ public class TutorialUI : MonoBehaviour
                 m_handGestures.StopGesture();
                 break;
             case StageInTutorial.BallSplitText2:
-                HighlightBtn(NextBallIcon);
+                HighlightBtn(NextBallIcon.transform.position);
                 m_AnimSpeechBubble.SetTrigger("NextStage");
                 break;
             case StageInTutorial.PracticeKickGamePlay:
@@ -160,14 +160,14 @@ public class TutorialUI : MonoBehaviour
             case StageInTutorial.OpponentAppears:
                 m_AnimSpeechBubble.SetTrigger("ShowOpponent");
                 JumpBtn.SetActive(true);
-                HighlightBtn(Player2Location);
+                HighlightBtn(Player2Location.transform.position + new Vector3(0.5f, 2, 0));
                 break;
             case StageInTutorial.TurnsExplanationText:
                 m_AnimSpeechBubble.SetTrigger("NextStage");
 
                 break;
             case StageInTutorial.TurnsUIExplanationText:
-                HighlightBtn(NextPlayerIcon);
+                HighlightBtn(NextPlayerIcon.transform.position);
                 m_AnimSpeechBubble.SetTrigger("NextStage");
 
                 break;
@@ -180,8 +180,8 @@ public class TutorialUI : MonoBehaviour
                 m_gameCanvas.ToggleAllInput(false);
                 m_AnimSpeechBubble.SetTrigger("NextStage");
                 Panels[4].SetActive(false);
-                HighlightBtn(Player1Score);
-                HighlightBtn2(Player2Score);
+                HighlightBtn(Player1Score.transform.position);
+                HighlightBtn2(Player2Score.transform.position);
                 break;
             case StageInTutorial.WinStateText:
                 m_AnimSpeechBubble.SetTrigger("NextStage");
@@ -215,7 +215,7 @@ public class TutorialUI : MonoBehaviour
     }
     public void TouchScreen()
     {
-        //print("TouchScreen");
+        print("TouchScreen");
         OnTouchScreen();
     }
 
@@ -232,18 +232,18 @@ public class TutorialUI : MonoBehaviour
         m_gameCanvas.ShowComboAndNextBall(shouldShow);
     }
 
-    private void HighlightBtn(GameObject gameObject)
+    private void HighlightBtn(Vector3 pos)
     {
         LeanTween.cancel(m_highlightBtn);
-        m_highlightBtn.transform.position = gameObject.transform.position;
+        m_highlightBtn.transform.position = pos;
         m_highlightBtn.transform.localScale = Vector3.one;
         m_highlightBtn.SetActive(true);
         LeanTween.scale(m_highlightBtn, Vector3.one * 1.5f, 0.25f).setLoopPingPong();
     }
-    private void HighlightBtn2(GameObject gameObject)
+    private void HighlightBtn2(Vector3 pos)
     {
         LeanTween.cancel(m_highlightBtn2);
-        m_highlightBtn2.transform.position = gameObject.transform.position;
+        m_highlightBtn2.transform.position = pos;
         m_highlightBtn2.transform.localScale = Vector3.one;
         m_highlightBtn2.SetActive(true);
         LeanTween.scale(m_highlightBtn2, Vector3.one * 1.5f, 0.25f).setLoopPingPong();
