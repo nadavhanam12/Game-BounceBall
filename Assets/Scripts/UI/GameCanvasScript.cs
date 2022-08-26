@@ -318,6 +318,13 @@ public class GameCanvasScript : MonoBehaviour
         return ScoreUIDelta.GetCurBestCombo();
     }
 
+    internal void OnNewBestScore(int curBestScore)
+    {
+        throw new System.NotImplementedException();
+    }
 
-
+    internal void OnPrevBestScore(int prevBestScore)
+    {
+        throw new System.NotImplementedException();
+    }
 }

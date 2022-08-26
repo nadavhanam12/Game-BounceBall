@@ -136,7 +136,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerStats:
-    m_hitZoneRadius: 4
+    m_hitZoneRadius: 2
     m_movingSpeed: 0.25
     m_jumpSpeed: 0.5
     m_maxHeight: 2

@@ -146,6 +146,10 @@ public class PlayerScript : MonoBehaviour
                 if (!m_args.AutoPlay)
                 {
                     GetJump();
+                    List<BallScript> ballsHit = CheckBallInHitZone();
+                    if (ballsHit.Count > 0)
+                        OnKickPlay(KickType.Regular);
+
                 }
                 else
                 {
@@ -557,7 +561,7 @@ public class PlayerScript : MonoBehaviour
 
     public void OnTouchKickRegular()
     {
-        OnKickPlay(KickType.Regular);
+        //OnKickPlay(KickType.Regular);
     }
     public void OnTouchJump()
     {
