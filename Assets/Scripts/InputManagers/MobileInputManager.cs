@@ -9,14 +9,14 @@ public class MobileInputManager : AbstractTouchInputManager
     private TouchPointer m_touchPointer;
     Vector3 touchPosition3D;
     Vector2 touchPosition2D;
-    Camera m_camera;
-    void Start()
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    protected override void Start()
     {
+        base.Start();
         m_touchPointer = FindObjectOfType<TouchPointer>(true);
         m_touchPointer.Init();
         touchPosition3D = Vector3.zero;
         touchPosition2D = Vector2.zero;
-        m_camera = Camera.main;
     }
     protected override void GetInputs()
     {

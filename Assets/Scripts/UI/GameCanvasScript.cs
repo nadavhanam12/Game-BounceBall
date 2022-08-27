@@ -15,14 +15,14 @@ public class GameCanvasScript : MonoBehaviour
     public delegate void TimeIsOver();
 
     public TimeIsOver m_onTimeIsOver;
-    public delegate void OnTouchKickRegular();
-    public OnTouchKickRegular m_OnTouchKickRegular;
+    public delegate void OnMovePlayerToPosition(Vector2 position);
+    public OnMovePlayerToPosition m_MovePlayerToPosition;
     public delegate void OnTouchJump();
     public OnTouchJump m_OnTouchJump;
-    public delegate void OnPlayIdle();
-    public OnPlayIdle m_OnPlayIdle;
     public delegate void OnTouchKickSpecial();
     public OnTouchKickSpecial m_OnTouchKickSpecial;
+    public delegate void OnTouchEnd();
+    public OnTouchEnd m_OnTouchEnd;
 
 
 
@@ -47,6 +47,8 @@ public class GameCanvasScript : MonoBehaviour
     private TurnsUI TurnsUI;
     private TutorialUI TutorialUI;
     private CurPlayerUI CurPlayerUI;
+    private EndGameScreen EndGameScreen;
+
     #endregion
 
     #region private
@@ -73,18 +75,15 @@ public class GameCanvasScript : MonoBehaviour
     {
         isGamePaused = isPause;
         ScoreUIDelta.SetGamePause(isGamePaused);
-
     }
     public void ActivateTimer(bool activate)
     {
         ScoreUIDelta.ActivateTimer(activate);
     }
+    public void OnEndInput() { m_OnTouchEnd(); }
     public void OnKickSpecialInput() { if (CanSlide) m_OnTouchKickSpecial(); }
-    public void OnKickRegularInput() { if (CanKick) m_OnTouchKickRegular(); }
     public void OnJumpInput() { if (CanJump) m_OnTouchJump(); }
-    public void OnInputEnd() { m_OnPlayIdle(); }
-    public void OnMoveRightInputPressed() { if (CanMove) EventManager.Broadcast(EVENT.EventOnRightPressed); }
-    public void OnMoveLeftInputPressed() { if (CanMove) EventManager.Broadcast(EVENT.EventOnLeftPressed); }
+    public void MovePlayerToPosition(Vector2 position) { if (CanMove) m_MovePlayerToPosition(position); }
     public void OnRestart() { EventManager.Broadcast(EVENT.EventOnRestart); }
 
 
@@ -120,6 +119,7 @@ public class GameCanvasScript : MonoBehaviour
 
             ShowBombUI(false);
             CountdownUI.gameObject.SetActive(false);
+            EndGameScreen.gameObject.SetActive(false);
             //m_anim.Play("FadeIn", -1, 0f);
 
 
@@ -131,8 +131,8 @@ public class GameCanvasScript : MonoBehaviour
     private void OnTimeIsOver()
     {
         m_onTimeIsOver();
-        TurnsUI.ActivateTimeEnd();
-        CheerActivate(false);
+        //TurnsUI.ActivateTimeEnd();
+        //CheerActivate(false);
     }
 
     void OnDestroy()
@@ -156,6 +156,7 @@ public class GameCanvasScript : MonoBehaviour
         TutorialUI = GetComponentInChildren<TutorialUI>(true);
         RestartButton = GetComponentInChildren<RestartUI>(true);
         CurPlayerUI = GetComponentInChildren<CurPlayerUI>(true);
+        EndGameScreen = GetComponentInChildren<EndGameScreen>(true);
     }
 
     public void CheerActivate(bool withTextAndInit = true)
@@ -320,11 +321,12 @@ public class GameCanvasScript : MonoBehaviour
 
     internal void OnNewBestScore(int curBestScore)
     {
-        throw new System.NotImplementedException();
+        CheerActivate(false);
+        EndGameScreen.Activate(true, curBestScore);
     }
 
     internal void OnPrevBestScore(int prevBestScore)
     {
-        throw new System.NotImplementedException();
+        EndGameScreen.Activate(false, prevBestScore);
     }
 }

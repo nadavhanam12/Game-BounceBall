@@ -28,6 +28,7 @@ public class SoundManager : MonoBehaviour
     public static SoundManager Instance = null;
     private bool m_availableForUpdate = true;
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     // Initialize the singleton instance.
     private void Awake()
     {

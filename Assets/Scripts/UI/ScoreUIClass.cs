@@ -16,7 +16,7 @@ public class ScoreUIClass : MonoBehaviour
 
 
 
-
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     void Awake()
     {
         //ScoreText = this.GetComponent<TMP_Text>();
@@ -33,7 +33,7 @@ public class ScoreUIClass : MonoBehaviour
         isGamePaused = isPause;
 
     }
-
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     public void Init()
     {
         if (!m_initialized)

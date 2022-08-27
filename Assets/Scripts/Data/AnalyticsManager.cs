@@ -12,7 +12,7 @@ public class AnalyticsManager : MonoBehaviour
     private static List<string> m_eventsList = new List<string>
     { "App_Launched","Match_Started","Match_Ended","Kick_Regular","Kick_Special","Jump","Bomb_Throw","Player_Hit_By_Bomb",
     "Retry_Button_Pressed","Tutorial_Started","Tutorial_Completed","Tutorial_Step"};
-
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private void Awake()
     {
         // If there is not already an instance of AnalyticsManager, set it to this.

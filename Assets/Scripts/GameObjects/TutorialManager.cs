@@ -32,7 +32,7 @@ public enum StageInTutorial
 }
 public class TutorialManager : MonoBehaviour
 {
-
+    [SerializeField] PlayerScript m_playerScript;
     public delegate void OnFinishTutorial();
     public OnFinishTutorial onFinishTutorial;
 
@@ -153,7 +153,7 @@ public class TutorialManager : MonoBehaviour
                     }
                     break;
                 case StageInTutorial.PracticeSlideGamePlay:
-                    if (curCombo == 1)
+                    if (m_playerScript.IsOnSlide())
                     {
                         curCombo = 0;
                         m_args.GameCanvas.CheerActivate();
@@ -162,7 +162,7 @@ public class TutorialManager : MonoBehaviour
                     }
                     break;
                 case StageInTutorial.PracticeJumpGamePlay:
-                    if (curCombo == 1)
+                    if (m_playerScript.IsOnJumpKick())
                     {
                         curCombo = 0;
                         m_args.GameCanvas.CheerActivate();
@@ -196,7 +196,7 @@ public class TutorialManager : MonoBehaviour
                 break;
             case StageInTutorial.PracticeSlideGamePlay:
                 onInitPlayers();
-                m_args.GameCanvas.ToggleSingleInput("Slide", true);
+                //m_args.GameCanvas.ToggleSingleInput("Slide", true);
                 break;
 
             case StageInTutorial.PracticeOpponentGamePlay:
@@ -248,7 +248,7 @@ public class TutorialManager : MonoBehaviour
             case StageInTutorial.KickTheBallText:
                 NextPanel(StageInTutorial.FirstKickGamePlay);
                 Invoke("ResumeGame", 0.5f);
-                StartCoroutine(GenerateBallWithDelay(0.75f, true, Vector2Int.zero));
+                StartCoroutine(GenerateBallWithDelay(0.75f, false, Vector2Int.zero));
                 break;
             case StageInTutorial.BallSplitText1:
                 AnalyticsManager.CommitData(
@@ -280,7 +280,8 @@ public class TutorialManager : MonoBehaviour
                 onInitPlayers();
                 ResumeGame();
                 StartCoroutine(GenerateBallWithDelay(1f, false, Vector2Int.right));
-                onAllowOnlyJumpKick(true);
+                m_args.GameCanvas.ToggleAllInput(true);
+                m_args.GameCanvas.ToggleSingleInput("Slide", false);
                 break;
 
             case StageInTutorial.PracticeJumpFinishText:
@@ -291,7 +292,7 @@ public class TutorialManager : MonoBehaviour
                  { "stage", "jump_example" }
                     });
                 NextPanel();
-                onAllowOnlyJumpKick(false);
+                m_args.GameCanvas.ToggleAllInput(false);
                 break;
             case StageInTutorial.SlideIntroductionText:
                 NextPanel();
@@ -303,10 +304,10 @@ public class TutorialManager : MonoBehaviour
                 ResumeGame();
                 StartCoroutine(GenerateBallWithDelay(1f, false, Vector2Int.right));
                 //m_args.GameCanvas.ActiveOnlySlideButton();
-                m_args.GameCanvas.ToggleAllowOneSlide(true);
+                m_args.GameCanvas.ToggleAllInput(true);
                 break;
             case StageInTutorial.PracticeSlideFinishText:
-                m_args.GameCanvas.ToggleAllowOneSlide(false);
+                m_args.GameCanvas.ToggleAllInput(false);
                 onRemoveAllBalls();
                 m_args.GameCanvas.ActiveButtons();
                 AnalyticsManager.CommitData(

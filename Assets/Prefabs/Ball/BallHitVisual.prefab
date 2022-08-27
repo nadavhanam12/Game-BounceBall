@@ -48,7 +48,7 @@ MonoBehaviour:
   ScaleDownFromOriginalScale: 0.585
   timeToPlay: 0.5
   ScaleFactor: 1.5
-  IdleTime: 3
+  IdleTime: 10
 --- !u!95 &4345121352574712494
 Animator:
   serializedVersion: 3
@@ -138,7 +138,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 100
+  m_SortingOrder: 19
   m_Sprite: {fileID: 21300000, guid: 4eca1b43176d1634ab56e17de037ff19, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -221,7 +221,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 100
+  m_SortingOrder: 19
   m_Sprite: {fileID: 21300000, guid: 873f16c0bdaeb574bab0907fe4ab84bf, type: 3}
   m_Color: {r: 1, g: 0, b: 0, a: 1}
   m_FlipX: 0

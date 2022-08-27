@@ -91,7 +91,7 @@ public class GameBallsManager : MonoBehaviour
         m_colorQueue = new Queue<Color>();
         for (int i = 0; i < 4; i++)
         {
-            m_colorQueue.Enqueue(GenerateRandomColor());
+            m_colorQueue.Enqueue(GenerateRandomColor(Color.black));
         }
     }
     void InitHitBallVisuals()
@@ -223,8 +223,8 @@ public class GameBallsManager : MonoBehaviour
         if (otherBall == null) { return; }
 
         Color color1 = m_colorQueue.Dequeue();
-        Color color2 = GenerateRandomColor();
-        m_colorQueue.Enqueue(GenerateRandomColor());
+        Color color2 = GenerateRandomColor(color1);
+        m_colorQueue.Enqueue(GenerateRandomColor(Color.black));
 
         UpdateNextBallColor(color1, true);
 
@@ -295,10 +295,16 @@ public class GameBallsManager : MonoBehaviour
         return rnd <= 4;
     }
 
-    private Color GenerateRandomColor()
+    private Color GenerateRandomColor(Color forbiddenColor)
     {
-        int rnd = Random.Range(0, ballColors.Count);
-        return ballColors[rnd];
+        int rnd;
+        while (true)
+        {
+            rnd = Random.Range(0, ballColors.Count);
+            if (ballColors[rnd] != forbiddenColor)
+                return ballColors[rnd];
+        }
+
     }
 
 

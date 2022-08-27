@@ -60,7 +60,7 @@ public class MainMenu : MonoBehaviour
 
 
 
-
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     void Awake()
     {
         Application.targetFrameRate = 60;

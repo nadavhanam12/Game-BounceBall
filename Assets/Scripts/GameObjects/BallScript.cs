@@ -167,9 +167,12 @@ public class BallScript : MonoBehaviour
             LeanTweenExt.LeanCancel(m_spriteRenderer.gameObject, m_curTweenId);
             m_curTweenId = -1;
         }
-        UpdateColor(color);
-        this.gameObject.SetActive(true);
-        BallHasFallen = false;
+        if (this != null)
+        {
+            UpdateColor(color);
+            this.gameObject.SetActive(true);
+            BallHasFallen = false;
+        }
     }
 
     private void UpdateColor(Color color)

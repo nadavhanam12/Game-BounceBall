@@ -41,7 +41,7 @@ public class ComboConterUI : MonoBehaviour
     private void ScaleUp()
     {
         m_curTweenId =
-        LeanTween.scale(m_text.gameObject, m_textInitScale * 2, m_timeToTween)
+        LeanTween.scale(m_text.gameObject, m_textInitScale * 3, m_timeToTween)
                 .setOnComplete(ScaleDown)
                 .id;
     }

@@ -89,7 +89,7 @@ public class GameManagerScript : MonoBehaviour
 
 
 
-
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     void Awake()
     {
         Application.targetFrameRate = 60;
@@ -293,10 +293,6 @@ public class GameManagerScript : MonoBehaviour
     }
     void InitInputManager()
     {
-#if UNITY_EDITOR
-        m_inputManager = gameObject.AddComponent<KeyboardInputManager>();
-        m_inputManager.Init(m_gameCanvas);
-#endif
         m_inputManager = gameObject.AddComponent<MobileInputManager>();
         m_inputManager.Init(m_gameCanvas);
     }
@@ -494,10 +490,10 @@ public class GameManagerScript : MonoBehaviour
         m_gameCanvas.Init(canvasArgs);
         m_gameCanvas.m_onTimeIsOver = TimeIsOver;
 
-        m_gameCanvas.m_OnTouchKickRegular = m_playerData1.PlayerScript.OnTouchKickRegular;
+        m_gameCanvas.m_MovePlayerToPosition = m_playerData1.PlayerScript.MovePlayerToPosition;
         m_gameCanvas.m_OnTouchKickSpecial = m_playerData1.PlayerScript.OnTouchKickSpecial;
         m_gameCanvas.m_OnTouchJump = m_playerData1.PlayerScript.OnTouchJump;
-        m_gameCanvas.m_OnPlayIdle = m_playerData1.PlayerScript.OnPlayIdle;
+        m_gameCanvas.m_OnTouchEnd = m_playerData1.PlayerScript.OnPlayIdle;
 
 
 
@@ -549,14 +545,14 @@ public class GameManagerScript : MonoBehaviour
         {
             m_tutorialManager.OnBallLost();
 
-            if (m_tutorialManager.GetCurStage() == StageInTutorial.PracticeSlideGamePlay)
+            if (m_tutorialManager.GetCurStage() == StageInTutorial.FirstKickGamePlay ||
+                m_tutorialManager.GetCurStage() == StageInTutorial.PracticeSlideGamePlay)
             {
                 m_ballsManager.OnNewBallInScene(false, Vector2Int.right);
                 return;
             }
-            if ((m_tutorialManager.GetCurStage() == StageInTutorial.FirstKickGamePlay) ||
-                (m_tutorialManager.GetCurStage() == StageInTutorial.PracticeKickGamePlay) ||
-                (m_tutorialManager.GetCurStage() == StageInTutorial.PracticeJumpGamePlay))
+            if (m_tutorialManager.GetCurStage() == StageInTutorial.PracticeKickGamePlay ||
+                m_tutorialManager.GetCurStage() == StageInTutorial.PracticeJumpGamePlay)
             {
                 m_ballsManager.OnNewBallInScene();
                 return;
@@ -751,9 +747,10 @@ public class GameManagerScript : MonoBehaviour
                     m_playerData1.PlayerScript.Win();
                     m_playerData2.PlayerScript.Win();
                 }
+                Invoke("ExitScene", 5f);
             }
         }
-        Invoke("ExitScene", 5f);
+
     }
 
     private void TimeIsOver()
@@ -791,6 +788,38 @@ public class GameManagerScript : MonoBehaviour
                 m_mainMenu.OnRestart();
             }
         }
+    }
+
+    public void BackToMenu()
+    {
+        //print("BackToMenu");
+        if (m_mainMenu == null)
+        {
+            Scene mainMenuScene = SceneManager.GetSceneByName("Root");
+            if (mainMenuScene.IsValid())
+                SceneManager.LoadSceneAsync("Root");
+            else
+                SceneManager.LoadSceneAsync("GameScene");
+        }
+        else
+            m_mainMenu.BackToMenu();
+
+    }
+
+    public void RestartGame()
+    {
+        //print("RestartGame");
+        if (m_mainMenu == null)
+        {
+            Scene mainMenuScene = SceneManager.GetSceneByName("Root");
+            if (mainMenuScene.IsValid())
+                SceneManager.LoadSceneAsync("Root");
+            else
+                SceneManager.LoadSceneAsync("GameScene");
+        }
+        else
+            m_mainMenu.OnRestart();
+
     }
 
 

@@ -12,11 +12,13 @@ public class ScoreDeltaUIClass : MonoBehaviour
 
     [SerializeField] private NormalScoreUI m_leftNormalScore;
     [SerializeField] private NormalScoreUI m_rightNormalScore;
+    [SerializeField] private GameObject m_onePlayerBar;
     [SerializeField] private RectTransform m_timeGameObject;
     [SerializeField] private TMP_Text m_timeTextSeconds;
     [SerializeField] private TMP_Text m_bestComboText;
 
     #endregion
+
 
     #region private
 
@@ -70,7 +72,7 @@ public class ScoreDeltaUIClass : MonoBehaviour
             }
             else if (m_gameType == GameType.OnePlayer)
             {
-                RemoveNormalScore();
+                InitOnePlayerBar();
                 m_timeGameObject.anchoredPosition = timePosOnOnePlayerMode;
                 InitBestCombo();
             }
@@ -130,13 +132,15 @@ public class ScoreDeltaUIClass : MonoBehaviour
     }
     void InitNormalScore()
     {
+        m_onePlayerBar.gameObject.SetActive(false);
         m_leftNormalScore.gameObject.SetActive(true);
         m_rightNormalScore.gameObject.SetActive(true);
         m_leftNormalScore.Init();
         m_rightNormalScore.Init();
     }
-    void RemoveNormalScore()
+    void InitOnePlayerBar()
     {
+        m_onePlayerBar.gameObject.SetActive(true);
         m_leftNormalScore.gameObject.SetActive(false);
         m_rightNormalScore.gameObject.SetActive(false);
     }

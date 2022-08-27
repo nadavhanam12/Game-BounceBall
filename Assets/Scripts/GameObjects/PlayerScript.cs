@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -72,8 +73,6 @@ public class PlayerScript : MonoBehaviour
 
             m_anim.speed = 1;
 
-            InitListeners();
-
             m_initialized = true;
             InitPlayer();
             if (m_args.PlayerIndex == PlayerIndex.Second && m_args.AutoPlay == false) //means we on one player mood, no need second player
@@ -89,38 +88,6 @@ public class PlayerScript : MonoBehaviour
         }
 
     }
-    void OnDestroy()
-    {
-        RemoveListeners();
-    }
-
-    void InitListeners()
-    {
-        if (!m_args.AutoPlay)
-        {
-            EventManager.AddHandler(EVENT.EventOnRightPressed, MoveRight);
-            EventManager.AddHandler(EVENT.EventOnLeftPressed, MoveLeft);
-        }
-
-    }
-    void RemoveListeners()
-    {
-        if (!m_args.AutoPlay)
-        {
-            EventManager.RemoveHandler(EVENT.EventOnRightPressed, MoveRight);
-            EventManager.RemoveHandler(EVENT.EventOnLeftPressed, MoveLeft);
-        }
-    }
-
-    void MoveRight()
-    {
-        OnMoveX(Vector2.right);
-    }
-    void MoveLeft()
-    {
-        OnMoveX(Vector2.left);
-    }
-
     void UpdateColor()
     {
         //update player colors
@@ -212,11 +179,22 @@ public class PlayerScript : MonoBehaviour
 
 
 
-    public void OnMoveX(Vector2 direction)
+    public void OnMoveX(Vector2 direction, bool withAnimation = true)
     {
+        if (isGamePaused)
+            return;
         if (CheckPlayerInBounds(direction))
         {
-            AnimSetTrigger("Running Trigger");
+            if (withAnimation)
+            {
+                AnimatorClipInfo[] animatorinfo = m_anim.GetCurrentAnimatorClipInfo(0);
+                if (animatorinfo.Length > 0)
+                {
+                    string current_animation = animatorinfo[0].clip.name;
+                    if (current_animation != "Run")
+                        AnimSetTrigger("Running Trigger");
+                }
+            }
             SpinPlayerToDirection(direction);
             transform.Translate(direction * m_args.playerStats.m_movingSpeed, Space.World);
         }
@@ -231,7 +209,6 @@ public class PlayerScript : MonoBehaviour
     {
         //print(triggerName);
         m_anim.SetTrigger(triggerName);
-
     }
 
     void SpinPlayerToDirection(Vector3 direction)
@@ -288,17 +265,13 @@ public class PlayerScript : MonoBehaviour
         {
             //shit not on turn
         }
-
-
-
-
     }
 
     void AutoPlayKick()
     {
         if (!m_inKickCooldown)
         {
-            int rnd = Random.Range(0, 100);
+            int rnd = UnityEngine.Random.Range(0, 100);
             if (rnd <= m_args.playerStats.m_autoPlayDifficult)
             {
                 List<BallScript> ballsHit = CheckBallInHitZone();
@@ -392,12 +365,10 @@ public class PlayerScript : MonoBehaviour
         //gameObject.transform.localPosition = m_initialPosition;
         //gameObject.transform.localScale = m_initialScale;
         m_anim.enabled = true;
-        m_anim.Play("Idle", -1, 0f);
         m_inParalyze = false;
         if (m_onSlide)
-        {
             ToggleSlide(false);
-        }
+        OnPlayIdle();
     }
 
     public void InitPlayer(bool initPos = true)
@@ -438,10 +409,9 @@ public class PlayerScript : MonoBehaviour
                 StartCoroutine(KickCooldown());
             }
         }
-        else
-        {
-            //print("in kick cool down");
-        }
+        //else
+        //print("in kick cool down");
+
 
     }
 
@@ -552,6 +522,8 @@ public class PlayerScript : MonoBehaviour
     }
 
 
+
+
     public void SetGamePause(bool isPause)
     {
         isGamePaused = isPause;
@@ -563,18 +535,40 @@ public class PlayerScript : MonoBehaviour
     {
         //OnKickPlay(KickType.Regular);
     }
+    public void MovePlayerToPosition(Vector2 position)
+    {
+        Vector2 playerPosition = transform.position;
+        //print(playerPosition + "   " + position);
+        if ((Math.Abs(playerPosition.x - position.x) > 0.2f) && (!m_onSlide))
+            if (playerPosition.x < position.x)
+                OnMoveX(Vector2.right);
+            else
+                OnMoveX(Vector2.left);
+        else
+            OnPlayIdle();
+    }
+
     public void OnTouchJump()
     {
         OnJump();
     }
+
     public void OnPlayIdle()
     {
-        if (!m_inParalyze)
+        //print("OnPlayIdle");
+        if (!m_inParalyze && !m_onSlide)
         {
-            AnimSetTrigger("Idle Trigger");
-            m_anim.Play("Idle", -1, 0f);
+            AnimatorClipInfo[] animatorinfo = m_anim.GetCurrentAnimatorClipInfo(0);
+            if (animatorinfo.Length > 0)
+            {
+                string current_animation = animatorinfo[0].clip.name;
+                if (current_animation != "Idle")
+                {
+                    AnimSetTrigger("Idle Trigger");
+                    //m_anim.Play("Idle", -1, 0f);
+                }
+            }
         }
-
     }
     public void OnTouchKickSpecial()
     {
@@ -583,9 +577,7 @@ public class PlayerScript : MonoBehaviour
 
     public void LostTurn()
     {
-
         m_currentlyInTurn = false;
-
     }
     public void StartTurn(bool throwNewBall = true)
     {
@@ -610,7 +602,7 @@ public class PlayerScript : MonoBehaviour
     {
         while (m_onSlide)
         {
-            OnMoveX(slideDirection);
+            OnMoveX(slideDirection, false);
             yield return new WaitForSeconds(.01f);
         }
     }
@@ -691,5 +683,13 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
+    public bool IsOnSlide()
+    {
+        return m_onSlide;
+    }
 
+    public bool IsOnJumpKick()
+    {
+        return isJumping;
+    }
 }

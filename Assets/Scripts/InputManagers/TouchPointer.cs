@@ -7,6 +7,7 @@ public class TouchPointer : MonoBehaviour
 {
     TrailRenderer m_trail;
     SpriteRenderer m_highlightBtn;
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     void Awake()
     {
         gameObject.SetActive(false);

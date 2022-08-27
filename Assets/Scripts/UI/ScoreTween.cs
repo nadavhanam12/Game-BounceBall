@@ -48,6 +48,8 @@ public class ScoreTween : MonoBehaviour
 
     }
 
+
+
     private void InitValues()
     {
         m_text.color = m_initColor;

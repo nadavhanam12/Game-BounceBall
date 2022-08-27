@@ -31,6 +31,8 @@ public class NextColorScript : MonoBehaviour
     [SerializeField] private Color initColor;
     [SerializeField][Range(0, 0.5f)] private float m_tweenTime;
     [SerializeField][Range(0, 1)] private float m_refreshRate;
+    [Range(0, 1f)] public float m_completeBallAlpha;
+
     [SerializeField] private int initStartBall = 3;
     private Color m_nextColor;
     private ParticleSystem m_particleSystem;
@@ -53,12 +55,9 @@ public class NextColorScript : MonoBehaviour
             m_particleSystem = GetComponentInChildren<ParticleSystem>();
 
             InitBallsArray();
-
             InitListeners();
             ResetBalls();
-
         }
-
     }
 
     private void InitBallsArray()
@@ -135,7 +134,7 @@ public class NextColorScript : MonoBehaviour
         MoveImagesLeftVFX();
         UpdateCurBallColor();
         UpdatePrevBallColor();
-        UpdateNextBallsColor();
+        Invoke("UpdateNextBallsColor", m_tweenTime);
     }
 
 
@@ -165,7 +164,7 @@ public class NextColorScript : MonoBehaviour
             prevBall = m_ballsArray[m_ballsArray.Length - 1];
 
         Color temp = prevBall.Image.color;
-        temp.a = 0.2f;
+        temp.a = m_completeBallAlpha;
         prevBall.Image.color = temp;
 
     }

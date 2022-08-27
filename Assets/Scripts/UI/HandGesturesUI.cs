@@ -66,7 +66,7 @@ public class HandGesturesUI : MonoBehaviour
     {
         LeanTween.cancel(circle);
         circle.SetActive(true);
-        LeanTween.scale(circle, Vector3.one * 1.5f, 0.25f).setLoopPingPong();
+        LeanTween.scale(circle, Vector3.one * 1.5f, 0.5f).setLoopPingPong();
     }
     void StopHighlightCircle(GameObject circle)
     {
