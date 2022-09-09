@@ -65,8 +65,8 @@ public class MainMenu : MonoBehaviour
     {
         Application.targetFrameRate = 60;
 
-        AnalyticsManager.CommitData(
-                    "App_Launched");
+        AnalyticsManager.Instance().CommitData(
+                    AnalyticsManager.AnalyticsEvents.Event_App_Launched);
 
         m_anim = GetComponent<Animator>();
         m_camera = Camera.main;
@@ -151,8 +151,6 @@ public class MainMenu : MonoBehaviour
         }
         else
             BackToMenu();
-
-
     }
 
     public void UnloadMenu()

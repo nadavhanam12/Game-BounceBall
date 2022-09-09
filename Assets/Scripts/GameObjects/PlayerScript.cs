@@ -116,7 +116,6 @@ public class PlayerScript : MonoBehaviour
                     List<BallScript> ballsHit = CheckBallInHitZone();
                     if (ballsHit.Count > 0)
                         OnKickPlay(KickType.Regular);
-
                 }
                 else
                 {
@@ -404,9 +403,11 @@ public class PlayerScript : MonoBehaviour
             List<BallScript> ballsHit = CheckBallInHitZone();
             if (ballsHit.Count > 0)
             {
-                //print(ballsHit.Count);
+                //print("ballsHit.Count " + ballsHit.Count);
+                if (m_args.BallsManager.ContainsCorrectBall(ballsHit))
+                    StartCoroutine(KickCooldown());
                 m_args.BallsManager.ApplyKick(m_args.PlayerIndex, m_curKickType, ballsHit);
-                StartCoroutine(KickCooldown());
+
             }
         }
         //else
@@ -441,15 +442,14 @@ public class PlayerScript : MonoBehaviour
     {
         if ((!isGamePaused) && (!m_inParalyze))
         {
-            if (!m_args.AutoPlay)
+            if (!m_args.AutoPlay && kickType == KickType.Special)
             {
-                string kickDataEvent = kickType == KickType.Regular ? "Kick_Regular" : "Kick_Special";
-                AnalyticsManager.CommitData(
-                   kickDataEvent,
-                   new Dictionary<string, object> {
-                 { "Player Index", m_args.PlayerIndex }
+                AnalyticsManager.AnalyticsEvents kickDataEvent = kickType ==
+                KickType.Regular ?
+                AnalyticsManager.AnalyticsEvents.Event_Kick_Regular :
+                AnalyticsManager.AnalyticsEvents.Event_Kick_Special;
 
-                });
+                AnalyticsManager.Instance().CommitData(kickDataEvent);
             }
 
 
@@ -508,12 +508,8 @@ public class PlayerScript : MonoBehaviour
         }
         if (!isJumping)
         {
-            AnalyticsManager.CommitData(
-  "Jump",
-  new Dictionary<string, object> {
-                 { "Player Index", m_args.PlayerIndex }
-
-});
+            if (!m_args.AutoPlay)
+                AnalyticsManager.Instance().CommitData(AnalyticsManager.AnalyticsEvents.Event_Jump);
             isJumping = true;
             isJumpingUp = true;
 
@@ -610,6 +606,9 @@ public class PlayerScript : MonoBehaviour
     public void OnTriggerEnter2D(Collider2D collider)
     {
         //print("OnTriggerEnter2D");
+        /*BallScript ball = collider.GetComponent<BallScript>();
+        if (ball)
+            print("OnTriggerEnter2D " + ball.GetIndex());*/
         Bomb curCollider = collider.GetComponent<Bomb>();
         if (curCollider != null)
         {
@@ -639,10 +638,10 @@ public class PlayerScript : MonoBehaviour
     public void PlayerHitByBomb()
     {
         //print("PlayerHitByBomb");
-        AnalyticsManager.CommitData(
-          "Player_Hit_By_Bomb",
+        AnalyticsManager.Instance().CommitData(
+          AnalyticsManager.AnalyticsEvents.Event_Player_Hit_By_Bomb,
           new Dictionary<string, object> {
-                 { "Player Index", m_args.PlayerIndex }
+                 { "PlayerIndex", m_args.PlayerIndex }
 
         });
         ToggleSlide(false);
@@ -667,10 +666,10 @@ public class PlayerScript : MonoBehaviour
     {
         if (m_curBomb != null)
         {
-            AnalyticsManager.CommitData(
-  "Bomb_Throw",
+            AnalyticsManager.Instance().CommitData(
+  AnalyticsManager.AnalyticsEvents.Event_Bomb_Throw,
   new Dictionary<string, object> {
-                 { "Player Index", m_args.PlayerIndex }
+                 { "PlayerIndex", m_args.PlayerIndex }
 
 });
             //print("Player ActivateBomb");

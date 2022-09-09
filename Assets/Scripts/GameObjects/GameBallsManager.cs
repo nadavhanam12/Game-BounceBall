@@ -32,6 +32,8 @@ public class GameBallsManager : MonoBehaviour
     [SerializeField] private int m_gravityChangeRate;
 
     [SerializeField] private float m_highKickHight = 0;
+    [SerializeField] private float m_kickCooldown = 0.1f;
+
 
 
 
@@ -58,7 +60,7 @@ public class GameBallsManager : MonoBehaviour
 
     bool m_allowOnlyJumpKick = false;
 
-
+    private bool m_inKickCooldown = false;
     #endregion
 
 
@@ -69,7 +71,6 @@ public class GameBallsManager : MonoBehaviour
         {
             ball.SetGamePause(isGamePaused);
         }
-
     }
 
     public void Init(GameBallsManagerArgs args)
@@ -89,10 +90,10 @@ public class GameBallsManager : MonoBehaviour
     void InitColorQueue()
     {
         m_colorQueue = new Queue<Color>();
+        //m_colorQueue.Enqueue(Color.white);
         for (int i = 0; i < 4; i++)
-        {
             m_colorQueue.Enqueue(GenerateRandomColor(Color.black));
-        }
+
     }
     void InitHitBallVisuals()
     {
@@ -199,7 +200,11 @@ public class GameBallsManager : MonoBehaviour
     {
         BallScript ball = m_ballsArray[ballIndex];
         if (ball.BallHasFallen)
+        {
+            print("ball.BallHasFallen");
             return;
+        }
+
 
         if (m_allowOnlyJumpKick)
         {
@@ -213,18 +218,29 @@ public class GameBallsManager : MonoBehaviour
 
         if (m_curRequiredColor != ball.GetColor())
         {//not correct color
+            //print("not correct color " + ball.GetIndex());
             WrongBallHit(ballIndex);
             return;
         }
+        if (m_inKickCooldown)
+            return;
 
+        StartCoroutine(KickCooldown());
         GameManagerOnBallHit(playerIndex);
 
         BallScript otherBall = GetNextBall();
-        if (otherBall == null) { return; }
+        if (otherBall == null)
+        {
+            //print("otherBall == null" + ball.GetIndex());
+            return;
+        }
+
+
 
         Color color1 = m_colorQueue.Dequeue();
         Color color2 = GenerateRandomColor(color1);
-        m_colorQueue.Enqueue(GenerateRandomColor(Color.black));
+        Color lastColorInQueue = m_colorQueue.ToArray()[m_colorQueue.Count - 1];
+        m_colorQueue.Enqueue(GenerateRandomColor(lastColorInQueue));
 
         UpdateNextBallColor(color1, true);
 
@@ -358,6 +374,11 @@ public class GameBallsManager : MonoBehaviour
 
     }
 
+    public bool ContainsCorrectBall(List<BallScript> ballsHit)
+    {
+        BallScript correctBall = m_ballsArray[m_correctBallIndex];
+        return ballsHit.Contains(correctBall);
+    }
 
     public Vector3 GetCorrectBallPosition()
     {
@@ -384,6 +405,15 @@ public class GameBallsManager : MonoBehaviour
     public void onAllowOnlyJumpKick(bool isOn)
     {
         m_allowOnlyJumpKick = isOn;
+    }
+
+    IEnumerator KickCooldown()
+    {
+        //print("m_inKickCooldown = true");
+        m_inKickCooldown = true;
+        yield return new WaitForSeconds(m_kickCooldown);
+        m_inKickCooldown = false;
+        //print("m_inKickCooldown = false");
     }
 }
 

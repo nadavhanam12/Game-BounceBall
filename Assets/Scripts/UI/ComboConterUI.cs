@@ -13,15 +13,10 @@ public class ComboConterUI : MonoBehaviour
 
     [Range(0.05f, 1f)] public float m_timeToTween = 0.2f;
 
-
-
-
-
     public void Init()
     {
         m_textInitScale = transform.localScale;
         m_curCombo = 0;
-
     }
     public void IncrementCombo()
     {
@@ -41,7 +36,7 @@ public class ComboConterUI : MonoBehaviour
     private void ScaleUp()
     {
         m_curTweenId =
-        LeanTween.scale(m_text.gameObject, m_textInitScale * 3, m_timeToTween)
+        LeanTween.scale(m_text.gameObject, m_textInitScale * 2.5f, m_timeToTween)
                 .setOnComplete(ScaleDown)
                 .id;
     }

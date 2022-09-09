@@ -34,6 +34,7 @@ public class NextColorScript : MonoBehaviour
     [Range(0, 1f)] public float m_completeBallAlpha;
 
     [SerializeField] private int initStartBall = 3;
+    [SerializeField] private GameObject m_yellowHalo;
     private Color m_nextColor;
     private ParticleSystem m_particleSystem;
 
@@ -131,7 +132,7 @@ public class NextColorScript : MonoBehaviour
         m_nextBallComponent = m_ballsArray[m_curIndex];
         m_curBallCount++;
 
-        MoveImagesLeftVFX();
+        MoveImagesVFX();
         UpdateCurBallColor();
         UpdatePrevBallColor();
         Invoke("UpdateNextBallsColor", m_tweenTime);
@@ -143,10 +144,12 @@ public class NextColorScript : MonoBehaviour
     {
         int startIndex = m_nextBallComponent.OriginalIndex;
         BallUIComponent curComponent;
-        for (int i = 0; i < m_ballsArray.Length / 2; i++)
+        for (int i = 0; i < m_ballsArray.Length; i++)
         {
             //print((startIndex + i + 1) % m_ballsArray.Length);
             curComponent = m_ballsArray[(startIndex + i + 1) % m_ballsArray.Length];
+            if (m_nextColors.Length - 1 < i)
+                return;
             if (curComponent.Image.color != m_nextColors[i])
             {
                 curComponent.Image.color = m_nextColors[i];
@@ -163,17 +166,17 @@ public class NextColorScript : MonoBehaviour
         else
             prevBall = m_ballsArray[m_ballsArray.Length - 1];
 
-        Color temp = prevBall.Image.color;
+        /*Color temp = prevBall.Image.color;
         temp.a = m_completeBallAlpha;
-        prevBall.Image.color = temp;
+        prevBall.Image.color = temp;*/
 
     }
 
 
-    private void MoveImagesLeftVFX()
+    private void MoveImagesVFX()
     {
         BallUIComponent curBallComponent;
-        float targetX;
+        float targetY;
         for (int i = 0; i < m_ballsArray.Length; i++)
         {
             curBallComponent = m_ballsArray[i];
@@ -181,9 +184,9 @@ public class NextColorScript : MonoBehaviour
             if (curBallComponent.CurIndexInOrder == 0)
             {
                 //print("reset move : " + indexToMove);
-                targetX = m_ballsArray[0].OriginalPosition.x - 100;
+                targetY = m_ballsArray[0].OriginalPosition.y - 120;
                 m_ballComponentToReset = curBallComponent;
-                LeanTween.moveX(curBallComponent.Image.rectTransform, targetX, m_tweenTime).setOnComplete(ResetLastBall);
+                LeanTween.moveY(curBallComponent.Image.rectTransform, targetY, m_tweenTime).setOnComplete(ResetLastBall);
                 //LeanTween.alpha(curBallComponent.Image.rectTransform, 0, m_tweenTime);
                 Color temp = curBallComponent.Image.color;
                 temp.a = 0.0f;
@@ -192,8 +195,8 @@ public class NextColorScript : MonoBehaviour
             else
             {
                 //print("normal move : " + indexToMove);
-                targetX = m_ballsArray[curBallComponent.CurIndexInOrder - 1].OriginalPosition.x;
-                LeanTween.moveX(curBallComponent.Image.rectTransform, targetX, m_tweenTime);
+                targetY = m_ballsArray[curBallComponent.CurIndexInOrder - 1].OriginalPosition.y;
+                LeanTween.moveY(curBallComponent.Image.rectTransform, targetY, m_tweenTime);
                 curBallComponent.CurIndexInOrder--;
             }
 
@@ -219,6 +222,11 @@ public class NextColorScript : MonoBehaviour
                 .setOnComplete(FinishedTween)
                 ;
         image.rectTransform.localScale = Vector3.one * 1f;
+        LeanTween.scale(m_yellowHalo, Vector3.one * 2f, m_tweenTime)
+       .setLoopPingPong(1)
+       .setEase(LeanTweenType.linear)
+        ;
+
     }
     public void ScaleDown(RawImage image)
     {

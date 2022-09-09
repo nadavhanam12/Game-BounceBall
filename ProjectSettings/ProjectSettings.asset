@@ -733,7 +733,7 @@ PlayerSettings:
   XboxOneOverrideIdentityPublisher: 
   vrEditorSettings: {}
   cloudServicesEnabled:
-    Analytics: 1
+    Analytics: 0
     Build: 0
     Collab: 0
     Game Performance: 0
@@ -753,10 +753,10 @@ PlayerSettings:
     m_VersionName: 
   apiCompatibilityLevel: 6
   activeInputHandler: 2
-  cloudProjectId: ff600157-0417-49fd-8be9-220747fbb574
+  cloudProjectId: cd5faf8c-e3f6-4484-a97d-3ab6fc390581
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: BounceBall (1)
+  projectName: BounceBall
   organizationId: nadavhanam12
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0

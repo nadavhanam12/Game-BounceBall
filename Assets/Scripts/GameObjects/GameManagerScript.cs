@@ -74,7 +74,7 @@ public class GameManagerScript : MonoBehaviour
     private bool m_shouldRestart;
     private MainMenu m_mainMenu;
 
-
+    bool m_timeIsOver = false;
 
 
 
@@ -133,8 +133,8 @@ public class GameManagerScript : MonoBehaviour
             //m_gameArgs = new GameArgs(GameType.TurnsGame);
         }
 
-        AnalyticsManager.CommitData(
-                    "Match_Started",
+        AnalyticsManager.Instance().CommitData(
+                    AnalyticsManager.AnalyticsEvents.Event_Match_Started,
                     new Dictionary<string, object> {
                  { "GameMode", m_gameArgs.GameType }
                          });
@@ -488,7 +488,7 @@ public class GameManagerScript : MonoBehaviour
         canvasArgs.PlayerImage2 = m_playerData2.Image;
         canvasArgs.ConfettiManager = m_confettiManager;
         m_gameCanvas.Init(canvasArgs);
-        m_gameCanvas.m_onTimeIsOver = TimeIsOver;
+        m_gameCanvas.m_onTimeIsOver = () => m_timeIsOver = true;
 
         m_gameCanvas.m_MovePlayerToPosition = m_playerData1.PlayerScript.MovePlayerToPosition;
         m_gameCanvas.m_OnTouchKickSpecial = m_playerData1.PlayerScript.OnTouchKickSpecial;
@@ -570,6 +570,10 @@ public class GameManagerScript : MonoBehaviour
 
 
             }
+        }
+        else if (m_timeIsOver)
+        {
+            MatchEnd();
         }
         else if (m_gameArgs.GameType == GameType.TalTalGame)
         {
@@ -719,7 +723,6 @@ public class GameManagerScript : MonoBehaviour
 
             if (m_gameArgs.GameType == GameType.OnePlayer)
             {
-                m_playerData1.PlayerScript.Win();
                 int prevBestScore = m_gameCanvas.GetPrevBestCombo();
                 int curBestScore = m_gameCanvas.GetCurBestCombo();
                 if (prevBestScore < curBestScore)
@@ -731,37 +734,20 @@ public class GameManagerScript : MonoBehaviour
                     m_gameCanvas.OnPrevBestScore(prevBestScore);
             }
             else if (m_gameArgs.GameType == GameType.TalTalGame)
-            {
-                if (m_playerData1.CurScore > m_playerData2.CurScore)
-                {
-                    m_playerData1.PlayerScript.Win();
-                    m_playerData2.PlayerScript.Lose();
-                }
-                else if (m_playerData1.CurScore < m_playerData2.CurScore)
-                {
-                    m_playerData1.PlayerScript.Lose();
-                    m_playerData2.PlayerScript.Win();
-                }
-                else
-                {
-                    m_playerData1.PlayerScript.Win();
-                    m_playerData2.PlayerScript.Win();
-                }
-                Invoke("ExitScene", 5f);
-            }
+                m_gameCanvas.OnTalTalGameEnd(m_playerData1.CurScore, m_playerData2.CurScore);
+
         }
 
     }
 
-    private void TimeIsOver()
+    void MatchEnd()
     {
         PlayerIndex winner = m_playerData1.CurScore > m_playerData2.CurScore ? PlayerIndex.First : PlayerIndex.Second;
-        AnalyticsManager.CommitData(
-                   "Match_Ended",
+        AnalyticsManager.Instance().CommitData(
+                   AnalyticsManager.AnalyticsEvents.Event_Match_Ended,
                    new Dictionary<string, object> {
-                 { "Match Mode", m_gameArgs.GameType },
-                  { "Match Winner", winner },
-                  { "Match Score Delta", Math.Abs(m_playerData1.CurScore-m_playerData2.CurScore)}
+                 { "GameMode", m_gameArgs.GameType },
+                  { "MatchWinner", winner }
                 });
 
         GameIsOver();
@@ -827,12 +813,11 @@ public class GameManagerScript : MonoBehaviour
     private void OnRestart()
     {
         PlayerIndex winner = m_playerData1.CurScore > m_playerData2.CurScore ? PlayerIndex.First : PlayerIndex.Second;
-        AnalyticsManager.CommitData(
-           "Retry_Button_Pressed",
+        AnalyticsManager.Instance().CommitData(
+           AnalyticsManager.AnalyticsEvents.Event_Retry_Button_Pressed,
            new Dictionary<string, object> {
-                 { "Match Mode", m_gameArgs.GameType },
-                  { "Match Winner", winner },
-                  { "Match Score Delta", Math.Abs(m_playerData1.CurScore-m_playerData2.CurScore)}
+                 { "GameMode", m_gameArgs.GameType },
+                  { "MatchWinner", winner }
         });
         if (m_inTutorial)
         {

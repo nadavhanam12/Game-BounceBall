@@ -85,7 +85,10 @@ public class TutorialManager : MonoBehaviour
         m_args.TutorialUI.Play();
         NextPanel(0);
         Invoke("PauseGame", 0.05f);
-        AnalyticsManager.CommitData("Tutorial_Started");
+        AnalyticsManager.Instance().CommitData(AnalyticsManager.AnalyticsEvents.Event_Tutorial_Started,
+           new Dictionary<string, object> {
+                 { "GameMode", m_args.GameType }
+        });
 
         /*NextPanel(14);
         m_args.TutorialUI.ShowComboAndNextBall(true);
@@ -251,10 +254,10 @@ public class TutorialManager : MonoBehaviour
                 StartCoroutine(GenerateBallWithDelay(0.75f, false, Vector2Int.zero));
                 break;
             case StageInTutorial.BallSplitText1:
-                AnalyticsManager.CommitData(
-                       "Tutorial_Step",
+                AnalyticsManager.Instance().CommitData(
+                       AnalyticsManager.AnalyticsEvents.Event_Tutorial_Step,
                        new Dictionary<string, object> {
-                 { "stage", "kick_example" }
+                 { "TutorialStage", "kick_example" }
                     });
                 m_args.TutorialUI.ShowComboAndNextBall(true);
 
@@ -267,10 +270,10 @@ public class TutorialManager : MonoBehaviour
                 break;
             case StageInTutorial.PracticeKickFinishText:
                 NextPanel();
-                AnalyticsManager.CommitData(
-                       "Tutorial_Step",
+                AnalyticsManager.Instance().CommitData(
+                       AnalyticsManager.AnalyticsEvents.Event_Tutorial_Step,
                        new Dictionary<string, object> {
-                 { "stage", "kick_practice" }
+                 { "TutorialStage", "kick_practice" }
                     });
 
                 break;
@@ -286,10 +289,10 @@ public class TutorialManager : MonoBehaviour
 
             case StageInTutorial.PracticeJumpFinishText:
                 onRemoveAllBalls();
-                AnalyticsManager.CommitData(
-                       "Tutorial_Step",
+                AnalyticsManager.Instance().CommitData(
+                       AnalyticsManager.AnalyticsEvents.Event_Tutorial_Step,
                        new Dictionary<string, object> {
-                 { "stage", "jump_example" }
+                 { "TutorialStage", "jump_example" }
                     });
                 NextPanel();
                 m_args.GameCanvas.ToggleAllInput(false);
@@ -310,10 +313,10 @@ public class TutorialManager : MonoBehaviour
                 m_args.GameCanvas.ToggleAllInput(false);
                 onRemoveAllBalls();
                 m_args.GameCanvas.ActiveButtons();
-                AnalyticsManager.CommitData(
-                       "Tutorial_Step",
+                AnalyticsManager.Instance().CommitData(
+                       AnalyticsManager.AnalyticsEvents.Event_Tutorial_Step,
                        new Dictionary<string, object> {
-                 { "stage", "slide_example" }
+                 { "TutorialStage", "slide_example" }
                     });
 
                 //check if its a solo player tutorial
@@ -340,10 +343,10 @@ public class TutorialManager : MonoBehaviour
                 NextPanel();
                 break;
             case StageInTutorial.PointsMechanismText:
-                AnalyticsManager.CommitData(
-                           "Tutorial_Step",
+                AnalyticsManager.Instance().CommitData(
+                           AnalyticsManager.AnalyticsEvents.Event_Tutorial_Step,
                            new Dictionary<string, object> {
-                 { "stage", "opponent_practice" }
+                 { "TutorialStage", "opponent_practice" }
                         });
                 onRemoveAllBalls();
                 NextPanel();
@@ -352,7 +355,6 @@ public class TutorialManager : MonoBehaviour
                 NextPanel();
                 break;
             case StageInTutorial.BounceThatBallText:
-                AnalyticsManager.CommitData("tutorial_complete");
                 FinishedTutorial();
                 //Invoke("onGenerateNewBall", 1.5f);
                 break;
@@ -367,7 +369,11 @@ public class TutorialManager : MonoBehaviour
     private void FinishedTutorial()
     {
         //print("FinishedTutorial");
-        AnalyticsManager.CommitData("Tutorial_Completed");
+        AnalyticsManager.Instance().CommitData(AnalyticsManager.AnalyticsEvents.Event_Tutorial_Completed,
+           new Dictionary<string, object> {
+                 { "GameMode", m_args.GameType }
+        });
+
         onFinishTutorial();
         //TurnOff();
     }

@@ -1,12 +1,7 @@
 
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using static GameManagerScript;
-using static UnityEngine.UI.Button;
 
 public class GameCanvasScript : MonoBehaviour
 {
@@ -329,4 +324,11 @@ public class GameCanvasScript : MonoBehaviour
     {
         EndGameScreen.Activate(false, prevBestScore);
     }
+    internal void OnTalTalGameEnd(int playerOneScore, int playerTwoScore)
+    {
+        if (playerOneScore > playerTwoScore)
+            CheerActivate(false);
+        EndGameScreen.OnTalTalGameEnd(playerOneScore, playerTwoScore);
+    }
+
 }

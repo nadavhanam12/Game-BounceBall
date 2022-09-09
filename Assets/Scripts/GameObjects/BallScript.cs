@@ -206,14 +206,17 @@ public class BallScript : MonoBehaviour
     private async void BallFallen()
     {
         //print("Ball has fallen");
-        m_rigidBody.AddForce(new Vector2(0, m_args.m_ballReflectPower));
-        BallHasFallen = true;
-        //ResetVelocity();
-        await Task.Delay(150);
         if (this)
         {
-            this.gameObject.SetActive(false);
-            m_onBallLost(m_ballIndex);
+            m_rigidBody.AddForce(new Vector2(0, m_args.m_ballReflectPower));
+            BallHasFallen = true;
+            //ResetVelocity();
+            await Task.Delay(150);
+            if (this)
+            {
+                this.gameObject.SetActive(false);
+                m_onBallLost(m_ballIndex);
+            }
         }
     }
 
@@ -317,7 +320,9 @@ public class BallScript : MonoBehaviour
         (m_spriteRenderer, 0, m_args.m_ballTimeFadeOut)
         .setEase(LeanTweenType.easeOutQuart)
         .setOnComplete(
-            () => this.gameObject.SetActive(false));
+            () =>
+            { if (this) this.gameObject.SetActive(false); }
+            );
         m_curTweenId = curTween.id;
     }
     private void FadeIn(Action actionOnComplete)
@@ -342,6 +347,11 @@ public class BallScript : MonoBehaviour
     {
         if (m_rigidBody.gravityScale <= m_args.BallMaxGravity)
             m_rigidBody.gravityScale += gravityAdded;
+    }
+
+    public int GetIndex()
+    {
+        return m_ballIndex;
     }
 
 
