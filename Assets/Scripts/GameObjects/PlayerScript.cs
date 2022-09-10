@@ -7,6 +7,10 @@ using static GameManagerScript;
 
 public class PlayerScript : MonoBehaviour
 {
+
+    #region events
+
+    #endregion
     #region enums
     public enum KickType
     {
@@ -17,7 +21,6 @@ public class PlayerScript : MonoBehaviour
     #endregion
     #region serialized 
     [SerializeField] private SpriteRenderer playerSprite;
-
     private CircleCollider2D m_hitZone;
     [SerializeField] private GameObject m_pickableSpot;
 
@@ -25,6 +28,7 @@ public class PlayerScript : MonoBehaviour
     #region private
 
     private bool m_initialized = false;
+    private Animator m_anim;
     private bool m_inParalyze;
     private Quaternion m_initialRotation;
     private Vector3 m_initialPosition;
@@ -47,15 +51,12 @@ public class PlayerScript : MonoBehaviour
 
     #endregion
 
-
-    PlayerAnimatorController m_playerAnimatorController;
     public void Init(PlayerArgs args)
     {
         if (!m_initialized)
         {
             m_args = args;
-            InitScripts();
-
+            m_anim = gameObject.GetComponent<Animator>();
             m_hitZone = gameObject.GetComponent<CircleCollider2D>();
             m_hitZone.radius = m_args.playerStats.m_hitZoneRadius;
             m_inParalyze = false;
@@ -68,6 +69,9 @@ public class PlayerScript : MonoBehaviour
 
 
             m_halfFieldDistance = (m_args.Bounds.GameRightBound - m_args.Bounds.GameLeftBound) / 2f;
+            SetPlayerIndexSettings();
+
+            m_anim.speed = 1;
 
             m_initialized = true;
             InitPlayer();
@@ -84,11 +88,18 @@ public class PlayerScript : MonoBehaviour
         }
 
     }
-
-    void InitScripts()
+    void UpdateColor()
     {
-        m_playerAnimatorController = GetComponent<PlayerAnimatorController>();
-        m_playerAnimatorController.Init();
+        //update player colors
+        //playerSprite.color = m_args.Color;
+    }
+
+
+    private void SetPlayerIndexSettings()
+    {
+        UpdateColor();
+        //set player index specific settings
+
 
     }
 
@@ -174,8 +185,15 @@ public class PlayerScript : MonoBehaviour
         if (CheckPlayerInBounds(direction))
         {
             if (withAnimation)
-                m_playerAnimatorController.RunAnimation();
-
+            {
+                AnimatorClipInfo[] animatorinfo = m_anim.GetCurrentAnimatorClipInfo(0);
+                if (animatorinfo.Length > 0)
+                {
+                    string current_animation = animatorinfo[0].clip.name;
+                    if (current_animation != "Run")
+                        AnimSetTrigger("Running Trigger");
+                }
+            }
             SpinPlayerToDirection(direction);
             transform.Translate(direction * m_args.playerStats.m_movingSpeed, Space.World);
         }
@@ -186,7 +204,11 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
-
+    void AnimSetTrigger(string triggerName)
+    {
+        //print(triggerName);
+        m_anim.SetTrigger(triggerName);
+    }
 
     void SpinPlayerToDirection(Vector3 direction)
     {
@@ -319,19 +341,29 @@ public class PlayerScript : MonoBehaviour
     public void Win()
     {
         m_onWinLoseAnim = true;
-        m_playerAnimatorController.WinAnimation();
+        m_anim.enabled = true;
+        m_anim.Play("Win", -1, 0f);
+        //AnimSetTrigger("Win Trigger");
     }
 
     public void Lose()
     {
         m_onWinLoseAnim = true;
-        m_playerAnimatorController.LoseAnimation();
+        m_anim.enabled = true;
+        m_anim.Play("Lose", -1, 0f);
+        //AnimSetTrigger("Lose Trigger");
     }
 
 
 
     public void FinishAnimation()
     {
+        //print("finishAnimation");
+
+        //gameObject.transform.localRotation = m_initialRotation;
+        //gameObject.transform.localPosition = m_initialPosition;
+        //gameObject.transform.localScale = m_initialScale;
+        m_anim.enabled = true;
         m_inParalyze = false;
         if (m_onSlide)
             ToggleSlide(false);
@@ -439,7 +471,13 @@ public class PlayerScript : MonoBehaviour
                     break;
             }
             if (!isJumping)
-                m_playerAnimatorController.SetAndResetTriger(triggerName);
+            {
+                m_anim.ResetTrigger(triggerName);
+                m_anim.SetTrigger(triggerName);
+            }
+
+            //anim.enabled = false;
+
         }
     }
 
@@ -475,7 +513,7 @@ public class PlayerScript : MonoBehaviour
             isJumping = true;
             isJumpingUp = true;
 
-            m_playerAnimatorController.AnimSetTrigger("Jump Trigger");
+            AnimSetTrigger("Jump Trigger");
         }
     }
 
@@ -485,8 +523,8 @@ public class PlayerScript : MonoBehaviour
     public void SetGamePause(bool isPause)
     {
         isGamePaused = isPause;
+        m_anim.enabled = !isPause;
         m_onSlide = false;
-        m_playerAnimatorController.SetGamePause(isPause);
     }
 
     public void OnTouchKickRegular()
@@ -513,8 +551,20 @@ public class PlayerScript : MonoBehaviour
 
     public void OnPlayIdle()
     {
+        //print("OnPlayIdle");
         if (!m_inParalyze && !m_onSlide)
-            m_playerAnimatorController.PlayIdle();
+        {
+            AnimatorClipInfo[] animatorinfo = m_anim.GetCurrentAnimatorClipInfo(0);
+            if (animatorinfo.Length > 0)
+            {
+                string current_animation = animatorinfo[0].clip.name;
+                if (current_animation != "Idle")
+                {
+                    AnimSetTrigger("Idle Trigger");
+                    //m_anim.Play("Idle", -1, 0f);
+                }
+            }
+        }
     }
     public void OnTouchKickSpecial()
     {
@@ -590,10 +640,14 @@ public class PlayerScript : MonoBehaviour
         //print("PlayerHitByBomb");
         AnalyticsManager.Instance().CommitData(
           AnalyticsManager.AnalyticsEvents.Event_Player_Hit_By_Bomb,
-          new Dictionary<string, object> { { "PlayerIndex", m_args.PlayerIndex } });
+          new Dictionary<string, object> {
+                 { "PlayerIndex", m_args.PlayerIndex }
+
+        });
         ToggleSlide(false);
         m_inParalyze = true;
-        m_playerAnimatorController.AnimSetTrigger("Die Trigger");
+        m_anim.enabled = true;
+        AnimSetTrigger("Die Trigger");
     }
 
     public void Revive()
