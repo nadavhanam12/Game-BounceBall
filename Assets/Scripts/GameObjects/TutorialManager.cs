@@ -100,14 +100,14 @@ public class TutorialManager : MonoBehaviour
     {
         m_curStageTutorial++;
         m_args.TutorialUI.OpenPanel(m_curStageTutorial);
-        Debug.Log("Stage: " + m_curStageTutorial);
+        //Debug.Log("Stage: " + m_curStageTutorial);
         StartCoroutine("StartCoolDown");
     }
     private void NextPanel(StageInTutorial stage)
     {
         m_curStageTutorial = stage;
         m_args.TutorialUI.OpenPanel(m_curStageTutorial);
-        Debug.Log("Stage: " + m_curStageTutorial);
+        //Debug.Log("Stage: " + m_curStageTutorial);
         StartCoroutine("StartCoolDown");
     }
     public StageInTutorial GetCurStage()
@@ -239,7 +239,7 @@ public class TutorialManager : MonoBehaviour
         {
             case StageInTutorial.WelcomePlayerText:
                 onRemoveAllBalls();
-                if (m_args.GameType == GameType.TalTalGame)
+                if (m_args.GameType == GameType.PvE)
                 {
                     onInitPlayers();
                     onShowOpponent();
@@ -320,7 +320,7 @@ public class TutorialManager : MonoBehaviour
                     });
 
                 //check if its a solo player tutorial
-                if (m_args.GameType == GameType.OnePlayer)
+                if (m_args.GameType == GameType.SinglePlayer)
                     NextPanel(StageInTutorial.BounceThatBallText);
                 else
                 {

@@ -45,7 +45,7 @@ public class ScoreDeltaUIClass : MonoBehaviour
     int m_curBestCombo = 0;
     int m_prevBestCombo = 0;
 
-    Vector2 timePosOnOnePlayerMode = new Vector2(300, 0);
+    Vector2 timePosOnSinglePlayerMode = new Vector2(300, 0);
     #endregion
 
     public void SetGamePause(bool isPause)
@@ -65,15 +65,15 @@ public class ScoreDeltaUIClass : MonoBehaviour
             m_gameType = gameType;
             m_playerInLead = PlayerIndex.First;
             InitTimer();
-            if (m_gameType == GameType.TalTalGame)
+            if (m_gameType == GameType.PvE || m_gameType == GameType.PvP)
             {
                 InitNormalScore();
                 m_timeGameObject.anchoredPosition = Vector2.zero;
             }
-            else if (m_gameType == GameType.OnePlayer)
+            else if (m_gameType == GameType.SinglePlayer)
             {
-                InitOnePlayerBar();
-                m_timeGameObject.anchoredPosition = timePosOnOnePlayerMode;
+                InitSinglePlayerBar();
+                m_timeGameObject.anchoredPosition = timePosOnSinglePlayerMode;
                 InitBestCombo();
             }
         }
@@ -81,9 +81,9 @@ public class ScoreDeltaUIClass : MonoBehaviour
 
     private void InitBestCombo()
     {
-        if (!PlayerPrefs.HasKey("OnePlayerBestCombo"))
-            PlayerPrefs.SetInt("OnePlayerBestCombo", 0);
-        m_prevBestCombo = PlayerPrefs.GetInt("OnePlayerBestCombo", 0);
+        if (!PlayerPrefs.HasKey("SinglePlayerBestCombo"))
+            PlayerPrefs.SetInt("SinglePlayerBestCombo", 0);
+        m_prevBestCombo = PlayerPrefs.GetInt("SinglePlayerBestCombo", 0);
         m_curBestCombo = m_prevBestCombo;
         m_bestComboText.text = m_curBestCombo.ToString();
     }
@@ -138,7 +138,7 @@ public class ScoreDeltaUIClass : MonoBehaviour
         m_leftNormalScore.Init();
         m_rightNormalScore.Init();
     }
-    void InitOnePlayerBar()
+    void InitSinglePlayerBar()
     {
         m_onePlayerBar.gameObject.SetActive(true);
         m_leftNormalScore.gameObject.SetActive(false);
@@ -175,9 +175,9 @@ public class ScoreDeltaUIClass : MonoBehaviour
 
     public void SetScore(int scoreDelta, PlayerIndex playerInLead)
     {
-        if (m_gameType == GameType.TalTalGame)
+        if (m_gameType == GameType.PvE)
         {
-            //print("TalTalGame, please call setNormalScore");
+            //print("PvE, please call setNormalScore");
             return;
         }
         m_playerInLead = playerInLead;

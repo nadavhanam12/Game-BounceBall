@@ -215,7 +215,7 @@ public class TutorialUI : MonoBehaviour
     }
     public void TouchScreen()
     {
-        print("TouchScreen");
+        //print("TouchScreen");
         OnTouchScreen();
     }
 

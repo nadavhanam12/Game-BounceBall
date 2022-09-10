@@ -66,7 +66,7 @@ public class EndGameScreen : MonoBehaviour
 
     }
 
-    internal void OnTalTalGameEnd(int playerOneScore, int playerTwoScore)
+    internal void OnPvEEnd(int playerOneScore, int playerTwoScore)
     {
         m_onePlayerGameNewScoreText.gameObject.SetActive(false);
         m_onePlayerGameOldScoreText.gameObject.SetActive(false);

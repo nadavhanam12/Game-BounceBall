@@ -203,7 +203,7 @@ public class GameCanvasScript : MonoBehaviour
     }
     public void SwitchTurn(bool isPlayerTurn)
     {
-        /*if ((m_args.GameType == GameType.TalTalGame) && (isPlayerTurn))
+        /*if ((m_args.GameType == GameType.PvE) && (isPlayerTurn))
         {
             return;
         }*/
@@ -324,11 +324,11 @@ public class GameCanvasScript : MonoBehaviour
     {
         EndGameScreen.Activate(false, prevBestScore);
     }
-    internal void OnTalTalGameEnd(int playerOneScore, int playerTwoScore)
+    internal void OnPvEEnd(int playerOneScore, int playerTwoScore)
     {
         if (playerOneScore > playerTwoScore)
             CheerActivate(false);
-        EndGameScreen.OnTalTalGameEnd(playerOneScore, playerTwoScore);
+        EndGameScreen.OnPvEEnd(playerOneScore, playerTwoScore);
     }
 
 }

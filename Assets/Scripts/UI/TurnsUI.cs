@@ -82,7 +82,7 @@ public class TurnsUI : MonoBehaviour
                 LeanTweenExt.LeanCancel(m_yourTurnText.gameObject, m_yourTurnTweenId);
                 m_yourTurnTweenId = -1;
             }
-            if (m_gameType != GameType.TalTalGame)
+            if (m_gameType == GameType.SinglePlayer)
             {
                 m_yourTurnText.text = GetRandomYourTurnText();
             }
@@ -99,7 +99,7 @@ public class TurnsUI : MonoBehaviour
                 LeanTweenExt.LeanCancel(m_lostTurnText.gameObject, m_yourTurnTweenId);
                 m_yourTurnTweenId = -1;
             }
-            if (m_gameType != GameType.TalTalGame)
+            if (m_gameType != GameType.PvE)
             {
                 m_lostTurnText.text = GetRandomLostTurnText();
             }

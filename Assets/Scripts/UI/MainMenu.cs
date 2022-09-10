@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Photon.Pun;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -25,9 +26,6 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private GameObject m_gameOption;
     [SerializeField] private GameObject m_gameCredits;
     [SerializeField] private RawImage m_background;
-    [SerializeField] private GameObject m_BallOnePlayer;
-    [SerializeField] private GameObject m_BallTwoPlayer;
-    [SerializeField] private GameObject m_BallTurns;
     [SerializeField] private GameObject m_Player1;
     [SerializeField] private GameObject m_Player2;
     [SerializeField] private TMP_InputField m_nameTMP;
@@ -44,15 +42,13 @@ public class MainMenu : MonoBehaviour
     private GameManagerScript m_gameManager;
     private Texture2D[] backgroundsList;
     private Animator m_anim;
-    private Vector3 m_posBallOnePlayer;
-    private Vector3 m_posBallTwoPlayer;
-    private Vector3 m_posBallTurns;
     const string backgroundsPath = "BackGround";
-    private GameObject m_userBallChoosen = null;
+    private bool m_userChoosen = false;
     private GameType m_gameType;
     private Camera m_camera;
     private EventSystem m_eventSystem;
     private string m_gameSceneName = "GameScene";
+    LoadingPage m_loadingPanel;
 
     #endregion
 
@@ -75,10 +71,6 @@ public class MainMenu : MonoBehaviour
 
         //m_background.texture = ChooseRandomBackground();
 
-        m_posBallOnePlayer = m_BallOnePlayer.transform.localPosition;
-        m_posBallTwoPlayer = m_BallTwoPlayer.transform.localPosition;
-        m_posBallTurns = m_BallTurns.transform.localPosition;
-
         SetPlayerPrefs();
 
         EventManager.Broadcast(EVENT.EventStartApp);
@@ -87,6 +79,7 @@ public class MainMenu : MonoBehaviour
         m_gameOption.SetActive(false);
         m_gameName.SetActive(false);
         m_gameCredits.SetActive(false);
+        InitMultiPlayerPanels();
 
     }
 
@@ -133,12 +126,22 @@ public class MainMenu : MonoBehaviour
     {
         //Debug.Log("StartGame");
         m_eventSystem.gameObject.SetActive(false);
-        AsyncOperation operation = SceneManager.LoadSceneAsync(m_gameSceneName, LoadSceneMode.Additive);
-        //operation.allowSceneActivation = false;
-        while (!operation.isDone)
-        {
-            await Task.Delay(30);
 
+        if (m_gameType == GameType.PvP)
+        {
+            PhotonNetwork.LoadLevel(m_gameSceneName);
+            while (PhotonNetwork.LevelLoadingProgress < 0.98f)
+            {
+                Debug.Log(PhotonNetwork.LevelLoadingProgress);
+                await Task.Delay(30);
+            }
+        }
+        else
+        {
+            AsyncOperation operation = SceneManager.LoadSceneAsync(m_gameSceneName, LoadSceneMode.Additive);
+            //operation.allowSceneActivation = false;
+            while (!operation.isDone)
+                await Task.Delay(30);
         }
         //SceneManager.SetActiveScene(SceneManager.GetSceneByName("m_gameSceneName"));
         //await Task.Delay(500);
@@ -166,15 +169,8 @@ public class MainMenu : MonoBehaviour
             await Task.Delay(30);
         }
 
-        m_BallOnePlayer.transform.localPosition = m_posBallOnePlayer;
-        m_BallOnePlayer.gameObject.SetActive(true);
-        m_BallTwoPlayer.transform.localPosition = m_posBallTwoPlayer;
-        m_BallTwoPlayer.gameObject.SetActive(true);
-        m_BallTurns.transform.localPosition = m_posBallTurns;
-        m_BallTurns.gameObject.SetActive(true);
-
         ChooseRandomBackground();
-        m_userBallChoosen = null;
+        m_userChoosen = false;
         m_StartGame.SetActive(true);
         m_gameOption.SetActive(false);
         ToggleMenu(true);
@@ -189,30 +185,49 @@ public class MainMenu : MonoBehaviour
     }
 
 
-    public void OnOnePlayer()
+    public void OnSinglePlayer()
     {
-        print("OnOnePlayer");
-        if (m_userBallChoosen == null)
+        print("OnSinglePlayer");
+        if (!m_userChoosen)
         {
-            m_userBallChoosen = m_BallOnePlayer;
-            m_gameType = GameType.OnePlayer;
+            m_userChoosen = true;
+            m_gameType = GameType.SinglePlayer;
             OnActivateBallTween();
         }
     }
 
-    public void OnTalTalGame()
+    public void OnPvE()
     {
-        if (m_userBallChoosen == null)
+        if (!m_userChoosen)
         {
-            if (!Convert.ToBoolean(PlayerPrefs.GetInt("CompletedOnePlayerTutorial")))
+            if (!Convert.ToBoolean(PlayerPrefs.GetInt("CompletedSinglePlayerTutorial")))
             {
                 m_pleasePlaySinglePlayerObject.SetActive(true);
                 return;
             }
-            m_userBallChoosen = m_BallTwoPlayer;
-            m_gameType = GameType.TalTalGame;
+            m_userChoosen = true;
+            m_gameType = GameType.PvE;
             OnActivateBallTween();
         }
+    }
+    public void OnPvP()
+    {
+        if (!m_userChoosen)
+        {
+            m_userChoosen = true;
+            m_loadingPanel.Activate();
+            m_gameOption.SetActive(false);
+            m_Player1.SetActive(false);
+            m_Player2.SetActive(false);
+        }
+    }
+
+    public async void StartPvP()
+    {
+        m_gameType = GameType.PvP;
+        StartGameScene();
+        await Task.Delay(500);
+        UnloadMenu();
     }
 
 
@@ -236,13 +251,16 @@ public class MainMenu : MonoBehaviour
     {
         m_gameOption.SetActive(true);
         m_gameName.SetActive(false);
+        m_Player1.SetActive(true);
+        m_Player2.SetActive(true);
+        m_userChoosen = false;
     }
 
 
     private void SetPlayerPrefs()
     {
-        if (!PlayerPrefs.HasKey("CompletedOnePlayerTutorial"))
-            PlayerPrefs.SetInt("CompletedOnePlayerTutorial", 0);
+        if (!PlayerPrefs.HasKey("CompletedSinglePlayerTutorial"))
+            PlayerPrefs.SetInt("CompletedSinglePlayerTutorial", 0);
         if (!PlayerPrefs.HasKey("CompletedTalTalTutorial"))
             PlayerPrefs.SetInt("CompletedTalTalTutorial", 0);
         if (!PlayerPrefs.HasKey("PlayerName"))
@@ -255,6 +273,17 @@ public class MainMenu : MonoBehaviour
         m_gameOption.SetActive(!toShow);
         m_Player1.SetActive(!toShow);
         m_Player2.SetActive(!toShow);
+    }
+
+
+    void InitMultiPlayerPanels()
+    {
+        m_loadingPanel = GetComponentInChildren<LoadingPage>(true);
+        m_loadingPanel.gameObject.SetActive(false);
+
+        GetComponentInChildren<MultiplayerLobby>(true)?.gameObject.SetActive(false);
+        GetComponentInChildren<MultiPlayerRoom>(true)?.gameObject.SetActive(false);
+        GetComponentInChildren<MultiPlayerErrorPage>(true)?.gameObject.SetActive(false);
     }
 
 }

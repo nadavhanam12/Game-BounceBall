@@ -6,8 +6,10 @@ using static GameManagerScript;
 
 public enum GameType
 {
-    OnePlayer = 0,
-    TalTalGame = 3
+    SinglePlayer = 0,
+    PvE = 1,
+    PvP = 2,
+
 
 }
 public class GameArgs

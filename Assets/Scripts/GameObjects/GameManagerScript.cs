@@ -83,11 +83,8 @@ public class GameManagerScript : MonoBehaviour
     public void SetGameArgs(GameArgs gameArgs)
     {
         m_gameArgs = gameArgs;
-
         StartGameScene();
     }
-
-
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     void Awake()
@@ -97,22 +94,16 @@ public class GameManagerScript : MonoBehaviour
         if (m_mainMenu == null) //runs as solo scene
         {
             if (m_shouldStartWithMenu)
-            {
-                // Code for Google Android Project here
                 NoMenuStartPage.gameObject.SetActive(true);
-            }
             else
-            {
                 StartGameScene();
-            }
+
         }
         else
         {
             m_shouldPlayCountdown = true;
             m_matchTime = 60;
         }
-
-
     }
 
     public void StopGameScene()
@@ -175,7 +166,7 @@ public class GameManagerScript : MonoBehaviour
     {
         //should init after tutorial
         m_inTutorial = false;
-        if (m_gameArgs.GameType == GameType.TalTalGame)
+        if (m_gameArgs.GameType == GameType.PvE)
             m_playerData2.PlayerScript.ShowPlayer();
         m_ballsManager.RemoveAllBalls();
         m_tutorialManager.TurnOff();
@@ -247,7 +238,7 @@ public class GameManagerScript : MonoBehaviour
 
         InitGameMood();
 
-        if (m_gameArgs.GameType != GameType.OnePlayer)
+        if (m_gameArgs.GameType != GameType.SinglePlayer)
         {
             m_pickablesManager.FinishInitialize();
             m_pickablesManager.GeneratePickables();
@@ -379,23 +370,19 @@ public class GameManagerScript : MonoBehaviour
     }*/
     void InitGameMood(bool throwNewBall = true)
     {
-        if (m_gameArgs.GameType == GameType.TalTalGame)
+        if (m_gameArgs.GameType == GameType.PvE || m_gameArgs.GameType == GameType.PvP)
         {
             m_curPlayerTurn = PlayerIndex.First;
             m_playerData1.PlayerScript.StartTurn(throwNewBall);
             m_playerData2.PlayerScript.LostTurn();
         }
-        else if (m_gameArgs.GameType == GameType.OnePlayer)
+        else if (m_gameArgs.GameType == GameType.SinglePlayer)
         {
             m_curPlayerTurn = PlayerIndex.First;
             m_playerData1.PlayerScript.StartTurn(throwNewBall);
             m_playerData2.PlayerScript.HidePlayer();
         }
-        else
-        {
-            m_playerData1.PlayerScript.StartTurn(throwNewBall);
-            m_playerData2.PlayerScript.StartTurn(throwNewBall);
-        }
+
     }
 
     private async void SwitchPlayerTurn(bool shouldSwitchTurn = true)
@@ -404,7 +391,7 @@ public class GameManagerScript : MonoBehaviour
         {
             m_gameCanvas.SwitchTurn(m_curPlayerTurn != PlayerIndex.First);
         }
-        if (m_gameArgs.GameType == GameType.TalTalGame)
+        if (m_gameArgs.GameType == GameType.PvE || m_gameArgs.GameType == GameType.PvP)
         {
             if (m_curPlayerTurn != PlayerIndex.First)
             {//win player1
@@ -417,7 +404,7 @@ public class GameManagerScript : MonoBehaviour
                 m_playerData2.PlayerScript.Win();
             }
         }
-        else if (m_gameArgs.GameType == GameType.OnePlayer)
+        else if (m_gameArgs.GameType == GameType.SinglePlayer)
         {
             shouldSwitchTurn = false;
         }
@@ -443,7 +430,7 @@ public class GameManagerScript : MonoBehaviour
     void SwitchPlayerTurnAfterWait(bool throwNewBall = true, bool shouldSwitchTurn = true)
     {
         //print("shouldSwitchTurn: " + shouldSwitchTurn);
-        if (m_gameArgs.GameType == GameType.OnePlayer)
+        if (m_gameArgs.GameType == GameType.SinglePlayer)
         {
             shouldSwitchTurn = false;
         }
@@ -510,11 +497,11 @@ public class GameManagerScript : MonoBehaviour
 
         m_playerData1.PlayerScript.Init(m_playerData1);
 
-        if (m_gameArgs.GameType == GameType.TalTalGame)
+        if (m_gameArgs.GameType == GameType.PvE || m_gameArgs.GameType == GameType.PvP)
         {
             m_playerData2.AutoPlay = true;
         }
-        else if (m_gameArgs.GameType == GameType.OnePlayer)
+        else if (m_gameArgs.GameType == GameType.SinglePlayer)
         {
             m_playerData2.AutoPlay = false;
         }
@@ -559,7 +546,7 @@ public class GameManagerScript : MonoBehaviour
             }
             if (m_tutorialManager.GetCurStage() == StageInTutorial.PracticeOpponentGamePlay)
             {
-                if (m_gameArgs.GameType == GameType.TalTalGame)
+                if (m_gameArgs.GameType == GameType.PvE || m_gameArgs.GameType == GameType.PvP)
                 {
                     SwitchPlayerTurn(true);
                 }
@@ -567,15 +554,13 @@ public class GameManagerScript : MonoBehaviour
                 {
                     SwitchPlayerTurn(false);
                 }
-
-
             }
         }
         else if (m_timeIsOver)
         {
             MatchEnd();
         }
-        else if (m_gameArgs.GameType == GameType.TalTalGame)
+        else if (m_gameArgs.GameType == GameType.PvE || m_gameArgs.GameType == GameType.PvP)
         {
             playerData = playerData == m_playerData1 ? m_playerData2 : m_playerData1;
             playerData.CurScore++;
@@ -589,7 +574,7 @@ public class GameManagerScript : MonoBehaviour
         }
         else
         {
-            if (m_gameArgs.GameType == GameType.OnePlayer)
+            if (m_gameArgs.GameType == GameType.SinglePlayer)
             {
                 m_playerData1.CurScore = 0;
             }
@@ -622,7 +607,7 @@ public class GameManagerScript : MonoBehaviour
         }
         //}
 
-        if (m_gameArgs.GameType == GameType.TalTalGame)
+        if (m_gameArgs.GameType == GameType.PvE || m_gameArgs.GameType == GameType.PvP)
         {
             m_gameCanvas.IncrementCombo();
             if (m_inTutorial && !m_tutorialManager.IsFreePlayMode())
@@ -637,7 +622,7 @@ public class GameManagerScript : MonoBehaviour
             return;
         }
 
-        if (m_gameArgs.GameType == GameType.OnePlayer)
+        if (m_gameArgs.GameType == GameType.SinglePlayer)
         {
             m_playerData1.CurScore += 1;
             m_gameCanvas.IncrementCombo();
@@ -721,20 +706,20 @@ public class GameManagerScript : MonoBehaviour
             SetGamePause(true);
             m_ballsManager.TimeIsOver();//should turn off the balls
 
-            if (m_gameArgs.GameType == GameType.OnePlayer)
+            if (m_gameArgs.GameType == GameType.SinglePlayer)
             {
                 int prevBestScore = m_gameCanvas.GetPrevBestCombo();
                 int curBestScore = m_gameCanvas.GetCurBestCombo();
                 if (prevBestScore < curBestScore)
                 {
-                    PlayerPrefs.SetInt("OnePlayerBestCombo", curBestScore);
+                    PlayerPrefs.SetInt("SinglePlayerBestCombo", curBestScore);
                     m_gameCanvas.OnNewBestScore(curBestScore);
                 }
                 else
                     m_gameCanvas.OnPrevBestScore(prevBestScore);
             }
-            else if (m_gameArgs.GameType == GameType.TalTalGame)
-                m_gameCanvas.OnTalTalGameEnd(m_playerData1.CurScore, m_playerData2.CurScore);
+            else if (m_gameArgs.GameType == GameType.PvE || m_gameArgs.GameType == GameType.PvP)
+                m_gameCanvas.OnPvEEnd(m_playerData1.CurScore, m_playerData2.CurScore);
 
         }
 
@@ -833,15 +818,20 @@ public class GameManagerScript : MonoBehaviour
 
     private bool PlayerPrefsHasCompletedTutorial()
     {
-        string playerPrefsGameTutorial = m_gameArgs.GameType == GameType.OnePlayer ?
-                    "CompletedOnePlayerTutorial" : "CompletedTalTalTutorial";
+        string playerPrefsGameTutorial;
+        if (m_gameArgs.GameType == GameType.SinglePlayer)
+            playerPrefsGameTutorial = "CompletedSinglePlayerTutorial";
+        else if (m_gameArgs.GameType == GameType.PvE)
+            playerPrefsGameTutorial = "CompletedTalTalTutorial";
+        else
+            return true;
         return Convert.ToBoolean(PlayerPrefs.GetInt(playerPrefsGameTutorial));
     }
 
     private void UpdatePlayerPrefsCompletedTutorial()
     {
-        string playerPrefsGameTutorial = m_gameArgs.GameType == GameType.OnePlayer ?
-                    "CompletedOnePlayerTutorial" : "CompletedTalTalTutorial";
+        string playerPrefsGameTutorial = m_gameArgs.GameType == GameType.SinglePlayer ?
+                    "CompletedSinglePlayerTutorial" : "CompletedTalTalTutorial";
         PlayerPrefs.SetInt(playerPrefsGameTutorial, 1);
 
     }

@@ -49,7 +49,7 @@ public class CheerScript : MonoBehaviour
         m_MoveTextX = (m_initTextPosition.x * 2);
         InitCheerTextOptions();
 
-        if (m_gameType == GameType.TalTalGame)
+        if (m_gameType == GameType.PvE || m_gameType == GameType.PvP)
         {
             m_cheerText.gameObject.SetActive(false);
         }
