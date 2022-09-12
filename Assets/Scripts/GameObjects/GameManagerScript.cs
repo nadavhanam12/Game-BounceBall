@@ -30,8 +30,7 @@ public class GameManagerScript : MonoBehaviour
     public GameType GameType;
 
     [SerializeField] private GameBoundsData m_gameBoundsData;
-    [SerializeField] private GameObject m_playerContainer1;
-    [SerializeField] private GameObject m_playerContainer2;
+    [SerializeField] private PlayerContainer m_playerContainer;
     [SerializeField] private GameObject NoMenuStartPage;
 
     private GameCanvasScript m_gameCanvas;
@@ -153,7 +152,7 @@ public class GameManagerScript : MonoBehaviour
     void StartTutorial()
     {
         InitGameMood(false);
-        m_playerData2.PlayerScript.HidePlayer();
+        m_playerData2.PlayerScript?.HidePlayer();
         m_inTutorial = true;
         Invoke("PlayTutorial", 1f);
         m_gameCanvas.ActivateTimer(false);
@@ -167,7 +166,7 @@ public class GameManagerScript : MonoBehaviour
         //should init after tutorial
         m_inTutorial = false;
         if (m_gameArgs.GameType == GameType.PvE)
-            m_playerData2.PlayerScript.ShowPlayer();
+            m_playerData2.PlayerScript?.ShowPlayer();
         m_ballsManager.RemoveAllBalls();
         m_tutorialManager.TurnOff();
         InitScoreAndCombo();
@@ -203,7 +202,7 @@ public class GameManagerScript : MonoBehaviour
         m_tutorialManager.Pause = SetGamePause;
         m_tutorialManager.onFinishTutorial = FinishedTutorial;
         m_tutorialManager.onInitPlayers = InitPlayerOneStatus;
-        m_tutorialManager.onShowOpponent = () => m_playerData2.PlayerScript.ShowPlayer();
+        m_tutorialManager.onShowOpponent = () => m_playerData2.PlayerScript?.ShowPlayer();
         m_tutorialManager.onRemoveAllBalls = m_ballsManager.RemoveAllBalls;
         m_tutorialManager.onGenerateNewBall = m_ballsManager.OnNewBallInScene;
         m_tutorialManager.onAllowOnlyJumpKick = m_ballsManager.onAllowOnlyJumpKick;
@@ -374,13 +373,13 @@ public class GameManagerScript : MonoBehaviour
         {
             m_curPlayerTurn = PlayerIndex.First;
             m_playerData1.PlayerScript.StartTurn(throwNewBall);
-            m_playerData2.PlayerScript.LostTurn();
+            m_playerData2.PlayerScript?.LostTurn();
         }
         else if (m_gameArgs.GameType == GameType.SinglePlayer)
         {
             m_curPlayerTurn = PlayerIndex.First;
             m_playerData1.PlayerScript.StartTurn(throwNewBall);
-            m_playerData2.PlayerScript.HidePlayer();
+            m_playerData2.PlayerScript?.HidePlayer();
         }
 
     }
@@ -396,12 +395,12 @@ public class GameManagerScript : MonoBehaviour
             if (m_curPlayerTurn != PlayerIndex.First)
             {//win player1
                 m_playerData1.PlayerScript.Win();
-                m_playerData2.PlayerScript.Lose();
+                m_playerData2.PlayerScript?.Lose();
             }
             else
             {//win player2
                 m_playerData1.PlayerScript.Lose();
-                m_playerData2.PlayerScript.Win();
+                m_playerData2.PlayerScript?.Win();
             }
         }
         else if (m_gameArgs.GameType == GameType.SinglePlayer)
@@ -420,7 +419,7 @@ public class GameManagerScript : MonoBehaviour
     private void InitPlayersStatus()
     {
         m_playerData1.PlayerScript.InitPlayer();
-        m_playerData2.PlayerScript.InitPlayer();
+        m_playerData2.PlayerScript?.InitPlayer();
     }
     private void InitPlayerOneStatus()
     {
@@ -443,12 +442,12 @@ public class GameManagerScript : MonoBehaviour
         if (m_curPlayerTurn == PlayerIndex.First)
         {
             m_playerData1.PlayerScript.StartTurn(throwNewBall);
-            m_playerData2.PlayerScript.LostTurn();
+            m_playerData2.PlayerScript?.LostTurn();
         }
         else
         {
             m_playerData1.PlayerScript.LostTurn();
-            m_playerData2.PlayerScript.StartTurn(throwNewBall);
+            m_playerData2.PlayerScript?.StartTurn(throwNewBall);
         }
         m_gameCanvas.SetCurPlayerUI(m_curPlayerTurn == PlayerIndex.First);
     }
@@ -458,7 +457,7 @@ public class GameManagerScript : MonoBehaviour
     {
         m_isGamePause = isPause;
         m_playerData1.PlayerScript.SetGamePause(isPause);
-        m_playerData2.PlayerScript.SetGamePause(isPause);
+        m_playerData2.PlayerScript?.SetGamePause(isPause);
         m_ballsManager.SetGamePause(isPause);
         m_pickablesManager.SetGamePause(isPause);
         m_gameCanvas.SetGamePause(isPause);
@@ -488,25 +487,29 @@ public class GameManagerScript : MonoBehaviour
     }
     private void InitPlayers()
     {
-        m_playerData1.PlayerScript = m_playerContainer1.GetComponentInChildren<PlayerScript>(true);
-        m_playerData1.PlayerScript.gameObject.SetActive(false);
-
-        m_playerData2.PlayerScript = m_playerContainer2.GetComponentInChildren<PlayerScript>(true);
-        m_playerData2.PlayerScript.gameObject.SetActive(false);
-
-
-        m_playerData1.PlayerScript.Init(m_playerData1);
-
-        if (m_gameArgs.GameType == GameType.PvE || m_gameArgs.GameType == GameType.PvP)
+        switch (m_gameArgs.GameType)
         {
-            m_playerData2.AutoPlay = true;
-        }
-        else if (m_gameArgs.GameType == GameType.SinglePlayer)
-        {
-            m_playerData2.AutoPlay = false;
-        }
-        m_playerData2.PlayerScript.Init(m_playerData2);
+            case (GameType.SinglePlayer):
+                m_playerData1.PlayerScript = m_playerContainer.SpawnRegularPlayer();
+                m_playerData1.PlayerScript.gameObject.SetActive(false);
+                m_playerData1.PlayerScript.Init(m_playerData1);
+                break;
 
+            case (GameType.PvE):
+            case (GameType.PvP):
+
+                m_playerData1.PlayerScript = m_playerContainer.SpawnRegularPlayer();
+                m_playerData1.PlayerScript.gameObject.SetActive(false);
+                m_playerData1.PlayerScript.Init(m_playerData1);
+
+                m_playerData2.PlayerScript = m_playerContainer.SpawnAutoPlayer();
+                m_playerData2.PlayerScript.gameObject.SetActive(false);
+                m_playerData2.AutoPlay = true;
+                m_playerData2.PlayerScript.Init(m_playerData2);
+
+                break;
+
+        }
     }
 
 

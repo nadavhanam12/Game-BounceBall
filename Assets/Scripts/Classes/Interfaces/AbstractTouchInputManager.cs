@@ -31,6 +31,11 @@ public abstract class AbstractTouchInputManager : IinputManager
     private void CheckMovingTouch(Touch touch)
     {
         Vector2 delta = touch.deltaPosition;
+        if (Math.Abs(delta.y) > 100 || Math.Abs(delta.x) > 100)
+        {
+            //print(delta);
+            return;
+        }
         //Vector2 delta = touch.position - m_firstTouchPosition;
         if (Math.Abs(delta.y) < m_sensitivityY)
         {
