@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static Bomb;
-using static GameManagerScript;
+using static GameManagerAbstract;
 
 public class PlayerScript : MonoBehaviour
 {

@@ -1,7 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static GameManagerScript;
+using static GameManagerAbstract;
 
 
 public enum GameType
@@ -12,10 +13,16 @@ public enum GameType
 
 
 }
+[Serializable]
 public class GameArgs
 {
     public GameType GameType;
     public Texture Background;
+    public int MatchTime = 60;
+    public float CountDownDelay = 1f;
+    public bool ShouldPlayTutorial = false;
+    public bool ShouldPlayCountdown = false;
+    public int SinglePlayerCheerFrequency = 5;
 
     public GameArgs(GameType gameType)
     {

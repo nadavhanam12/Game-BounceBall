@@ -17,7 +17,9 @@ public enum EVENT
     EventOnTimeOver,
     EventOnBallLost,
     EventOnCountdownEnds,
-}; // ... Other events
+    EventMathEndRetryPressed,
+    EventMathEndManuPressed
+};
 
 public static class EventManager
 {

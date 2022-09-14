@@ -39,7 +39,7 @@ public class MainMenu : MonoBehaviour
     #endregion
 
     #region private
-    private GameManagerScript m_gameManager;
+    private GameSceneSetUp m_gameSceneSetUpScript;
     private Texture2D[] backgroundsList;
     private Animator m_anim;
     const string backgroundsPath = "BackGround";
@@ -145,15 +145,23 @@ public class MainMenu : MonoBehaviour
         }
         //SceneManager.SetActiveScene(SceneManager.GetSceneByName("m_gameSceneName"));
         //await Task.Delay(500);
-        m_gameManager = FindObjectOfType<GameManagerScript>(true);
+        m_gameSceneSetUpScript = FindObjectOfType<GameSceneSetUp>(true);
 
-        if (m_gameManager != null)
+        if (m_gameSceneSetUpScript != null)
         {
-            GameArgs args = new GameArgs(m_gameType);
-            m_gameManager.SetGameArgs(args);
+            GameArgs gameArgs = CreateGameArgs(m_gameType);
+            m_gameSceneSetUpScript.SetGameSceneArgs(gameArgs);
         }
         else
             BackToMenu();
+    }
+
+    GameArgs CreateGameArgs(GameType m_gameType)
+    {
+        GameArgs args = new GameArgs(m_gameType);
+        args.ShouldPlayTutorial = PlayerPrefsHasCompletedTutorial(m_gameType);
+        args.ShouldPlayCountdown = true;
+        return args;
     }
 
     public void UnloadMenu()
@@ -284,6 +292,19 @@ public class MainMenu : MonoBehaviour
         GetComponentInChildren<MultiplayerLobby>(true)?.gameObject.SetActive(false);
         GetComponentInChildren<MultiPlayerRoom>(true)?.gameObject.SetActive(false);
         GetComponentInChildren<MultiPlayerErrorPage>(true)?.gameObject.SetActive(false);
+    }
+
+
+    bool PlayerPrefsHasCompletedTutorial(GameType gameType)
+    {
+        string playerPrefsGameTutorial;
+        if (gameType == GameType.SinglePlayer)
+            playerPrefsGameTutorial = "CompletedSinglePlayerTutorial";
+        else if (gameType == GameType.PvE)
+            playerPrefsGameTutorial = "CompletedTalTalTutorial";
+        else
+            return true;
+        return Convert.ToBoolean(PlayerPrefs.GetInt(playerPrefsGameTutorial));
     }
 
 }

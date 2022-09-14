@@ -9055,7 +9055,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 7652562759993747914}
         m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
-        m_MethodName: OnTalTalGame
+        m_MethodName: OnPvE
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -10959,7 +10959,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 7652562759993747914}
         m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
-        m_MethodName: OnOnePlayer
+        m_MethodName: OnSinglePlayer
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -12203,7 +12203,7 @@ GameObject:
   - component: {fileID: 6478240379375501124}
   - component: {fileID: 578749009984260709}
   m_Layer: 0
-  m_Name: Kick-Kick Mode
+  m_Name: PvE Mode
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -1309,9 +1309,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 4525438848952515009}
-        m_TargetAssemblyTypeName: GameManagerScript, Scripts
-        m_MethodName: BackToMenu
+      - m_Target: {fileID: 4525438850203837847}
+        m_TargetAssemblyTypeName: GameCanvasScript, Assembly-CSharp
+        m_MethodName: OnMathEndManuPressed
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -13302,9 +13302,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 4525438848952515009}
-        m_TargetAssemblyTypeName: GameManagerScript, Scripts
-        m_MethodName: RestartGame
+      - m_Target: {fileID: 4525438850203837847}
+        m_TargetAssemblyTypeName: GameCanvasScript, Assembly-CSharp
+        m_MethodName: OnMathEndRetryPressed
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -18414,7 +18414,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 4525438848952515009}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: GameManagerScript, Assembly-CSharp
         m_MethodName: StartGameScene
         m_Mode: 1
@@ -26424,7 +26424,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2045995437
 RectTransform:
   m_ObjectHideFlags: 0
@@ -82043,7 +82043,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 4525438850203837847}
         m_TargetAssemblyTypeName: GameCanvasScript, Assembly-CSharp
-        m_MethodName: OnRestart
+        m_MethodName: OnRestartButtonPressed
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -82598,7 +82598,7 @@ MonoBehaviour:
         m_Calls:
         - m_Target: {fileID: 4525438850203837847}
           m_TargetAssemblyTypeName: GameCanvasScript, Assembly-CSharp
-          m_MethodName: OnRestart
+          m_MethodName: OnRestartButtonPressed
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -82797,19 +82797,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 4525438848952515008}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3befba924ce909f44993ac73a5d37215, type: 3}
+  m_Script: {fileID: 11500000, guid: 2e2d5ddaf24910748bcf3baf792a286f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GameType: 1
-  m_gameBoundsData: {fileID: 2800763268125873427}
-  m_playerContainer: {fileID: 4525438850794149218}
-  NoMenuStartPage: {fileID: 3098511428031615764}
-  m_matchTime: 30
-  m_countDownDelay: 1
-  m_shouldPlayTutorial: 0
-  m_shouldPlayCountdown: 0
-  m_shouldStartWithMenu: 0
-  m_singlePlayerCheerFrequency: 5
+  m_gameArgs:
+    GameType: 0
+    Background: {fileID: 0}
+    MatchTime: 10
+    CountDownDelay: 1
+    ShouldPlayTutorial: 0
+    ShouldPlayCountdown: 0
+    SinglePlayerCheerFrequency: 5
 --- !u!4 &4525438848952515014
 Transform:
   m_ObjectHideFlags: 0
@@ -89064,7 +89062,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 4525438848952515009}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: GameManagerScript, Assembly-CSharp
         m_MethodName: StartGameScene
         m_Mode: 1

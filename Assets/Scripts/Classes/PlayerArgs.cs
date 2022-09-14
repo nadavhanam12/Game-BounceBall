@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static GameManagerScript;
+using static GameManagerAbstract;
 
 [System.Serializable]
 public class PlayerArgs
@@ -17,10 +17,10 @@ public class PlayerArgs
 
     [HideInInspector] public PlayerScript PlayerScript;
 
-    [HideInInspector] public int CurScore;
+    [HideInInspector] public int CurScore = 0;
 
-    [HideInInspector] public int CurComboIndex;
-    [HideInInspector] public int CurCombo;
+    [HideInInspector] public int CurComboIndex = -1;
+    [HideInInspector] public int CurCombo = 0;
     [HideInInspector] public GameBounds Bounds;
     [HideInInspector] public GameBallsManager BallsManager;
     [HideInInspector] public PickablesManager PickablesManager;

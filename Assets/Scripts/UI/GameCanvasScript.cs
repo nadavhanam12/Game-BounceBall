@@ -1,7 +1,7 @@
 
 using UnityEngine;
 using UnityEngine.UI;
-using static GameManagerScript;
+using static GameManagerAbstract;
 
 public class GameCanvasScript : MonoBehaviour
 {
@@ -79,7 +79,9 @@ public class GameCanvasScript : MonoBehaviour
     public void OnKickSpecialInput() { if (CanSlide) m_OnTouchKickSpecial(); }
     public void OnJumpInput() { if (CanJump) m_OnTouchJump(); }
     public void MovePlayerToPosition(Vector2 position) { if (CanMove) m_MovePlayerToPosition(position); }
-    public void OnRestart() { EventManager.Broadcast(EVENT.EventOnRestart); }
+    public void OnRestartButtonPressed() { EventManager.Broadcast(EVENT.EventOnRestart); }
+    public void OnMathEndRetryPressed() { EventManager.Broadcast(EVENT.EventMathEndRetryPressed); }
+    public void OnMathEndManuPressed() { EventManager.Broadcast(EVENT.EventMathEndManuPressed); }
 
 
     public void Init(GameCanvasArgs args)
@@ -115,19 +117,12 @@ public class GameCanvasScript : MonoBehaviour
             ShowBombUI(false);
             CountdownUI.gameObject.SetActive(false);
             EndGameScreen.gameObject.SetActive(false);
-            //m_anim.Play("FadeIn", -1, 0f);
-
 
         }
-
-
     }
-
     private void OnTimeIsOver()
     {
         m_onTimeIsOver();
-        //TurnsUI.ActivateTimeEnd();
-        //CheerActivate(false);
     }
 
     void OnDestroy()
@@ -161,14 +156,11 @@ public class GameCanvasScript : MonoBehaviour
         EventManager.Broadcast(EVENT.EventCombo);
     }
 
-
     public void SetScore(int scorePlayer1, int scorePlayer2, int scoreDelta, PlayerIndex playerInLead)
     {
         m_curPlayerInLead = playerInLead;
         if ((ScoreUIDelta.GetCurDelta() != scoreDelta) || (ScoreUIDelta.GetCurPlayerInLead() != m_curPlayerInLead))
-        {
             ScoreUIDelta.SetScore(scoreDelta, playerInLead);
-        }
     }
 
     public void StartCountdown()
@@ -204,13 +196,10 @@ public class GameCanvasScript : MonoBehaviour
     public void SwitchTurn(bool isPlayerTurn)
     {
         /*if ((m_args.GameType == GameType.PvE) && (isPlayerTurn))
-        {
-            return;
-        }*/
+            return;*/
+
 
         TurnsUI.Activate(isPlayerTurn);
-
-
     }
     public void SetCurPlayerUI(bool isPlayerTurn)
     {
@@ -253,23 +242,7 @@ public class GameCanvasScript : MonoBehaviour
     {
         TurnsUI.GravityIncrease();
     }
-    private void DisableSlaide()
-    {
-        ToggleSingleInput("Slide", false);
-    }
-    public void ToggleAllowOneSlide(bool isOn)
-    {
-        if (isOn)
-            m_OnTouchKickSpecial += DisableSlaide;
-        else
-            m_OnTouchKickSpecial -= DisableSlaide;
-    }
-    public void ActiveOnlySlideButton()
-    {
-        CanMove = false;
-        CanJump = false;
-        CanKick = false;
-    }
+
     public void ActiveButtons()
     {
         CanMove = true;
@@ -277,6 +250,7 @@ public class GameCanvasScript : MonoBehaviour
         CanKick = true;
         CanSlide = true;
     }
+
     public void ToggleAllInput(bool shouldGetInput)
     {
         CanMove = shouldGetInput;
@@ -284,7 +258,6 @@ public class GameCanvasScript : MonoBehaviour
         CanSlide = shouldGetInput;
         CanJump = shouldGetInput;
     }
-
 
     public void ToggleSingleInput(string actionString, bool shouldGetInput)
     {

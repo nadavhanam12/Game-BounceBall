@@ -126,12 +126,14 @@ public class PlayerMovement : MonoBehaviour
     private bool CheckPlayerInBounds(Vector3 direction)
     {
         Vector3 playerPos = transform.position;
-        if (direction.x <= 0)//he is moving left
+        if (direction.x <= 0)
+        {//he is moving left
             if (playerPos.x - m_args.playerStats.PlayerBoundDistanceTrigger < m_args.Bounds.GameLeftBound)
                 return false;
-            else //he is moving right
+        }
+        else //he is moving right
             if (playerPos.x + m_args.playerStats.PlayerBoundDistanceTrigger > m_args.Bounds.GameRightBound)
-                return false;
+            return false;
         return true;
     }
 
