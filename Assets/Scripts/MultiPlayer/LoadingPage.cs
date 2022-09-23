@@ -19,7 +19,7 @@ public class LoadingPage : MonoBehaviourPunCallbacks
 
     public override void OnConnectedToMaster()
     {
-        //Debug.Log("Connection made to " +PhotonNetwork.CloudRegion + " server.");
+        //Debug.Log("Connection made to " + PhotonNetwork.CloudRegion + " server.");
         PhotonNetwork.JoinLobby();
     }
     public override void OnJoinedLobby()

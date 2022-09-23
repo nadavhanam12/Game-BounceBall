@@ -1,26 +1,18 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using Photon.Pun;
+using Photon.Realtime;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class MainMenu : MonoBehaviour
+public class MainMenu : MonoBehaviourPunCallbacks
 {
-    #region events
-
-
-    #endregion
-
     #region serialized
-
+    [SerializeField] bool m_testingPvP;
     [SerializeField] private GameObject m_StartGame;
     [SerializeField] private GameObject m_gameName;
     [SerializeField] private GameObject m_gameOption;
@@ -31,10 +23,6 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private TMP_InputField m_nameTMP;
     [SerializeField] private GameObject m_ballName;
     [SerializeField] private GameObject m_pleasePlaySinglePlayerObject;
-
-
-
-
 
     #endregion
 
@@ -80,17 +68,23 @@ public class MainMenu : MonoBehaviour
         m_gameName.SetActive(false);
         m_gameCredits.SetActive(false);
         InitMultiPlayerPanels();
+        if (m_testingPvP)
+        {
+            float waitTime = 3f;
+#if UNITY_EDITOR
+            waitTime = 0;
+#endif
+            Invoke("TestPvPMode", waitTime);
+        }
 
     }
 
     public void StartButtonPressed()
     {
-        /*m_StartGame.SetActive(false);
-        m_gameOption.SetActive(true);*/
         m_anim.SetTrigger("Start_Pressed");
         EventManager.Broadcast(EVENT.EventMainMenu);
-    }
 
+    }
     public void NameEntered()
     {
         string newName = m_nameTMP.text;
@@ -119,47 +113,23 @@ public class MainMenu : MonoBehaviour
             await Task.Delay(30);
         }
         StartGameScene();
-        UnloadMenu();
     }
 
-    public async void StartGameScene()
+    public void StartGameScene()
     {
-        //Debug.Log("StartGame");
+        //Debug.Log("StartGameScene");
         m_eventSystem.gameObject.SetActive(false);
 
         if (m_gameType == GameType.PvP)
-        {
-            PhotonNetwork.LoadLevel(m_gameSceneName);
-            while (PhotonNetwork.LevelLoadingProgress < 0.98f)
-            {
-                Debug.Log(PhotonNetwork.LevelLoadingProgress);
-                await Task.Delay(30);
-            }
-        }
+            this.photonView.RPC("LoadScenePvP", RpcTarget.All);
         else
-        {
-            AsyncOperation operation = SceneManager.LoadSceneAsync(m_gameSceneName, LoadSceneMode.Additive);
-            //operation.allowSceneActivation = false;
-            while (!operation.isDone)
-                await Task.Delay(30);
-        }
-        //SceneManager.SetActiveScene(SceneManager.GetSceneByName("m_gameSceneName"));
-        //await Task.Delay(500);
-        m_gameSceneSetUpScript = FindObjectOfType<GameSceneSetUp>(true);
-
-        if (m_gameSceneSetUpScript != null)
-        {
-            GameArgs gameArgs = CreateGameArgs(m_gameType);
-            m_gameSceneSetUpScript.SetGameSceneArgs(gameArgs);
-        }
-        else
-            BackToMenu();
+            LoadSceneSinglePlayerAndPvE();
     }
 
     GameArgs CreateGameArgs(GameType m_gameType)
     {
         GameArgs args = new GameArgs(m_gameType);
-        args.ShouldPlayTutorial = PlayerPrefsHasCompletedTutorial(m_gameType);
+        args.ShouldPlayTutorial = !PlayerPrefsHasCompletedTutorial(m_gameType);
         args.ShouldPlayCountdown = true;
         return args;
     }
@@ -177,7 +147,7 @@ public class MainMenu : MonoBehaviour
             await Task.Delay(30);
         }
 
-        ChooseRandomBackground();
+        //ChooseRandomBackground();
         m_userChoosen = false;
         m_StartGame.SetActive(true);
         m_gameOption.SetActive(false);
@@ -230,12 +200,10 @@ public class MainMenu : MonoBehaviour
         }
     }
 
-    public async void StartPvP()
+    public void StartPvP()
     {
         m_gameType = GameType.PvP;
         StartGameScene();
-        await Task.Delay(500);
-        UnloadMenu();
     }
 
 
@@ -307,4 +275,64 @@ public class MainMenu : MonoBehaviour
         return Convert.ToBoolean(PlayerPrefs.GetInt(playerPrefsGameTutorial));
     }
 
+    [PunRPC]
+    async Task LoadScenePvP()
+    {
+        PhotonNetwork.IsMessageQueueRunning = false;
+        m_gameType = GameType.PvP;
+        AsyncOperation operation = SceneManager.LoadSceneAsync(m_gameSceneName, LoadSceneMode.Additive);
+        //operation.allowSceneActivation = false;
+        while (!operation.isDone)
+            await Task.Delay(30);
+
+        ApplyArgs();
+    }
+
+    async Task LoadSceneSinglePlayerAndPvE()
+    {
+        AsyncOperation operation = SceneManager.LoadSceneAsync(m_gameSceneName, LoadSceneMode.Additive);
+        //operation.allowSceneActivation = false;
+        while (!operation.isDone)
+            await Task.Delay(30);
+
+        ApplyArgs();
+    }
+
+    void ApplyArgs()
+    {
+        m_gameSceneSetUpScript = FindObjectOfType<GameSceneSetUp>(true);
+
+        if (m_gameSceneSetUpScript != null)
+        {
+            GameArgs gameArgs = CreateGameArgs(m_gameType);
+            m_gameSceneSetUpScript.SetGameSceneArgs(gameArgs);
+        }
+        else
+            BackToMenu();
+    }
+
+    void TestPvPMode()
+    {
+        print("TestPvPMode");
+        PhotonNetwork.ConnectUsingSettings();
+    }
+
+
+    public override void OnConnectedToMaster()
+    {
+        //Debug.Log("Connection made to " + PhotonNetwork.CloudRegion + " server.");
+        if (m_testingPvP)
+            PhotonNetwork.JoinRandomOrCreateRoom();
+    }
+    public override void OnJoinedRoom()
+    {
+        //Debug.Log("OnJoinedRoom");
+    }
+
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        if (m_testingPvP)
+            if (PhotonNetwork.IsMasterClient && PhotonNetwork.PlayerList.Length == 2)
+                StartPvP();
+    }
 }

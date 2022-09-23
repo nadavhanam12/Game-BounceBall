@@ -66,17 +66,16 @@ public class EndGameScreen : MonoBehaviour
 
     }
 
-    internal void OnPvEEnd(int playerOneScore, int playerTwoScore)
+    internal void OnPvEEnd(bool victory, int playerOneScore, int playerTwoScore)
     {
         m_onePlayerGameNewScoreText.gameObject.SetActive(false);
         m_onePlayerGameOldScoreText.gameObject.SetActive(false);
         m_scoreText.gameObject.SetActive(false);
 
-        bool isPlayerWon = playerOneScore > playerTwoScore;
         m_playerOneScoreText.gameObject.SetActive(true);
         m_playerTwoScoreText.gameObject.SetActive(true);
-        m_twoPlayerGameWinText.gameObject.SetActive(isPlayerWon);
-        m_twoPlayerGameLoseText.gameObject.SetActive(!isPlayerWon);
+        m_twoPlayerGameWinText.gameObject.SetActive(victory);
+        m_twoPlayerGameLoseText.gameObject.SetActive(!victory);
         m_curScore1 = 0;
         m_curScore2 = 0;
         gameObject.SetActive(true);

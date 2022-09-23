@@ -1,15 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using UnityEditor;
+using Photon.Pun;
 using UnityEngine;
-using UnityEngine.Analytics;
 using UnityEngine.SceneManagement;
 using static PlayerScript;
 
-public abstract class GameManagerAbstract : MonoBehaviour
+public abstract class GameManagerAbstract : MonoBehaviourPun
 {
     #region enum
     public enum PlayerIndex
@@ -25,11 +22,11 @@ public abstract class GameManagerAbstract : MonoBehaviour
     protected PlayerContainer m_playerContainer;
     protected GameCanvasScript m_gameCanvas;
     protected ComboDataContainer m_comboDataContainer;
-    PlayersDataContainer m_playersDataContainer;
+    protected PlayersDataContainer m_playersDataContainer;
     protected GameBallsManager m_ballsManager;
     protected TutorialManager m_tutorialManager;
     PickablesManager m_pickablesManager;
-    ConfettiManager m_confettiManager;
+    protected ConfettiManager m_confettiManager;
     IinputManager m_inputManager;
 
     #endregion
@@ -44,19 +41,20 @@ public abstract class GameManagerAbstract : MonoBehaviour
     protected GameArgs m_gameArgs;
     protected PlayerIndex m_curPlayerTurn = PlayerIndex.First;
     protected bool m_inTutorial = false;
-    bool m_shouldRestart;
+    protected bool m_shouldRestart;
     MainMenu m_mainMenu;
     protected bool m_timeIsOver = false;
 
     #endregion
 
-    public void SetGameArgs(GameArgs gameArgs)
+    public virtual void SetGameArgs(GameArgs gameArgs)
     {
         m_gameArgs = gameArgs;
         Init();
+        SetGamePause(true);
     }
 
-    public void StartGameScene()
+    public virtual void StartGameScene()
     {
         if (m_gameArgs == null)
         {
@@ -100,7 +98,7 @@ public abstract class GameManagerAbstract : MonoBehaviour
         m_pickablesManager = GetComponentInChildren<PickablesManager>();
         m_confettiManager = GetComponentInChildren<ConfettiManager>();
     }
-    void InitGameCanvas()
+    protected virtual void InitGameCanvas()
     {
         GameCanvasArgs canvasArgs = new GameCanvasArgs();
         canvasArgs.GameType = m_gameArgs.GameType;
@@ -112,17 +110,27 @@ public abstract class GameManagerAbstract : MonoBehaviour
         canvasArgs.ConfettiManager = m_confettiManager;
         m_gameCanvas.Init(canvasArgs);
         m_gameCanvas.m_onTimeIsOver = () => m_timeIsOver = true;
-
-        m_gameCanvas.m_MovePlayerToPosition = m_playerData1.PlayerScript.MovePlayerToPosition;
-        m_gameCanvas.m_OnTouchKickSpecial = m_playerData1.PlayerScript.OnTouchKickSpecial;
-        m_gameCanvas.m_OnTouchJump = m_playerData1.PlayerScript.OnTouchJump;
-        m_gameCanvas.m_OnTouchEnd = m_playerData1.PlayerScript.OnPlayIdle;
-
+        InitGameCanvasDelegates(m_playerData1);
     }
+
+    protected void InitGameCanvasDelegates(PlayerArgs playerData)
+    {
+        m_gameCanvas.m_MovePlayerToPosition = playerData.PlayerScript.MovePlayerToPosition;
+        m_gameCanvas.m_OnTouchKickSpecial = playerData.PlayerScript.OnTouchKickSpecial;
+        m_gameCanvas.m_OnTouchJump = playerData.PlayerScript.OnTouchJump;
+        m_gameCanvas.m_OnTouchEnd = playerData.PlayerScript.OnPlayIdle;
+        m_gameCanvas.m_OnMoveRight = playerData.PlayerScript.MoveRight;
+        m_gameCanvas.m_OnMoveLeft = playerData.PlayerScript.MoveLeft;
+    }
+
     void InitInputManager()
     {
         m_inputManager = gameObject.AddComponent<MobileInputManager>();
         m_inputManager.Init(m_gameCanvas);
+#if !UNITY_EDITOR
+        m_inputManager = gameObject.AddComponent<KeyboardManager>();
+        m_inputManager.Init(m_gameCanvas);
+#endif
     }
 
     private void InitConfettiManager()
@@ -137,7 +145,7 @@ public abstract class GameManagerAbstract : MonoBehaviour
         m_pickablesManager.Init(args);
     }
 
-    private void InitBallsManager()
+    protected virtual void InitBallsManager()
     {
         GameBallsManagerArgs ballsManagerArgs = new GameBallsManagerArgs();
         ballsManagerArgs.BallArgs = m_playersDataContainer.ballArgs;
@@ -161,6 +169,9 @@ public abstract class GameManagerAbstract : MonoBehaviour
 
         m_playerData1.Bounds = m_gameBounds;
         m_playerData2.Bounds = m_gameBounds;
+
+        m_playerData1.GameType = m_gameArgs.GameType;
+        m_playerData2.GameType = m_gameArgs.GameType;
 
         m_playerData1.playerStats = m_playersDataContainer.playerStats;
         m_playerData2.playerStats = m_playersDataContainer.playerStats;
@@ -213,7 +224,7 @@ public abstract class GameManagerAbstract : MonoBehaviour
         EventManager.AddHandler(EVENT.EventMathEndManuPressed, BackToMenu);
     }
 
-    #endregion 
+    #endregion
 
     void StartTutorial()
     {
@@ -240,7 +251,7 @@ public abstract class GameManagerAbstract : MonoBehaviour
         AfterTutorial();
     }
 
-    void AfterTutorial()
+    protected virtual void AfterTutorial()
     {
         m_gameCanvas.ActivateTimer(true);
         if (m_gameArgs.ShouldPlayCountdown)
@@ -271,7 +282,7 @@ public abstract class GameManagerAbstract : MonoBehaviour
 
     protected void InitPlayersStatus()
     {
-        m_playerData1.PlayerScript.InitPlayer();
+        m_playerData1.PlayerScript?.InitPlayer();
         m_playerData2.PlayerScript?.InitPlayer();
     }
     void InitPlayerOneStatus()
@@ -287,12 +298,12 @@ public abstract class GameManagerAbstract : MonoBehaviour
 
         if (m_curPlayerTurn == PlayerIndex.First)
         {
-            m_playerData1.PlayerScript.StartTurn(throwNewBall);
+            m_playerData1.PlayerScript?.StartTurn(throwNewBall);
             m_playerData2.PlayerScript?.LostTurn();
         }
         else
         {
-            m_playerData1.PlayerScript.LostTurn();
+            m_playerData1.PlayerScript?.LostTurn();
             m_playerData2.PlayerScript?.StartTurn(throwNewBall);
         }
 
@@ -302,9 +313,9 @@ public abstract class GameManagerAbstract : MonoBehaviour
     protected void SetGamePause(bool isPause)
     {
         m_isGamePause = isPause;
-        m_playerData1.PlayerScript.SetGamePause(isPause);
+        m_playerData1.PlayerScript?.SetGamePause(isPause);
         m_playerData2.PlayerScript?.SetGamePause(isPause);
-        m_ballsManager.SetGamePause(isPause);
+        m_ballsManager?.SetGamePause(isPause);
         m_pickablesManager.SetGamePause(isPause);
         m_gameCanvas.SetGamePause(isPause);
     }
@@ -333,44 +344,6 @@ public abstract class GameManagerAbstract : MonoBehaviour
         }
         if (m_tutorialManager.GetCurStage() == StageInTutorial.PracticeOpponentGamePlay)
             SwitchPlayerTurn(false);
-
-    }
-
-    protected void UpdatePlayerCurCombo(PlayerArgs playerArgs)
-    {
-        playerArgs.CurCombo++;
-        ComboData nextComboData = m_comboDataContainer.GetNextCombo(playerArgs.CurComboIndex);
-        if (playerArgs.CurCombo == nextComboData.ComboRequired)
-        {//New Combo-apply cheer and added score
-            playerArgs.CurComboIndex++;
-            if ((!m_inTutorial) && (m_curPlayerTurn == PlayerIndex.First))
-                m_gameCanvas.CheerActivate();
-
-            playerArgs.CurScore += (nextComboData.ScoreBonus);
-        }
-
-        m_gameCanvas.SetCombo(playerArgs.CurCombo);
-    }
-
-
-    IEnumerator UpdateScores()
-    {
-        while (!m_isGamePause)
-        {
-            m_curPlayersScoreDelta = m_playerData1.CurScore - m_playerData2.CurScore;
-            if (m_curPlayersScoreDelta > 0)//player 1 lead
-                m_curPlayerInLead = PlayerIndex.First;
-
-            else if (m_curPlayersScoreDelta < 0)//player 2 lead
-            {
-                m_curPlayersScoreDelta *= (-1);
-                m_curPlayerInLead = PlayerIndex.Second;
-            }
-            m_gameCanvas.SetScore(m_playerData1.CurScore, m_playerData2.CurScore,
-             m_curPlayersScoreDelta, m_curPlayerInLead);
-
-            yield return null;
-        }
 
     }
 
@@ -445,7 +418,7 @@ public abstract class GameManagerAbstract : MonoBehaviour
 
     protected abstract void UpdatePlayerPrefsCompletedTutorial();
 
-    void SendDataMatchStarted()
+    protected void SendDataMatchStarted()
     {
         AnalyticsManager.Instance().CommitData(
                     AnalyticsManager.AnalyticsEvents.Event_Match_Started,
@@ -453,7 +426,7 @@ public abstract class GameManagerAbstract : MonoBehaviour
                  { "GameMode", m_gameArgs.GameType }
                          });
     }
-    void SendDataMatchEnded(PlayerIndex winner)
+    protected void SendDataMatchEnded(PlayerIndex winner)
     {
         AnalyticsManager.Instance().CommitData(
                     AnalyticsManager.AnalyticsEvents.Event_Match_Ended,
@@ -462,7 +435,7 @@ public abstract class GameManagerAbstract : MonoBehaviour
                   { "MatchWinner", winner }
                  });
     }
-    void SendDataRetryButtonPressed(PlayerIndex winner)
+    protected void SendDataRetryButtonPressed(PlayerIndex winner)
     {
         AnalyticsManager.Instance().CommitData(
            AnalyticsManager.AnalyticsEvents.Event_Retry_Button_Pressed,

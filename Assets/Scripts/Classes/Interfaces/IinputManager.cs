@@ -17,9 +17,7 @@ public abstract class IinputManager : MonoBehaviour
     void Update()
     {
         if (m_initialized)
-        {
             GetInputs();
-        }
     }
 
     protected abstract void GetInputs();
@@ -39,6 +37,14 @@ public abstract class IinputManager : MonoBehaviour
     protected void EndInput()
     {
         m_gameCanvas.OnEndInput();
+    }
+    protected void MoveRight()
+    {
+        m_gameCanvas.MoveRight();
+    }
+    protected void MoveLeft()
+    {
+        m_gameCanvas.MoveLeft();
     }
 
 

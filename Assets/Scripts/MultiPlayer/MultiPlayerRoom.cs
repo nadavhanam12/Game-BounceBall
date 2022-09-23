@@ -99,7 +99,6 @@ public class MultiPlayerRoom : MonoBehaviourPunCallbacks
 
     void LoadScene()
     {
-        print("Load Secne");
         m_mainMenu.StartPvP();
     }
 }

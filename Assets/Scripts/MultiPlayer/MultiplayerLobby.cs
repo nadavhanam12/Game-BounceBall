@@ -83,7 +83,7 @@ public class MultiplayerLobby : MonoBehaviourPunCallbacks
 
         foreach (RoomInfo roomInfo in roomList)
         {
-            if (roomInfo.PlayerCount == 0 || !roomInfo.IsOpen || !roomInfo.IsVisible)
+            if (roomInfo.PlayerCount == 0 || !roomInfo.IsOpen || !roomInfo.IsVisible || roomInfo.RemovedFromList)
             {
                 Debug.Log(string.Format("Blocked Room: Name: {0}, PlayersCount: {1}, IsOpen: {2}, IsVisible: {3}",
                                                         roomInfo.Name, roomInfo.PlayerCount, roomInfo.IsOpen, roomInfo.IsVisible));

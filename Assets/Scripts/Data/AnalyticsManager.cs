@@ -46,7 +46,7 @@ public class AnalyticsManager
             options.SetEnvironmentName("development");
             await UnityServices.InitializeAsync(options);
             List<string> consentIdentifiers = await AnalyticsService.Instance.CheckForRequiredConsents();
-            Debug.Log("Init AnalyticsService");
+            //Debug.Log("Init AnalyticsService");
             m_initialize = true;
         }
         catch (ConsentCheckException e)

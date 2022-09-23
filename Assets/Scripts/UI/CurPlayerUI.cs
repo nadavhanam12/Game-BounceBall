@@ -27,18 +27,18 @@ public class CurPlayerUI : MonoBehaviour
         m_playerImage2 = playerImage2;
     }
 
-    public void SetImage(bool isPlayerTurn)
+    public void SetImage(bool isFirstPlayerTurn)
     {
-        Texture curImage = isPlayerTurn ? m_playerImage1 : m_playerImage2;
+        Texture curImage = isFirstPlayerTurn ? m_playerImage1 : m_playerImage2;
         if (m_image.texture != curImage)
         {
 
             m_image.texture = curImage;
-            if ((isPlayerTurn) && (m_imageScale.x != 1))
+            if ((isFirstPlayerTurn) && (m_imageScale.x != 1))
             {
                 m_imageScale.x = 1;
             }
-            else if ((!isPlayerTurn) && (m_imageScale.x != -1))
+            else if ((!isFirstPlayerTurn) && (m_imageScale.x != -1))
             {
                 m_imageScale.x = -1;
             }

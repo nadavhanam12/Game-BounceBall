@@ -17,6 +17,8 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 m_initialPosition;
     private Vector3 m_initialScale;
 
+    float m_minimumDistanceToMove = 1f;
+
     public void Init(PlayerScript playerScript, PlayerArgs args)
     {
         m_playerScript = playerScript;
@@ -31,6 +33,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void InitPlayer()
     {
+        if (!this) return;
         gameObject.transform.rotation = m_initialRotation;
         Vector3 positionUpper = m_initialPosition;
         positionUpper.y += m_args.playerStats.m_startHeight;
@@ -91,13 +94,19 @@ public class PlayerMovement : MonoBehaviour
     {
         Vector2 playerPosition = transform.position;
         //print(playerPosition + "   " + position);
-        if ((Math.Abs(playerPosition.x - position.x) > 0.2f) && (!InSlide))
+        if ((Math.Abs(playerPosition.x - position.x) > m_minimumDistanceToMove) && (!InSlide))
             if (playerPosition.x < position.x)
                 OnMoveX(Vector2.right);
             else
                 OnMoveX(Vector2.left);
         else
             m_playerScript.OnPlayIdle();
+    }
+
+    public void MoveX(Vector2 dir)
+    {
+        if (!InSlide)
+            OnMoveX(dir);
     }
 
     public void ToggleSlide(bool shouldSlide)

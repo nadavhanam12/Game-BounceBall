@@ -147,7 +147,6 @@ public class ScoreDeltaUIClass : MonoBehaviour
 
     public void SetColors(Color colorPlayer1, Color colorPlayer2)
     {
-
         m_colorPlayer1 = colorPlayer1;
         m_colorPlayer2 = colorPlayer2;
     }

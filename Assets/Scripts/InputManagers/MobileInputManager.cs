@@ -34,6 +34,7 @@ public class MobileInputManager : AbstractTouchInputManager
         else
         {
             m_touchPointer.StopTouch();
+            EndInput();
         }
     }
 

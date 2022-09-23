@@ -6,6 +6,8 @@ using static GameManagerAbstract;
 [System.Serializable]
 public class PlayerArgs
 {
+    [HideInInspector]
+    public GameType GameType;
     public string Name;
     public PlayerIndex PlayerIndex;
 

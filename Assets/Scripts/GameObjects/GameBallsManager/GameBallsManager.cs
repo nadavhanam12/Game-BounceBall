@@ -1,11 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using Photon.Pun;
 using UnityEngine;
 using static GameManagerAbstract;
 using static PlayerScript;
 
-public class GameBallsManager : MonoBehaviour
+public class GameBallsManager : MonoBehaviourPun
 {
 
     #region Events
@@ -16,23 +16,23 @@ public class GameBallsManager : MonoBehaviour
     public delegate void onBallHit(PlayerIndex index);
     public onBallHit GameManagerOnBallHit;
 
-
     #endregion
 
-    #region serialized
-    [SerializeField] BallHitVisual m_ballHitVisualPrefab;
-    [SerializeField] List<Color> ballColors;
-
+    #region public
+    public BallHitVisual m_ballHitVisualPrefab;
+    public BallScript m_ballPrefab;
+    public Transform m_ballsContainer;
+    public List<Color> ballColors;
     [Range(0, 1)]
-    [SerializeField] private float m_opponentBallAlpha = 0.5f;
-    [SerializeField] private int m_ballsPoolSize;
-    [SerializeField] private GameObject m_ballsHitVFX;
+    public float m_opponentBallAlpha = 0.5f;
+    public int m_ballsPoolSize;
+    public GameObject m_ballsHitVFX;
 
-    [SerializeField][Range(0.2f, 1)] private float m_gravityAdded;
-    [SerializeField] private int m_gravityChangeRate;
+    [Range(0.2f, 1)] public float m_gravityAdded;
+    public int m_gravityChangeRate;
 
-    [SerializeField] private float m_highKickHight = 0;
-    [SerializeField] private float m_kickCooldown = 0.1f;
+    public float m_highKickHight = 0;
+    public float m_kickCooldown = 0.1f;
 
 
 
@@ -42,18 +42,17 @@ public class GameBallsManager : MonoBehaviour
 
     #region private
 
-    private Queue<Color> m_colorQueue;
-    private Color[] m_nextColorArray;
+    public Queue<Color> ColorsQueue { get; protected set; }
+    protected Color[] m_nextColorArray;
 
-    private GameBallsManagerArgs m_args;
+    protected GameBallsManagerArgs m_args;
     private bool m_initialized = false;
     private Queue<BallHitVisual> m_hitVisualsQueue = new Queue<BallHitVisual>();
-    private Color m_curRequiredColor;
+    protected Color m_curRequiredColor;
 
-    private bool isGamePaused = false;
-    private BallScript[] m_ballsArray;
-    private BallScript firstBall;
-    private int m_nextBallIndex;
+    protected bool isGamePaused = false;
+    protected BallScript[] m_ballsArray;
+    protected int m_nextBallIndex;
     private int m_correctBallIndex;
 
     private int m_curCombo;
@@ -64,7 +63,7 @@ public class GameBallsManager : MonoBehaviour
     #endregion
 
 
-    public void SetGamePause(bool isPause)
+    public virtual void SetGamePause(bool isPause)
     {
         isGamePaused = isPause;
         foreach (BallScript ball in m_ballsArray)
@@ -77,7 +76,6 @@ public class GameBallsManager : MonoBehaviour
     {
         if (!m_initialized)
         {
-
             m_args = args;
             m_curCombo = 0;
             InitBalls();
@@ -87,18 +85,17 @@ public class GameBallsManager : MonoBehaviour
         }
     }
 
-    void InitColorQueue()
+    protected virtual void InitColorQueue()
     {
-        m_colorQueue = new Queue<Color>();
+        ColorsQueue = new Queue<Color>();
         //m_colorQueue.Enqueue(Color.white);
         for (int i = 0; i < 4; i++)
-            m_colorQueue.Enqueue(GenerateRandomColor(Color.black));
-
+            ColorsQueue.Enqueue(GenerateRandomColor(Color.black));
     }
     void InitHitBallVisuals()
     {
         BallHitVisual curBallVisuals;
-        Vector3 ballScale = firstBall.transform.localScale;
+        Vector3 ballScale = m_ballPrefab.transform.localScale;
         for (int i = 0; i < m_ballsPoolSize; i++)
         {
             curBallVisuals = Instantiate(m_ballHitVisualPrefab, m_ballsHitVFX.transform);
@@ -107,16 +104,13 @@ public class GameBallsManager : MonoBehaviour
         }
     }
 
-    private void InitBalls()
+    protected virtual void InitBalls()
     {
         m_nextBallIndex = 0;
-        firstBall = GetComponentInChildren<BallScript>();
         m_ballsArray = new BallScript[m_ballsPoolSize];
-        m_ballsArray[0] = firstBall;
-        for (int i = 1; i < m_ballsArray.Length; i++)
-        {
-            m_ballsArray[i] = (Instantiate(firstBall, firstBall.transform.parent));
-        }
+        for (int i = 0; i < m_ballsArray.Length; i++)
+            m_ballsArray[i] = Instantiate(m_ballPrefab, m_ballsContainer);
+
         BallScript curBall;
         for (int i = 0; i < m_ballsArray.Length; i++)
         {
@@ -124,62 +118,50 @@ public class GameBallsManager : MonoBehaviour
             curBall.Init(m_args.BallArgs, i);
             curBall.m_onBallLost = OnBallLost;
             curBall.RemoveBallFromScene();
+            RemoveBallFromScene(i);
         }
-
     }
 
 
-    public void OnBallLost(int ballIndex)
+    protected virtual void OnBallLost(int ballIndex)
     {
-        //bool fadeOut = m_correctBallIndex != ballIndex;
-        m_ballsArray[ballIndex].RemoveBallFromScene(false);
+        RemoveBallFromScene(ballIndex, false);
         if (!IsBallsInPLay())
         {
             GameManagerOnTurnLost();
             m_curCombo = 0;
             foreach (BallScript ball in m_ballsArray)
-            {
                 ball.InitGravity();
-            }
         }
-
-
     }
     private bool IsBallsInPLay()
     {
         for (int i = 0; i < m_ballsArray.Length; i++)
-        {
             if (m_ballsArray[i].IsInScene())
-            {
                 return true;
-            }
-        }
         return false;
     }
 
 
-    public void RemoveAllBalls()
+    public virtual void RemoveAllBalls()
     {
-        foreach (BallScript ball in m_ballsArray)
-        {
-            ball.RemoveBallFromScene();
-        }
+        for (int i = 0; i < m_ballsArray.Length; i++)
+            RemoveBallFromScene(i);
     }
 
     public void Destroy()
     {
         foreach (BallScript ball in m_ballsArray)
-        {
             Destroy(ball);
-        }
         Destroy(this);
     }
-    void WrongBallHit(int ballIndex)
+
+    protected virtual void RemoveBallFromScene(int ballIndex, bool fadeOut = false)
     {
-        m_ballsArray[ballIndex].RemoveBallFromScene(true);
+        m_ballsArray[ballIndex].RemoveBallFromScene(fadeOut);
     }
 
-    private BallScript GetNextBall()
+    BallScript GetNextBall()
     {
         for (int i = 0; i < m_ballsArray.Length; i++)
         {
@@ -187,60 +169,53 @@ public class GameBallsManager : MonoBehaviour
             m_nextBallIndex++;
             m_nextBallIndex = m_nextBallIndex % m_ballsArray.Length;
             if (!nextBall.IsInScene())
-            {
                 return nextBall;
-            }
         }
         return null;
     }
 
     //Generate another ball with different color and direction
     //update the game manager for score and combo
-    private void OnHitPlay(PlayerIndex playerIndex, int ballIndex, KickType kickType)
+    void OnHitPlay(PlayerIndex playerIndex, int ballIndex)
     {
+        print("OnHitPlay- playerIndex: " + playerIndex);
         BallScript ball = m_ballsArray[ballIndex];
         if (ball.BallHasFallen)
         {
-            print("ball.BallHasFallen");
+            print("OnHitPlay- BallHasFallen");
             return;
         }
-
-
         if (m_allowOnlyJumpKick)
         {
             print(ball.transform.position);
             if (ball.transform.position.y < m_highKickHight)
             {
-                print("ball hight is lower then high kick height value");
+                print("OnHitPlay- ball hight is lower then high kick height value");
                 return;
             }
         }
 
         if (m_curRequiredColor != ball.GetColor())
         {//not correct color
-            //print("not correct color " + ball.GetIndex());
-            WrongBallHit(ballIndex);
+            print("OnHitPlay- not correct color " + ball.GetIndex());
+            RemoveBallFromScene(ballIndex, true);
             return;
         }
         if (m_inKickCooldown)
+        {
+            print("OnHitPlay- inKickCooldown");
             return;
+        }
 
         StartCoroutine(KickCooldown());
         GameManagerOnBallHit(playerIndex);
 
         BallScript otherBall = GetNextBall();
         if (otherBall == null)
-        {
-            //print("otherBall == null" + ball.GetIndex());
             return;
-        }
 
-
-
-        Color color1 = m_colorQueue.Dequeue();
+        Color color1 = PullColorFromQueue();
         Color color2 = GenerateRandomColor(color1);
-        Color lastColorInQueue = m_colorQueue.ToArray()[m_colorQueue.Count - 1];
-        m_colorQueue.Enqueue(GenerateRandomColor(lastColorInQueue));
 
         UpdateNextBallColor(color1, true);
 
@@ -256,46 +231,57 @@ public class GameBallsManager : MonoBehaviour
         else
             otherBallPos.x += 1f;
 
-        otherBall.GenerateNewBallInScene(color2, otherBallPos);
+        GenerateNewBallInScene(otherBall.GetIndex(), color2, otherBallPos);
 
         ball.ResetVelocity();
         otherBall.ResetVelocity();
 
 
-        ball.OnHitPlay(kickType, distanceX, color1, true);
-        otherBall.OnHitPlay(kickType, (-1) * distanceX, color2, false);
+        ball.OnHitPlay(distanceX, true);
+        ball.UpdateColor(color1);
+
+        otherBall.OnHitPlay((-1) * distanceX, false);
+        otherBall.UpdateColor(color2);
+
 
         UpdateCurCombo();
+    }
+
+    //is called when a ball is split
+    protected virtual void GenerateNewBallInScene(int ballIndex, Color color2, Vector2 otherBallPos)
+    {
+        BallScript ball = m_ballsArray[ballIndex];
+        ball.GenerateNewBallInScene(color2, otherBallPos);
+    }
+
+    Color PullColorFromQueue()
+    {
+        Color color1 = ColorsQueue.Dequeue();
+        Color lastColorInQueue = ColorsQueue.ToArray()[ColorsQueue.Count - 1];
+        ColorsQueue.Enqueue(GenerateRandomColor(lastColorInQueue));
+        return color1;
     }
 
     float RandomDisX()
     {
         float rnd = Random.Range(m_args.BallArgs.BallMinimumHitPowerX, m_args.BallArgs.BallMaximumHitPowerX);
         if (FlipDistance())
-        {
             rnd *= (-1);
-        }
-
         return rnd;
     }
 
     float IgnoreDisX(float distanceX)
     {
         if (distanceX >= 0)
-        {
             return 1;
-        }
         else
-        {
             return -1;
-        }
     }
-    void UpdateNextBallColor(Color color, bool shouldEmitParticles)
+    public virtual void UpdateNextBallColor(Color color, bool shouldEmitParticles)
     {
         m_curRequiredColor = color;
-        m_nextColorArray = m_colorQueue.ToArray();
+        m_nextColorArray = ColorsQueue.ToArray();
         m_args.GameCanvas.UpdateNextBallColor(color, m_nextColorArray, shouldEmitParticles);
-
     }
 
     void ActivateBallHitVisual(Color color, Vector3 position)
@@ -311,14 +297,21 @@ public class GameBallsManager : MonoBehaviour
         return rnd <= 4;
     }
 
-    private Color GenerateRandomColor(Color forbiddenColor)
+    protected Color GenerateRandomColor(Color forbiddenColor)
     {
         int rnd;
+        int i = 0;
         while (true)
         {
+            i++;
             rnd = Random.Range(0, ballColors.Count);
             if (ballColors[rnd] != forbiddenColor)
                 return ballColors[rnd];
+            if (i == 200)
+            {
+                print("GenerateRandomColor exit after 200 loops");
+                return Color.white;
+            }
         }
 
     }
@@ -336,14 +329,14 @@ public class GameBallsManager : MonoBehaviour
     }
 
     //should start new turn
-    public void OnNewBallInScene(bool randomDirection, Vector2Int directionVector)
+    public virtual void OnNewBallInScene(bool randomDirection, Vector2Int directionVector)
     {
         if (m_ballsArray[m_correctBallIndex].IsInScene())
         {
             print("correct ball is in scene");
             return;
         }
-        m_correctBallIndex = m_nextBallIndex;
+        UpdateCorrectBallIndex(m_nextBallIndex);
         //print("m_correctBallIndex " + m_correctBallIndex);
         BallScript ball = GetNextBall();
         if (ball == null) { return; }
@@ -353,25 +346,40 @@ public class GameBallsManager : MonoBehaviour
             disXMultiplier = Random.Range(-m_args.BallArgs.m_startForceX, m_args.BallArgs.m_startForceX);
         else
             disXMultiplier = directionVector.x;
-        ball.OnNewBallInScene(color, disXMultiplier, m_args.BallArgs.m_startForceY);
+        int ballIndex = ball.GetIndex();
+        GenerateNewBallInScene(ballIndex, color, disXMultiplier, m_args.BallArgs.m_startForceY);
         UpdateNextBallColor(color, false);
     }
 
-    public void ApplyKick(PlayerIndex playerIndex, KickType kickType, List<BallScript> ballsHit)
+    protected virtual void UpdateCorrectBallIndex(int nextBallIndex)
+    {
+        m_correctBallIndex = nextBallIndex;
+    }
+
+    protected virtual void GenerateNewBallInScene(int ballIndex, Color color, float disXMultiplier, float startForceY)
+    {
+        BallScript ball = m_ballsArray[ballIndex];
+        ball.OnNewBallInScene(color, disXMultiplier, startForceY);
+    }
+
+    public virtual void ApplyKick(PlayerIndex playerIndex, List<BallScript> ballsHit)
     {
         BallScript correctBall = m_ballsArray[m_correctBallIndex];
+        int ballIndex;
+
         if (ballsHit.Contains(correctBall)) //kick correct ball if in range
         {
-            int ballIndex = m_correctBallIndex;
-            OnHitPlay(playerIndex, ballIndex, kickType);
+            print(" contains");
+            ballIndex = m_correctBallIndex;
         }
         else //kick closest ball if in range
         {
-            BallScript kickBall = ballsHit[0];
-            int ballIndex = System.Array.IndexOf(m_ballsArray, kickBall);
-            OnHitPlay(playerIndex, ballIndex, kickType);
+            print("not contains");
+            ballIndex = ballsHit[0].GetIndex();
         }
 
+
+        OnHitPlay(playerIndex, ballIndex);
     }
 
     public bool ContainsCorrectBall(List<BallScript> ballsHit)
@@ -393,13 +401,8 @@ public class GameBallsManager : MonoBehaviour
             //print("Adding gravity: " + m_gravityAdded);
             m_args.GameCanvas.GravityIncrease();
             foreach (BallScript ball in m_ballsArray)
-            {
                 ball.AddToGravity(m_gravityAdded);
-
-            }
         }
-
-
     }
 
     public void onAllowOnlyJumpKick(bool isOn)
@@ -415,5 +418,6 @@ public class GameBallsManager : MonoBehaviour
         m_inKickCooldown = false;
         //print("m_inKickCooldown = false");
     }
+
 }
 

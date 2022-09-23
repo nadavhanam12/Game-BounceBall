@@ -39,6 +39,28 @@ MonoBehaviour:
   - DestroySpaceship
   - Fire
   - RespawnSpaceship
+  - LoadScenePvP
+  - UpdateNextBallColorRPC
+  - InitPlayer
+  - InitBallsArray
+  - GenerateBallWithViewUD
+  - GenerateBallWithViewID
+  - GenerateNewBallInSceneWithViewId
+  - RemoveBallFromSceneWithViewId
+  - ApplyKickRPC
+  - LostTurnRPC
+  - StartTurnRPC
+  - InitPlayerRPC
+  - UpdateCorrectBallIndexRPC
+  - UpdateColorRPC
+  - CheerActivate
+  - IncrementCombo
+  - OnPvPEnd
+  - SetCombo
+  - SetNormalScore
+  - SwitchTurn
+  - OnPvPEndRPC
+  - SetCurPlayerUI
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

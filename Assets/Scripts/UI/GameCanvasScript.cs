@@ -1,9 +1,10 @@
 
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
 using static GameManagerAbstract;
 
-public class GameCanvasScript : MonoBehaviour
+public class GameCanvasScript : MonoBehaviourPun
 {
     #region events
 
@@ -12,6 +13,10 @@ public class GameCanvasScript : MonoBehaviour
     public TimeIsOver m_onTimeIsOver;
     public delegate void OnMovePlayerToPosition(Vector2 position);
     public OnMovePlayerToPosition m_MovePlayerToPosition;
+    public delegate void OnMoveLeft();
+    public OnMoveLeft m_OnMoveLeft;
+    public delegate void OnMoveRight();
+    public OnMoveRight m_OnMoveRight;
     public delegate void OnTouchJump();
     public OnTouchJump m_OnTouchJump;
     public delegate void OnTouchKickSpecial();
@@ -79,6 +84,8 @@ public class GameCanvasScript : MonoBehaviour
     public void OnKickSpecialInput() { if (CanSlide) m_OnTouchKickSpecial(); }
     public void OnJumpInput() { if (CanJump) m_OnTouchJump(); }
     public void MovePlayerToPosition(Vector2 position) { if (CanMove) m_MovePlayerToPosition(position); }
+    public void MoveRight() { if (CanMove) m_OnMoveRight(); }
+    public void MoveLeft() { if (CanMove) m_OnMoveLeft(); }
     public void OnRestartButtonPressed() { EventManager.Broadcast(EVENT.EventOnRestart); }
     public void OnMathEndRetryPressed() { EventManager.Broadcast(EVENT.EventMathEndRetryPressed); }
     public void OnMathEndManuPressed() { EventManager.Broadcast(EVENT.EventMathEndManuPressed); }
@@ -89,6 +96,7 @@ public class GameCanvasScript : MonoBehaviour
         if (!m_initialized)
         {
             m_args = args;
+
             InitRefs();
             m_initialized = true;
             this.GetComponent<Canvas>().worldCamera = Camera.main;
@@ -102,8 +110,6 @@ public class GameCanvasScript : MonoBehaviour
 
             backgroundsList = Resources.LoadAll<Texture2D>(backgroundsPath);
             Background.texture = ChooseRandomBackground();
-
-
 
             CheerObject.Init(m_args.GameType);
             //SequenceMenuUI.Init();
@@ -132,8 +138,19 @@ public class GameCanvasScript : MonoBehaviour
 
     private Texture ChooseRandomBackground()
     {
-        int rnd = Random.Range(0, backgroundsList.Length);
-        return backgroundsList[rnd];
+        if (m_args.GameType == GameType.PvP)
+        {
+            int max = backgroundsList.Length;
+            return backgroundsList[max - 1];
+        }
+        else
+        {
+            int max = backgroundsList.Length;
+            int min = 0;
+            int rnd = Random.Range(min, max);
+            return backgroundsList[rnd];
+        }
+
     }
 
     void InitRefs()
@@ -148,12 +165,16 @@ public class GameCanvasScript : MonoBehaviour
         CurPlayerUI = GetComponentInChildren<CurPlayerUI>(true);
         EndGameScreen = GetComponentInChildren<EndGameScreen>(true);
     }
-
+    [PunRPC]
     public void CheerActivate(bool withTextAndInit = true)
     {
         CheerObject.Activate(withTextAndInit);
         m_args.ConfettiManager.Activate();
         EventManager.Broadcast(EVENT.EventCombo);
+    }
+    public void CheerActivateSecondPlayer(bool withTextAndInit = true)
+    {
+        this.photonView.RPC("CheerActivate", RpcTarget.Others, withTextAndInit);
     }
 
     public void SetScore(int scorePlayer1, int scorePlayer2, int scoreDelta, PlayerIndex playerInLead)
@@ -177,6 +198,8 @@ public class GameCanvasScript : MonoBehaviour
     {
         NextColorUI.SetNextBallImage(curColor, nextColors, shouldEmitParticles);
     }
+
+    [PunRPC]
     public void SetCombo(int curCombo)
     {
         if (ComboConterUI != null)
@@ -184,7 +207,11 @@ public class GameCanvasScript : MonoBehaviour
             ComboConterUI.SetCombo(curCombo);
             ScoreUIDelta.UpdateCombo(ComboConterUI.GetCurCombo());
         }
+        if (IsMasterPvP())
+            this.photonView.RPC("SetCombo", RpcTarget.Others, curCombo);
     }
+
+    [PunRPC]
     public void IncrementCombo()
     {
         if (ComboConterUI != null)
@@ -192,19 +219,25 @@ public class GameCanvasScript : MonoBehaviour
             ComboConterUI.IncrementCombo();
             ScoreUIDelta.UpdateCombo(ComboConterUI.GetCurCombo());
         }
+        if (IsMasterPvP())
+            this.photonView.RPC("IncrementCombo", RpcTarget.Others);
     }
-    public void SwitchTurn(bool isPlayerTurn)
+
+    [PunRPC]
+    public void SwitchTurn(bool isFirstPlayerTurn)
     {
-        /*if ((m_args.GameType == GameType.PvE) && (isPlayerTurn))
-            return;*/
-
-
-        TurnsUI.Activate(isPlayerTurn);
+        TurnsUI.Activate(isFirstPlayerTurn);
+        if (IsMasterPvP())
+            this.photonView.RPC("SwitchTurn", RpcTarget.Others, !isFirstPlayerTurn);
     }
-    public void SetCurPlayerUI(bool isPlayerTurn)
+
+    [PunRPC]
+    public void SetCurPlayerUI(bool isFirstPlayerTurn)
     {
         //print(isPlayerTurn);
-        CurPlayerUI.SetImage(isPlayerTurn);
+        CurPlayerUI.SetImage(isFirstPlayerTurn);
+        if (IsMasterPvP())
+            this.photonView.RPC("SetCurPlayerUI", RpcTarget.Others, isFirstPlayerTurn);
     }
     public TutorialUI GetTutorialUI()
     {
@@ -230,9 +263,13 @@ public class GameCanvasScript : MonoBehaviour
     {
         RestartButton.ShowSkipButton(toShow);
     }
+
+    [PunRPC]
     public void SetNormalScore(int scoreLeft, int scoreRight)
     {
         ScoreUIDelta.SetNormalScore(scoreLeft, scoreRight);
+        if (IsMasterPvP())
+            this.photonView.RPC("SetNormalScore", RpcTarget.Others, scoreLeft, scoreRight);
     }
     public void ShowBombUI(bool toShow)
     {
@@ -297,11 +334,33 @@ public class GameCanvasScript : MonoBehaviour
     {
         EndGameScreen.Activate(false, prevBestScore);
     }
+
     internal void OnPvEEnd(int playerOneScore, int playerTwoScore)
     {
-        if (playerOneScore > playerTwoScore)
+        bool victory = playerOneScore > playerTwoScore;
+        if (victory)
             CheerActivate(false);
-        EndGameScreen.OnPvEEnd(playerOneScore, playerTwoScore);
+        EndGameScreen.OnPvEEnd(victory, playerOneScore, playerTwoScore);
+    }
+    internal void OnPvPEnd(int playerOneScore, int playerTwoScore)
+    {
+        bool victory = playerOneScore > playerTwoScore;
+        OnPvPEndRPC(victory, playerOneScore, playerTwoScore);
+        if (IsMasterPvP())
+            this.photonView.RPC("OnPvPEndRPC", RpcTarget.Others, !victory, playerOneScore, playerTwoScore);
+    }
+
+    [PunRPC]
+    void OnPvPEndRPC(bool victory, int playerOneScore, int playerTwoScore)
+    {
+        if (victory)
+            CheerActivate(false);
+        EndGameScreen.OnPvEEnd(victory, playerOneScore, playerTwoScore);
+    }
+
+    bool IsMasterPvP()
+    {
+        return (m_args?.GameType == GameType.PvP) && PhotonNetwork.IsMasterClient;
     }
 
 }

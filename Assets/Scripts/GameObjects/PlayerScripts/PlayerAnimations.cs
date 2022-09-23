@@ -11,7 +11,6 @@ public class PlayerAnimations : MonoBehaviour
     {
         m_anim = gameObject.GetComponent<Animator>();
         m_anim.speed = 1;
-
     }
 
 
@@ -23,29 +22,30 @@ public class PlayerAnimations : MonoBehaviour
             string current_animation = animatorinfo[0].clip.name;
             if (current_animation != "Run")
                 AnimSetTrigger("Running Trigger");
+
         }
     }
 
-    public void AnimSetTrigger(string triggerName)
+    public virtual void AnimSetTrigger(string triggerName)
     {
-        m_anim.SetTrigger(triggerName);
-    }
-    public void AnimSetAndResetTrigger(string triggerName)
-    {
-        m_anim.ResetTrigger(triggerName);
-        m_anim.SetTrigger(triggerName);
+        if (!m_anim.GetBool(triggerName))
+            m_anim.SetTrigger(triggerName);
     }
 
-    public void WinAnim()
+    public virtual void WinAnim()
     {
         m_anim.enabled = true;
         m_anim.Play("Win", -1, 0f);
     }
 
-    public void LoseAnim()
+    public virtual void LoseAnim()
     {
         m_anim.enabled = true;
         m_anim.Play("Lose", -1, 0f);
+    }
+    public void StartIdle()
+    {
+        AnimSetTrigger("Idle Trigger");
     }
 
     public void OnPlayIdle()
@@ -61,7 +61,8 @@ public class PlayerAnimations : MonoBehaviour
                 //m_anim.Play("Idle", -1, 0f);
             }
         }
-
+        else
+            StartIdle();
     }
 
     public void SetGamePause(bool isPause)

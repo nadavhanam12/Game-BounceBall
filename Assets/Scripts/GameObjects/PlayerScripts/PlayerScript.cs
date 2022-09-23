@@ -1,11 +1,9 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
-using static Bomb;
-using static GameManagerAbstract;
 
-public class PlayerScript : MonoBehaviour
+public class PlayerScript : MonoBehaviourPun
 {
     #region enums
     public enum KickType
@@ -33,9 +31,6 @@ public class PlayerScript : MonoBehaviour
     protected PlayerKick m_playerKicksManager;
     protected PlayerBomb m_playerBombsManager;
 
-
-
-
     #endregion
 
     public void Init(PlayerArgs args)
@@ -54,7 +49,7 @@ public class PlayerScript : MonoBehaviour
     }
 
 
-    void InitScripts()
+    protected virtual void InitScripts()
     {
         m_playerAnimations = GetComponent<PlayerAnimations>();
         m_playerAnimations.Init();
@@ -74,7 +69,6 @@ public class PlayerScript : MonoBehaviour
     protected virtual void Update()
     {
         if (!isGamePaused)
-        {
             if (!m_playerMovement.InParalyze)
             {
                 m_playerMovement.GetJump();
@@ -82,8 +76,6 @@ public class PlayerScript : MonoBehaviour
                 if (ballsHit.Count > 0)
                     OnKickPlay(KickType.Regular);
             }
-        }
-
     }
 
 
@@ -109,15 +101,16 @@ public class PlayerScript : MonoBehaviour
     }
 
 
-    public void FinishAnimation()
+    public virtual void FinishAnimation()
     {
         m_playerMovement.SetInParalyze(false);
         m_playerMovement.ToggleSlide(false);
         OnPlayIdle();
     }
 
-    public void InitPlayer(bool initPos = true)
+    public virtual void InitPlayer(bool initPos = true)
     {
+        if (!this) return;
         if (initPos && !m_inInitCooldown)
         {
             m_playerMovement.InitPlayer();
@@ -127,10 +120,12 @@ public class PlayerScript : MonoBehaviour
         FinishAnimation();
         m_onWinLoseAnim = false;
         ShowPlayer();
+
     }
 
     public void OnKickPlay(KickType kickType)
     {
+        print("OnKickPlay");
         if ((!isGamePaused) && (!m_playerMovement.InParalyze))
         {
             if (kickType == KickType.Special)
@@ -151,7 +146,7 @@ public class PlayerScript : MonoBehaviour
                     break;
             }
             if (!m_playerMovement.IsJumping)
-                m_playerAnimations.AnimSetAndResetTrigger(triggerName);
+                m_playerAnimations.AnimSetTrigger(triggerName);
 
             //anim.enabled = false;
 
@@ -178,10 +173,7 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
-
-
-
-    public void SetGamePause(bool isPause)
+    public virtual void SetGamePause(bool isPause)
     {
         isGamePaused = isPause;
         m_playerAnimations.SetGamePause(isPause);
@@ -197,14 +189,23 @@ public class PlayerScript : MonoBehaviour
     {
         if (!m_playerMovement.InParalyze && !m_playerMovement.InSlide)
             m_playerAnimations.OnPlayIdle();
-
     }
+
+    public void MoveRight()
+    {
+        m_playerMovement.MoveX(Vector2.right);
+    }
+    public void MoveLeft()
+    {
+        m_playerMovement.MoveX(Vector2.left);
+    }
+
     public void OnTouchKickSpecial()
     {
         OnKickPlay(KickType.Special);
     }
 
-    public void LostTurn()
+    public virtual void LostTurn()
     {
         m_currentlyInTurn = false;
     }
@@ -222,8 +223,6 @@ public class PlayerScript : MonoBehaviour
     {
         playerSprite.gameObject.SetActive(false);
     }
-
-
 
     public void PlayerHitByBomb()
     {
