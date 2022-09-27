@@ -53,7 +53,8 @@ public class BallPhysics : MonoBehaviour
         isGamePaused = pause;
         if (isInitialized)
         {
-            m_rigidBody.simulated = !isGamePaused;
+            if (m_rigidBody)
+                m_rigidBody.simulated = !isGamePaused;
             if (!isGamePaused && waitingForce != Vector2.zero)
             {
                 ResetVelocity();

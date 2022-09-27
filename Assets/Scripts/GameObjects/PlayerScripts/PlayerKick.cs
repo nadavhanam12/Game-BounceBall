@@ -32,11 +32,10 @@ public class PlayerKick : MonoBehaviour
 
     public void ReachHitPosition(KickType kickType)
     {
-        print("ReachHitPosition");
         if (m_player.IsCurrentlyInTurn() && !InKickCooldown)
         {
             List<BallScript> ballsHit = CheckBallInHitZone();
-            print("ballsHit.Count " + ballsHit.Count);
+            //print("ballsHit.Count " + ballsHit.Count);
 
             if (ballsHit.Count > 0)
             {

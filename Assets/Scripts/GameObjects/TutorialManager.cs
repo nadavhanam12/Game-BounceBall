@@ -32,7 +32,6 @@ public enum StageInTutorial
 }
 public class TutorialManager : MonoBehaviour
 {
-    [SerializeField] PlayerScript m_playerScript;
     public delegate void OnFinishTutorial();
     public OnFinishTutorial onFinishTutorial;
 
@@ -156,7 +155,7 @@ public class TutorialManager : MonoBehaviour
                     }
                     break;
                 case StageInTutorial.PracticeSlideGamePlay:
-                    if (m_playerScript.IsOnSlide())
+                    if (m_args.PlayerScript.IsOnSlide())
                     {
                         curCombo = 0;
                         m_args.GameCanvas.CheerActivate();
@@ -165,7 +164,7 @@ public class TutorialManager : MonoBehaviour
                     }
                     break;
                 case StageInTutorial.PracticeJumpGamePlay:
-                    if (m_playerScript.IsOnJumpKick())
+                    if (m_args.PlayerScript.IsOnJumpKick())
                     {
                         curCombo = 0;
                         m_args.GameCanvas.CheerActivate();

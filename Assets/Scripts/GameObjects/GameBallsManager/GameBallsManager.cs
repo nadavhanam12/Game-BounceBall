@@ -47,7 +47,7 @@ public class GameBallsManager : MonoBehaviourPun
 
     protected GameBallsManagerArgs m_args;
     private bool m_initialized = false;
-    private Queue<BallHitVisual> m_hitVisualsQueue = new Queue<BallHitVisual>();
+    protected Queue<BallHitVisual> m_hitVisualsQueue = new Queue<BallHitVisual>();
     protected Color m_curRequiredColor;
 
     protected bool isGamePaused = false;
@@ -67,9 +67,7 @@ public class GameBallsManager : MonoBehaviourPun
     {
         isGamePaused = isPause;
         foreach (BallScript ball in m_ballsArray)
-        {
             ball.SetGamePause(isGamePaused);
-        }
     }
 
     public void Init(GameBallsManagerArgs args)
@@ -153,7 +151,7 @@ public class GameBallsManager : MonoBehaviourPun
     {
         foreach (BallScript ball in m_ballsArray)
             Destroy(ball);
-        Destroy(this);
+        //Destroy(this);
     }
 
     protected virtual void RemoveBallFromScene(int ballIndex, bool fadeOut = false)
@@ -176,9 +174,9 @@ public class GameBallsManager : MonoBehaviourPun
 
     //Generate another ball with different color and direction
     //update the game manager for score and combo
-    void OnHitPlay(PlayerIndex playerIndex, int ballIndex)
+    protected virtual void OnHitPlay(PlayerIndex playerIndex, int ballIndex)
     {
-        print("OnHitPlay- playerIndex: " + playerIndex);
+        //print("OnHitPlay- playerIndex: " + playerIndex);
         BallScript ball = m_ballsArray[ballIndex];
         if (ball.BallHasFallen)
         {
@@ -187,7 +185,7 @@ public class GameBallsManager : MonoBehaviourPun
         }
         if (m_allowOnlyJumpKick)
         {
-            print(ball.transform.position);
+            //print(ball.transform.position);
             if (ball.transform.position.y < m_highKickHight)
             {
                 print("OnHitPlay- ball hight is lower then high kick height value");
@@ -197,13 +195,13 @@ public class GameBallsManager : MonoBehaviourPun
 
         if (m_curRequiredColor != ball.GetColor())
         {//not correct color
-            print("OnHitPlay- not correct color " + ball.GetIndex());
+            //print("OnHitPlay- not correct color " + ball.GetIndex());
             RemoveBallFromScene(ballIndex, true);
             return;
         }
         if (m_inKickCooldown)
         {
-            print("OnHitPlay- inKickCooldown");
+            //print("OnHitPlay- inKickCooldown");
             return;
         }
 
@@ -214,16 +212,16 @@ public class GameBallsManager : MonoBehaviourPun
         if (otherBall == null)
             return;
 
+        Vector2 ballPos = ball.GetPosition();
+        ActivateBallHitVisual(m_curRequiredColor, ballPos);
+
         Color color1 = PullColorFromQueue();
         Color color2 = GenerateRandomColor(color1);
 
         UpdateNextBallColor(color1, true);
 
-        Vector2 ballPos = ball.GetPosition();
         float distanceX = RandomDisX();
         //print("distanceX: " + distanceX);
-
-        ActivateBallHitVisual(color1, ballPos);
 
         Vector2 otherBallPos = ballPos;
         if (distanceX > 0)
@@ -284,7 +282,7 @@ public class GameBallsManager : MonoBehaviourPun
         m_args.GameCanvas.UpdateNextBallColor(color, m_nextColorArray, shouldEmitParticles);
     }
 
-    void ActivateBallHitVisual(Color color, Vector3 position)
+    protected virtual void ActivateBallHitVisual(Color color, Vector3 position)
     {
         BallHitVisual hitVisual = m_hitVisualsQueue.Dequeue();
         hitVisual.Activate(color, position);
@@ -347,7 +345,7 @@ public class GameBallsManager : MonoBehaviourPun
         else
             disXMultiplier = directionVector.x;
         int ballIndex = ball.GetIndex();
-        GenerateNewBallInScene(ballIndex, color, disXMultiplier, m_args.BallArgs.m_startForceY);
+        GenerateFirstBall(ballIndex, color, disXMultiplier, m_args.BallArgs.m_startForceY);
         UpdateNextBallColor(color, false);
     }
 
@@ -356,7 +354,7 @@ public class GameBallsManager : MonoBehaviourPun
         m_correctBallIndex = nextBallIndex;
     }
 
-    protected virtual void GenerateNewBallInScene(int ballIndex, Color color, float disXMultiplier, float startForceY)
+    protected virtual void GenerateFirstBall(int ballIndex, Color color, float disXMultiplier, float startForceY)
     {
         BallScript ball = m_ballsArray[ballIndex];
         ball.OnNewBallInScene(color, disXMultiplier, startForceY);
@@ -369,12 +367,12 @@ public class GameBallsManager : MonoBehaviourPun
 
         if (ballsHit.Contains(correctBall)) //kick correct ball if in range
         {
-            print(" contains");
+            //print(" contains");
             ballIndex = m_correctBallIndex;
         }
         else //kick closest ball if in range
         {
-            print("not contains");
+            //print("not contains");
             ballIndex = ballsHit[0].GetIndex();
         }
 

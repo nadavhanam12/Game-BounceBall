@@ -28,6 +28,7 @@ public class PlayerAutoScript : PlayerScript
         else
         {
             //shit not on turn
+            OnPlayIdle();
         }
     }
 

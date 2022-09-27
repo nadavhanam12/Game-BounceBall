@@ -26,9 +26,17 @@ public class PlayerScriptPvP : PlayerScript
     {
         if (this.photonView.IsMine)
             base.Update();
+        DetectBalls();
+    }
+    protected override void DetectBalls()
+    {
+        if (!PhotonNetwork.IsMasterClient)
+            return;
+        base.DetectBalls();
     }
     public override void FinishAnimation()
     {
+        m_playerMovement.SetInParalyze(false);
         if (this.photonView.IsMine)
             base.FinishAnimation();
     }
@@ -50,8 +58,10 @@ public class PlayerScriptPvP : PlayerScript
     }
     public override void SetGamePause(bool isPause)
     {
-        if (this.photonView.IsMine)
-            base.SetGamePause(isPause);
+        /*if (this.photonView.IsMine)
+        base.SetGamePause(isPause);*/
+        isGamePaused = isPause;
+        m_playerMovement.SetGamePause(isPause);
     }
 
     public override void StartTurn(bool throwNewBall = true)

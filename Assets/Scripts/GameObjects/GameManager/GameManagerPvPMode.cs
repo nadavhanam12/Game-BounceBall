@@ -3,6 +3,7 @@ using UnityEngine;
 using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
+using System;
 
 public class GameManagerPvPMode : GameManagerAbstract
 {
@@ -129,6 +130,8 @@ public class GameManagerPvPMode : GameManagerAbstract
 
     protected override async void SwitchPlayerTurn(bool shouldSwitchTurn = true)
     {
+        if (!PhotonNetwork.IsMasterClient)
+            return;
         m_gameCanvas.SwitchTurn(m_curPlayerTurn != PlayerIndex.First);
 
         if (m_curPlayerTurn != PlayerIndex.First)
@@ -149,8 +152,16 @@ public class GameManagerPvPMode : GameManagerAbstract
         SwitchPlayerTurnAfterWait(true, shouldSwitchTurn);
     }
 
+    protected override void InitPlayersStatus()
+    {
+        m_playerData1.PlayerScript?.InitPlayer(false);
+        m_playerData2.PlayerScript?.InitPlayer(false);
+    }
+
     public override void onTurnLost()
     {
+        if (!PhotonNetwork.IsMasterClient)
+            return;
         PlayerArgs playerData;
         EventManager.Broadcast(EVENT.EventOnBallLost);
         if (m_curPlayerTurn == PlayerIndex.First)
@@ -164,10 +175,13 @@ public class GameManagerPvPMode : GameManagerAbstract
 
         playerData = playerData == m_playerData1 ? m_playerData2 : m_playerData1;
         playerData.CurScore++;
+
+
         if (playerData == m_playerData1)
             m_gameCanvas.CheerActivate();
         else
             m_gameCanvas.CheerActivateSecondPlayer();
+
 
         m_gameCanvas.SetNormalScore(m_playerData1.CurScore, m_playerData2.CurScore);
         if (m_timeIsOver)
@@ -188,13 +202,27 @@ public class GameManagerPvPMode : GameManagerAbstract
     public override void GameIsOver()
     {
         //print("Time is over");
-        /* if (!m_isGamePause)
-         {
-             SetGamePause(true);
-             m_ballsManager.TimeIsOver();//should turn off the balls
-             m_gameCanvas.OnPvPEnd(m_playerData1.CurScore, m_playerData2.CurScore);
-         }*/
+        if (!m_isGamePause)
+        {
+            SetGamePause(true);
+            m_ballsManager.TimeIsOver();//should turn off the balls
+            m_gameCanvas.OnPvPEnd(m_playerData1.CurScore, m_playerData2.CurScore);
+            this.photonView.RPC("HidePlayersRPC", RpcTarget.Others);
+        }
     }
+
+    [PunRPC]
+    void HidePlayersRPC()
+    {
+        m_playerData1.PlayerScript?.HidePlayer();
+        m_playerData2.PlayerScript?.HidePlayer();
+    }
+
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        Invoke("GameIsOver", 1f);
+    }
+
 
     protected override void UpdatePlayerPrefsCompletedTutorial() { }
 

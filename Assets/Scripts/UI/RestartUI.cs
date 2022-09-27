@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class RestartUI : MonoBehaviour
@@ -19,5 +20,13 @@ public class RestartUI : MonoBehaviour
         {
             GetComponent<Image>().sprite = restartImage;
         }
+    }
+
+    public void DisableButton()
+    {
+        Color color = GetComponent<Image>().color;
+        color.a = 0.5f;
+        GetComponent<Image>().color = color;
+        Destroy(GetComponent<EventTrigger>());
     }
 }

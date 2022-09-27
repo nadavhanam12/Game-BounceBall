@@ -32,6 +32,7 @@ public class NextColorScript : MonoBehaviour
     [SerializeField][Range(0, 0.5f)] private float m_tweenTime;
     [SerializeField][Range(0, 1)] private float m_refreshRate;
     [Range(0, 1f)] public float m_completeBallAlpha;
+    [SerializeField] int m_particlesAmount;
 
     [SerializeField] private int initStartBall = 3;
     [SerializeField] private GameObject m_yellowHalo;
@@ -212,7 +213,6 @@ public class NextColorScript : MonoBehaviour
         ScaleUp(m_nextBallComponent.Image);
     }
 
-
     public void ScaleUp(RawImage image)
     {
         //image.rectTransform.localScale = Vector3.one * 1.3f;
@@ -231,10 +231,8 @@ public class NextColorScript : MonoBehaviour
     public void ScaleDown(RawImage image)
     {
         LeanTween.scale(image.gameObject, Vector3.one * 0.85f, m_tweenTime)
-                .setEase(LeanTweenType.easeInOutBack)
-                //.setOnComplete(FinishedTween)
-                ;
-
+                .setEase(LeanTweenType.easeInOutBack);
+        //.setOnComplete(FinishedTween);
     }
     private void FinishedTween()
     {
@@ -253,7 +251,7 @@ public class NextColorScript : MonoBehaviour
     {
         ParticleSystem.MainModule main = m_particleSystem.main;
         main.startColor = color;
-        m_particleSystem.Emit(120);
+        m_particleSystem.Emit(m_particlesAmount);
     }
 
 }

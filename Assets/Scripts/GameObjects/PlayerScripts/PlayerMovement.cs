@@ -23,7 +23,7 @@ public class PlayerMovement : MonoBehaviour
     {
         m_playerScript = playerScript;
         InSlide = false;
-        InSlide = InParalyze;
+        InParalyze = false;
         m_args = args;
 
         m_initialRotation = gameObject.transform.rotation;
@@ -36,12 +36,11 @@ public class PlayerMovement : MonoBehaviour
         if (!this) return;
         gameObject.transform.rotation = m_initialRotation;
         Vector3 positionUpper = m_initialPosition;
-        positionUpper.y += m_args.playerStats.m_startHeight;
         gameObject.transform.position = positionUpper;
         gameObject.transform.localScale = m_initialScale;
 
-        IsJumping = true;
-        IsJumpingDown = true;
+        SetInParalyze(false);
+        SetIsJumping(false);
     }
     public void SetInParalyze(bool isParalyze)
     {
@@ -52,6 +51,8 @@ public class PlayerMovement : MonoBehaviour
     {
         if (isGamePaused)
             return;
+        if (IsJumping)
+            return;
         if (CheckPlayerInBounds(direction))
         {
             if (withAnimation)
@@ -61,10 +62,7 @@ public class PlayerMovement : MonoBehaviour
             transform.Translate(direction * m_args.playerStats.m_movingSpeed, Space.World);
         }
         else if (InSlide)
-        {
-            InParalyze = false;
             ToggleSlide(false);
-        }
     }
 
     void SpinPlayerToDirection(Vector3 direction)
@@ -90,8 +88,11 @@ public class PlayerMovement : MonoBehaviour
         InSlide = false;
     }
 
+    //for touch control
     public void MovePlayerToPosition(Vector2 position)
     {
+        if (InParalyze)
+            return;
         Vector2 playerPosition = transform.position;
         //print(playerPosition + "   " + position);
         if ((Math.Abs(playerPosition.x - position.x) > m_minimumDistanceToMove) && (!InSlide))
@@ -103,23 +104,33 @@ public class PlayerMovement : MonoBehaviour
             m_playerScript.OnPlayIdle();
     }
 
+    //for keyboard control
     public void MoveX(Vector2 dir)
     {
+        if (InParalyze)
+            return;
         if (!InSlide)
             OnMoveX(dir);
     }
 
     public void ToggleSlide(bool shouldSlide)
     {
+        if (IsJumping)
+            return;
         InSlide = shouldSlide;
         if (InSlide)
         {
+            SetInParalyze(true);
             Vector3 dir = gameObject.transform.localScale.x > 0 ? Vector3.right : Vector3.left;
             dir *= m_args.playerStats.SlideSpeed;
             StartCoroutine(Slide(dir));
         }
         else
+        {
+            SetInParalyze(false);
             StopCoroutine(Slide(Vector3.zero));
+            InSlide = false;
+        }
 
     }
     IEnumerator Slide(Vector3 slideDirection)
@@ -147,9 +158,10 @@ public class PlayerMovement : MonoBehaviour
     }
 
     ///Jumping
-
     public void GetJump()
     {
+        if (InSlide)
+            return;
         if (IsJumping)
         {
             if (IsJumpingUp)
@@ -184,11 +196,11 @@ public class PlayerMovement : MonoBehaviour
 
     internal void SetIsJumping(bool v)
     {
-        IsJumping = true;
+        IsJumping = v;
     }
 
     internal void SetIsJumpingUp(bool v)
     {
-        IsJumpingUp = true;
+        IsJumpingUp = v;
     }
 }

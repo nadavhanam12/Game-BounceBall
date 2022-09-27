@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class EndGameScreen : MonoBehaviour
 {
@@ -13,11 +14,13 @@ public class EndGameScreen : MonoBehaviour
     [SerializeField] TMP_Text m_twoPlayerGameLoseText;
     [SerializeField] TMP_Text m_playerOneScoreText;
     [SerializeField] TMP_Text m_playerTwoScoreText;
+    [SerializeField] Button m_resetButton;
+
 
     int m_curScore1 = 0;
     int m_curScore2 = 0;
     [SerializeField] float m_countUpDuration;
-    public void Activate(bool isNewBestScore, int scoreToShow)
+    public void Activate(bool isNewBestScore, int scoreToShow)//its for Single Player Mode
     {
         m_twoPlayerGameWinText.gameObject.SetActive(false);
         m_twoPlayerGameLoseText.gameObject.SetActive(false);
@@ -78,6 +81,23 @@ public class EndGameScreen : MonoBehaviour
         m_twoPlayerGameLoseText.gameObject.SetActive(!victory);
         m_curScore1 = 0;
         m_curScore2 = 0;
+        gameObject.SetActive(true);
+        StartCoroutine(ScoreCoroutine2(playerOneScore, playerTwoScore));
+    }
+
+    internal void OnPvPEnd(bool victory, int playerOneScore, int playerTwoScore)
+    {
+        m_onePlayerGameNewScoreText.gameObject.SetActive(false);
+        m_onePlayerGameOldScoreText.gameObject.SetActive(false);
+        m_scoreText.gameObject.SetActive(false);
+
+        m_playerOneScoreText.gameObject.SetActive(true);
+        m_playerTwoScoreText.gameObject.SetActive(true);
+        m_twoPlayerGameWinText.gameObject.SetActive(victory);
+        m_twoPlayerGameLoseText.gameObject.SetActive(!victory);
+        m_curScore1 = 0;
+        m_curScore2 = 0;
+        m_resetButton.gameObject.SetActive(false);
         gameObject.SetActive(true);
         StartCoroutine(ScoreCoroutine2(playerOneScore, playerTwoScore));
     }

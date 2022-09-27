@@ -7,21 +7,26 @@ public class TouchPointer : MonoBehaviour
 {
     TrailRenderer m_trail;
     SpriteRenderer m_highlightBtn;
+    bool m_gameEnded;
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     void Awake()
     {
         gameObject.SetActive(false);
         m_trail = GetComponentInChildren<TrailRenderer>(true);
         m_highlightBtn = GetComponentInChildren<SpriteRenderer>(true);
+        m_gameEnded = false;
     }
 
     public void Init()
     {
+        if (m_gameEnded) return;
         gameObject.SetActive(true);
     }
 
     public void Activate(Vector2 position)
     {
+        if (m_gameEnded) return;
         transform.position = position;
         if (!this.isActiveAndEnabled)
         {
@@ -35,6 +40,11 @@ public class TouchPointer : MonoBehaviour
     {
         gameObject.SetActive(false);
         m_trail.Clear();
+    }
+
+    public void GameEnded()
+    {
+        m_gameEnded = true;
     }
 
 

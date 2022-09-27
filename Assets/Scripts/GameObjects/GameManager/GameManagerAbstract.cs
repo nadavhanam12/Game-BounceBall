@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using static PlayerScript;
 
-public abstract class GameManagerAbstract : MonoBehaviourPun
+public abstract class GameManagerAbstract : MonoBehaviourPunCallbacks
 {
     #region enum
     public enum PlayerIndex
@@ -205,6 +205,8 @@ public abstract class GameManagerAbstract : MonoBehaviourPun
         tutorialArgs.GameCanvas = m_gameCanvas;
         tutorialArgs.GameType = m_gameArgs.GameType;
         tutorialArgs.TutorialUI = m_gameCanvas.GetTutorialUI();
+        tutorialArgs.PlayerScript = m_playerData1.PlayerScript;
+
         m_tutorialManager.Init(tutorialArgs);
         m_tutorialManager.Pause = SetGamePause;
         m_tutorialManager.onFinishTutorial = FinishedTutorial;
@@ -280,11 +282,12 @@ public abstract class GameManagerAbstract : MonoBehaviourPun
     protected abstract void SwitchPlayerTurn(bool shouldSwitchTurn = true);
 
 
-    protected void InitPlayersStatus()
+    protected virtual void InitPlayersStatus()
     {
         m_playerData1.PlayerScript?.InitPlayer();
         m_playerData2.PlayerScript?.InitPlayer();
     }
+    //for tutorial
     void InitPlayerOneStatus()
     {
         m_playerData1.PlayerScript.InitPlayer();
@@ -353,6 +356,8 @@ public abstract class GameManagerAbstract : MonoBehaviourPun
     {
         PlayerIndex winner = m_playerData1.CurScore > m_playerData2.CurScore ? PlayerIndex.First : PlayerIndex.Second;
         SendDataMatchEnded(winner);
+        m_playerData1.PlayerScript?.HidePlayer();
+        m_playerData2.PlayerScript?.HidePlayer();
         GameIsOver();
     }
 
@@ -412,6 +417,8 @@ public abstract class GameManagerAbstract : MonoBehaviourPun
         {
             PlayerIndex winner = m_playerData1.CurScore > m_playerData2.CurScore ? PlayerIndex.First : PlayerIndex.Second;
             SendDataRetryButtonPressed(winner);
+            m_playerData1.PlayerScript?.HidePlayer();
+            m_playerData2.PlayerScript?.HidePlayer();
             GameIsOver();
         }
     }

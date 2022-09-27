@@ -12,8 +12,8 @@ public class BallPvP : BallScript
         base.Init(args, ballIndex);
         if (!PhotonNetwork.IsMasterClient)
         {
-            m_ballPhysics = null;
-            Destroy(GetComponent<Rigidbody2D>());
+            /*m_ballPhysics = null;
+            Destroy(GetComponent<Rigidbody2D>());*/
             //Destroy(GetComponent<CircleCollider2D>());
         }
     }
@@ -31,6 +31,15 @@ public class BallPvP : BallScript
             return;
         Color color = ArrayToColor(colorArray);
         base.UpdateColor(color);
+    }
+
+    public override void GenerateNewBallInScene(Color color, Vector3 pos)
+    {
+        //print("GenerateNewBallInScene");
+        //if (PhotonNetwork.IsMasterClient)
+        this.gameObject.transform.position = pos;
+        this.gameObject.SetActive(true);
+        base.GenerateNewBall(color);
     }
 
     object[] ColorToArray(Color color)

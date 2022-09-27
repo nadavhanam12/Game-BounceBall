@@ -8,6 +8,7 @@ public class TutorialArgs
     public GameType GameType;
     public TutorialUI TutorialUI;
     public GameCanvasScript GameCanvas;
+    public PlayerScript PlayerScript;
 
 
 

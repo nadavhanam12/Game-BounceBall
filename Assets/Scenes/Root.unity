@@ -7068,7 +7068,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2687623492476989113, guid: d5124124bf1b3d940859e85fe1421c1d, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2687623492476989113, guid: d5124124bf1b3d940859e85fe1421c1d, type: 3}
       propertyPath: m_AnchorMin.x
@@ -7076,11 +7076,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2687623492476989113, guid: d5124124bf1b3d940859e85fe1421c1d, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2687623492476989113, guid: d5124124bf1b3d940859e85fe1421c1d, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 1520
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2687623492476989113, guid: d5124124bf1b3d940859e85fe1421c1d, type: 3}
       propertyPath: m_SizeDelta.y
@@ -7116,11 +7116,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2687623492476989113, guid: d5124124bf1b3d940859e85fe1421c1d, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 800
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2687623492476989113, guid: d5124124bf1b3d940859e85fe1421c1d, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -40
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2687623492476989113, guid: d5124124bf1b3d940859e85fe1421c1d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -7240,7 +7240,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1811991376
 RectTransform:
   m_ObjectHideFlags: 0
@@ -11944,7 +11944,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4910729711649023149, guid: d1785398d38afca4eabdee77282f4af4, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6112541667056135801, guid: d1785398d38afca4eabdee77282f4af4, type: 3}
       propertyPath: m_Name
@@ -11952,7 +11952,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6855799805450843559, guid: d1785398d38afca4eabdee77282f4af4, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d1785398d38afca4eabdee77282f4af4, type: 3}

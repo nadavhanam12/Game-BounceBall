@@ -1,6 +1,8 @@
+using System.Collections;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
+using System.Threading.Tasks;
 
 public class LoadingPage : MonoBehaviourPunCallbacks
 {
@@ -10,21 +12,42 @@ public class LoadingPage : MonoBehaviourPunCallbacks
 
     public void Activate()
     {
+        Debug.Log("Activate");
         gameObject.SetActive(true);
-
+        if (PhotonNetwork.IsConnected)
+        {
+            SwitchToLobby();
+            return;
+        }
         PhotonNetwork.NickName = PlayerPrefs.GetString("PlayerName");
         PhotonNetwork.AutomaticallySyncScene = true;
         PhotonNetwork.ConnectUsingSettings();
     }
 
+    public override void OnDisconnected(DisconnectCause cause)
+    {
+        Debug.Log("OnCustomAuthenticationFailed " + cause.ToString());
+    }
+
     public override void OnConnectedToMaster()
     {
-        //Debug.Log("Connection made to " + PhotonNetwork.CloudRegion + " server.");
-        PhotonNetwork.JoinLobby();
+        Debug.Log("Connection made to " + PhotonNetwork.CloudRegion + " server.");
+        if (PhotonNetwork.NetworkClientState == ClientState.Joining)
+        {
+            print("ClientState.Joining");
+            SwitchToLobby();
+        }
+        else
+            PhotonNetwork.JoinLobby();
     }
     public override void OnJoinedLobby()
     {
-        //print("OnJoinedLobby");
+        print("OnJoinedLobby");
+        SwitchToLobby();
+    }
+
+    void SwitchToLobby()
+    {
         gameObject.SetActive(false);
         m_multiplayerLobby.Activate();
     }
@@ -33,10 +56,7 @@ public class LoadingPage : MonoBehaviourPunCallbacks
     {
         Debug.Log("OnCustomAuthenticationFailed " + debugMessage);
     }
-    public override void OnDisconnected(DisconnectCause cause)
-    {
-        Debug.Log("OnCustomAuthenticationFailed " + cause.ToString());
-    }
+
 
     public void OnClickedBack()
     {

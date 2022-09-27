@@ -83,7 +83,6 @@ public class MainMenu : MonoBehaviourPunCallbacks
     {
         m_anim.SetTrigger("Start_Pressed");
         EventManager.Broadcast(EVENT.EventMainMenu);
-
     }
     public void NameEntered()
     {
@@ -143,16 +142,15 @@ public class MainMenu : MonoBehaviourPunCallbacks
         print("BackToMenu");
         AsyncOperation operation = SceneManager.UnloadSceneAsync(m_gameSceneName);
         while (!operation.isDone)
-        {
             await Task.Delay(30);
-        }
 
         //ChooseRandomBackground();
         m_userChoosen = false;
         m_StartGame.SetActive(true);
         m_gameOption.SetActive(false);
         ToggleMenu(true);
-
+        if (PhotonNetwork.IsConnected)
+            PhotonNetwork.Disconnect();
     }
 
     private void ToggleMenu(bool activateMenu)
@@ -203,6 +201,7 @@ public class MainMenu : MonoBehaviourPunCallbacks
     public void StartPvP()
     {
         m_gameType = GameType.PvP;
+        PhotonNetwork.CurrentRoom.IsVisible = false;
         StartGameScene();
     }
 

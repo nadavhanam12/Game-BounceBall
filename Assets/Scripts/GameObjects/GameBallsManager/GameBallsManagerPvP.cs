@@ -97,37 +97,21 @@ public class GameBallsManagerPvP : GameBallsManager
             return;
         base.OnNewBallInScene(randomDirection, directionVector);
     }
-    protected override void GenerateNewBallInScene(int ballIndex, Color color, float disXMultiplier, float startForceY)
+    protected override void GenerateFirstBall(int ballIndex, Color color, float disXMultiplier, float startForceY)
     {
         BallScript ball = m_ballsArray[ballIndex];
         int viewId = ball.GetComponent<PhotonView>().ViewID;
-        this.photonView.RPC("GenerateBallWithViewID", RpcTarget.All, viewId, ColorToArray(color), disXMultiplier, startForceY);
+        this.photonView.RPC("GenerateFirstBallWithViewID", RpcTarget.All, viewId, ColorToArray(color), disXMultiplier, startForceY);
     }
 
     [PunRPC]
-    void GenerateBallWithViewID(int viewId, object[] colorArray, float disXMultiplier, float startForceY)
+    void GenerateFirstBallWithViewID(int viewId, object[] colorArray, float disXMultiplier, float startForceY)
     {
         BallScript ball = PhotonView.Find(viewId).GetComponent<BallScript>();
         Color color = ArrayToColor(colorArray);
         ball.OnNewBallInScene(color, disXMultiplier, startForceY);
     }
 
-    public override void ApplyKick(PlayerIndex playerIndex, List<BallScript> ballsHit)
-    {
-        print("ApplyKick");
-        int[] ballIndexes = BallScriptsToBallIndexes(ballsHit);
-        this.photonView.RPC("ApplyKickRPC", RpcTarget.All, (int)playerIndex, ballIndexes);
-    }
-
-    [PunRPC]
-    void ApplyKickRPC(int playerIndex, int[] ballsHit)
-    {
-        print("ApplyKickRPC- playerIndex:" + playerIndex);
-        if (!PhotonNetwork.IsMasterClient)
-            return;
-        List<BallScript> ballIndexes = BallIndexesToBallScripts(ballsHit);
-        base.ApplyKick((PlayerIndex)playerIndex, ballIndexes);
-    }
     protected override void RemoveBallFromScene(int ballIndex, bool fadeOut = false)
     {
         BallScript ball = m_ballsArray[ballIndex];
@@ -139,7 +123,7 @@ public class GameBallsManagerPvP : GameBallsManager
     void RemoveBallFromSceneWithViewId(int viewId, bool fadeOut = false)
     {
         BallScript ball = PhotonView.Find(viewId).GetComponent<BallScript>();
-        ball.RemoveBallFromScene(fadeOut);
+        ball?.RemoveBallFromScene(fadeOut);
     }
 
     //is called when a ball is split
@@ -164,13 +148,32 @@ public class GameBallsManagerPvP : GameBallsManager
         this.photonView.RPC("UpdateCorrectBallIndexRPC", RpcTarget.All, nextBallIndex);
     }
     [PunRPC]
-    protected virtual void UpdateCorrectBallIndexRPC(int nextBallIndex)
+    protected void UpdateCorrectBallIndexRPC(int nextBallIndex)
     {
         base.UpdateCorrectBallIndex(nextBallIndex);
     }
+    protected override void OnHitPlay(PlayerIndex playerIndex, int ballIndex)
+    {
+        if (!PhotonNetwork.IsMasterClient)
+            return;
+        base.OnHitPlay(playerIndex, ballIndex);
+    }
 
 
+    protected override void ActivateBallHitVisual(Color color, Vector3 position)
+    {
+        object[] colorData = ColorToArray(color);
+        this.photonView.RPC("ActivateBallHitVisualRPC", RpcTarget.All, colorData, position);
+    }
 
+    [PunRPC]
+    void ActivateBallHitVisualRPC(object[] colorData, Vector3 position)
+    {
+        Color color = ArrayToColor(colorData);
+        BallHitVisual hitVisual = m_hitVisualsQueue.Dequeue();
+        hitVisual.Activate(color, position);
+        m_hitVisualsQueue.Enqueue(hitVisual);
+    }
 
 
     #region DataConvertor

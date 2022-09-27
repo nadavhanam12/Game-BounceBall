@@ -124,6 +124,10 @@ public class GameCanvasScript : MonoBehaviourPun
             CountdownUI.gameObject.SetActive(false);
             EndGameScreen.gameObject.SetActive(false);
 
+            if (m_args?.GameType == GameType.PvP)
+                RestartButton.DisableButton();
+
+
         }
     }
     private void OnTimeIsOver()
@@ -275,9 +279,12 @@ public class GameCanvasScript : MonoBehaviourPun
     {
         BombUI.gameObject.SetActive(toShow);
     }
+    [PunRPC]
     public void GravityIncrease()
     {
         TurnsUI.GravityIncrease();
+        if (IsMasterPvP())
+            this.photonView.RPC("GravityIncrease", RpcTarget.Others);
     }
 
     public void ActiveButtons()
@@ -326,17 +333,21 @@ public class GameCanvasScript : MonoBehaviourPun
 
     internal void OnNewBestScore(int curBestScore)
     {
+        DisableTouchPointerVisual();
         CheerActivate(false);
         EndGameScreen.Activate(true, curBestScore);
     }
 
     internal void OnPrevBestScore(int prevBestScore)
     {
+        DisableTouchPointerVisual();
         EndGameScreen.Activate(false, prevBestScore);
     }
 
     internal void OnPvEEnd(int playerOneScore, int playerTwoScore)
     {
+        DisableTouchPointerVisual();
+
         bool victory = playerOneScore > playerTwoScore;
         if (victory)
             CheerActivate(false);
@@ -353,9 +364,16 @@ public class GameCanvasScript : MonoBehaviourPun
     [PunRPC]
     void OnPvPEndRPC(bool victory, int playerOneScore, int playerTwoScore)
     {
+        DisableTouchPointerVisual();
         if (victory)
             CheerActivate(false);
-        EndGameScreen.OnPvEEnd(victory, playerOneScore, playerTwoScore);
+        EndGameScreen.OnPvPEnd(victory, playerOneScore, playerTwoScore);
+    }
+
+    void DisableTouchPointerVisual()
+    {
+        TouchPointer touchPointer = FindObjectOfType<TouchPointer>(true);
+        touchPointer.GameEnded();
     }
 
     bool IsMasterPvP()

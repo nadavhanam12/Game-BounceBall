@@ -52,6 +52,9 @@ public class PlayerAnimationsPvP : PlayerAnimations, IOnEventCallback
         if (m_viewId != viewId)
             return;
         string triggerName = (string)dataArray[1];
+        //print("HandleAnimationTrigger- viewId: " + viewId + " triggerName: " + triggerName);
+
+        if (triggerName == "KickReg Trigger") return;
         base.AnimSetTrigger(triggerName);
     }
 

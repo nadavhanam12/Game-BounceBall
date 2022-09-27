@@ -23,7 +23,6 @@ public class PlayerScript : MonoBehaviourPun
     protected bool m_currentlyInTurn = true;
     protected PlayerArgs m_args;
     private bool m_inInitCooldown = false;
-    private bool m_onWinLoseAnim = false;
     private float m_halfFieldDistance;
 
     protected PlayerAnimations m_playerAnimations;
@@ -72,10 +71,17 @@ public class PlayerScript : MonoBehaviourPun
             if (!m_playerMovement.InParalyze)
             {
                 m_playerMovement.GetJump();
-                List<BallScript> ballsHit = m_playerKicksManager.CheckBallInHitZone();
-                if (ballsHit.Count > 0)
-                    OnKickPlay(KickType.Regular);
+                DetectBalls();
             }
+    }
+
+    protected virtual void DetectBalls()
+    {
+        if (!IsCurrentlyInTurn())
+            return;
+        List<BallScript> ballsHit = m_playerKicksManager.CheckBallInHitZone();
+        if (ballsHit.Count > 0)
+            OnKickPlay(KickType.Regular);
     }
 
 
@@ -90,14 +96,14 @@ public class PlayerScript : MonoBehaviourPun
 
     public void Win()
     {
-        m_onWinLoseAnim = true;
-        m_playerAnimations.WinAnim();
+        /*m_playerMovement.SetInParalyze(true);
+        m_playerAnimations.WinAnim();*/
     }
 
     public void Lose()
     {
-        m_onWinLoseAnim = true;
-        m_playerAnimations.LoseAnim();
+        /*m_playerMovement.SetInParalyze(true);
+        m_playerAnimations.LoseAnim();*/
     }
 
 
@@ -105,6 +111,7 @@ public class PlayerScript : MonoBehaviourPun
     {
         m_playerMovement.SetInParalyze(false);
         m_playerMovement.ToggleSlide(false);
+        m_playerMovement.SetIsJumping(false);
         OnPlayIdle();
     }
 
@@ -118,14 +125,11 @@ public class PlayerScript : MonoBehaviourPun
                 StartCoroutine(InitCooldown());
         }
         FinishAnimation();
-        m_onWinLoseAnim = false;
         ShowPlayer();
-
     }
 
     public void OnKickPlay(KickType kickType)
     {
-        print("OnKickPlay");
         if ((!isGamePaused) && (!m_playerMovement.InParalyze))
         {
             if (kickType == KickType.Special)
@@ -136,7 +140,6 @@ public class PlayerScript : MonoBehaviourPun
             {
                 case (KickType.Special):
                     triggerName = "KickSpecial Trigger";
-                    m_playerMovement.SetInParalyze(true);
                     m_playerMovement.ToggleSlide(true);
                     break;
 
@@ -157,6 +160,8 @@ public class PlayerScript : MonoBehaviourPun
 
     private void OnJump()
     {
+        if (m_playerMovement.InParalyze)
+            return;
         if (m_playerBombsManager != null && m_playerBombsManager.HasBomb())
         {
             m_playerBombsManager.ActivateBomb();

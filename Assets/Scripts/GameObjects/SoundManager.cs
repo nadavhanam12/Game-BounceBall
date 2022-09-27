@@ -107,7 +107,7 @@ public class SoundManager : MonoBehaviour
 
     public void PlayAudioClip(AudioClip clipToPlay)
     {
-        //print(clipToPlay.name);
+        //print("PlayAudioClip " + clipToPlay.name);
         if (m_availableForUpdate)
         {
             m_availableForUpdate = false;
@@ -131,7 +131,7 @@ public class SoundManager : MonoBehaviour
     // Play a single clip through the music source.
     public void PlayBGMusic(bool onMenu)
     {
-        //print("PlayMusic");
+        //print("PlayMusic " + onMenu);
         m_musicSource.Stop();
         m_musicSource.clip = onMenu ? m_menuBGMusic : m_gameBGMusic;
         m_musicSource.Play();

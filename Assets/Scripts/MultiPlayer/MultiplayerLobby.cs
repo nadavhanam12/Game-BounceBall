@@ -20,6 +20,12 @@ public class MultiplayerLobby : MonoBehaviourPunCallbacks
 
     public void Activate()
     {
+        if (PhotonNetwork.InRoom)
+        {
+            PhotonNetwork.LeaveRoom();
+            print("leave room");
+        }
+
         gameObject.SetActive(true);
         foreach (AvailableMatch availableMatch in availableMatchList)
             Destroy(availableMatch.gameObject);
@@ -28,7 +34,8 @@ public class MultiplayerLobby : MonoBehaviourPunCallbacks
 
     public override void OnConnectedToMaster()
     {
-        PhotonNetwork.JoinLobby();
+        if (!PhotonNetwork.InLobby)
+            PhotonNetwork.JoinLobby();
     }
 
     public void OnClickCreate()

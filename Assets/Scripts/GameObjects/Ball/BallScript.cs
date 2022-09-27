@@ -69,7 +69,7 @@ public class BallScript : MonoBehaviourPun
             if (fadeOut)
                 FadeOut();
             else
-                this.gameObject.SetActive(false);
+                RemoveFromScene();
         }
     }
 
@@ -77,10 +77,10 @@ public class BallScript : MonoBehaviourPun
     public void OnNewBallInScene(Color color, float forceX, float forceY)
     {
         //print("OnNewBallInScene");
+        this.gameObject.transform.localPosition = m_initialPosition;
         this.gameObject.SetActive(true);
         m_ballColor.UpdateColorToWhite();
         m_initialized = false;
-        this.gameObject.transform.localPosition = m_initialPosition;
         m_ballPhysics?.ToggleSimulate(false);
         m_ballParticles.EnableTrail(false);
         m_ballColor.FadeIn(
@@ -92,19 +92,20 @@ public class BallScript : MonoBehaviourPun
             GenerateNewBall(color);
         });
     }
-    public void GenerateNewBallInScene(Color color, Vector3 pos)
+    public virtual void GenerateNewBallInScene(Color color, Vector3 pos)
     {
         //print("GenerateNewBallInScene");
-        this.gameObject.SetActive(true);
         this.gameObject.transform.position = pos;
+        this.gameObject.SetActive(true);
         GenerateNewBall(color);
     }
 
 
-    private void GenerateNewBall(Color color)
+    protected void GenerateNewBall(Color color)
     {
         if (m_ballColor.CurTweenId != -1)
             m_ballColor.CancelTween();
+
         if (this != null)
         {
             UpdateColor(color);
@@ -137,7 +138,7 @@ public class BallScript : MonoBehaviourPun
             await Task.Delay(150);
             if (this)
             {
-                this.gameObject.SetActive(false);
+                RemoveFromScene();
                 m_onBallLost(m_ballIndex);
             }
         }
@@ -194,6 +195,12 @@ public class BallScript : MonoBehaviourPun
     public void ResetVelocity()
     {
         m_ballPhysics?.ResetVelocity();
+    }
+
+    void RemoveFromScene()
+    {
+        m_ballParticles.EnableTrail(false);
+        this.gameObject.SetActive(false);
     }
 
 

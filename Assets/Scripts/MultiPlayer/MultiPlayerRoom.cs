@@ -13,6 +13,8 @@ public class MultiPlayerRoom : MonoBehaviourPunCallbacks
     [SerializeField] RoomPlayer roomPlayerPrefab;
     List<RoomPlayer> roomPlayerList = new List<RoomPlayer>();
     [SerializeField] Transform contentTransform;
+
+    bool loadingScene = false;
     public void Activate(string roomName)
     {
         gameObject.SetActive(true);
@@ -21,6 +23,7 @@ public class MultiPlayerRoom : MonoBehaviourPunCallbacks
 
         m_roomNameText.text = "Room Name: " + roomName;
         UpdatePlayerList();
+        loadingScene = false;
     }
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
@@ -84,6 +87,8 @@ public class MultiPlayerRoom : MonoBehaviourPunCallbacks
     }
     public override void OnPlayerPropertiesUpdate(Player player, ExitGames.Client.Photon.Hashtable hashTable)
     {
+        if (loadingScene)
+            return;
         if (PhotonNetwork.IsMasterClient)
         {
             foreach (RoomPlayer GetPlayer in roomPlayerList)
@@ -99,6 +104,9 @@ public class MultiPlayerRoom : MonoBehaviourPunCallbacks
 
     void LoadScene()
     {
+        if (loadingScene)
+            return;
+        loadingScene = true;
         m_mainMenu.StartPvP();
     }
 }
