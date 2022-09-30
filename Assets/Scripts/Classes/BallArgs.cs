@@ -9,9 +9,10 @@ public class BallArgs
     [HideInInspector] public GameBounds Bounds;
     //public Sprite BallTexture;
     public float m_gravity = 20f;
+    public float BallHitPowerX = 1f;
     public float BallHitPowerY = 4f;
-    public float BallMinimumHitPowerX = 1f;
-    public float BallMaximumHitPowerX = 1f;
+    public float BallSpecialKickPowerX = 1.5f;
+    public float BallSpecialKickPowerY = 1.5f;
 
     public float m_ballReflectPower = 1f;
     public float m_ballTimeFadeOut = 1f;

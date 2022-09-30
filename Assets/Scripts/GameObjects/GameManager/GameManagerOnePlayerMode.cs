@@ -98,7 +98,11 @@ public class GameManagerOnePlayerMode : GameManagerAbstract
             if (prevBestScore < curBestScore)
             {
                 PlayerPrefs.SetInt("SinglePlayerBestCombo", curBestScore);
-                m_gameCanvas.OnNewBestScore(curBestScore);
+                AnalyticsManager.Instance().CommitData(
+                                       AnalyticsManager.AnalyticsEvents.Event_New_Best_score,
+                                       new Dictionary<string, object> {
+                 { "Score", curBestScore }
+                                    }); m_gameCanvas.OnNewBestScore(curBestScore);
             }
             else
                 m_gameCanvas.OnPrevBestScore(prevBestScore);

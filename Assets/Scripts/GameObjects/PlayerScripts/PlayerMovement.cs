@@ -115,6 +115,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void ToggleSlide(bool shouldSlide)
     {
+        return;
         if (IsJumping)
             return;
         InSlide = shouldSlide;

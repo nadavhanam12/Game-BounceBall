@@ -33,9 +33,9 @@ public class CheerScript : MonoBehaviour
         CheerOptions.Add("Good Job!");
         CheerOptions.Add("Champion!");
         CheerOptions.Add("Combo!");
-        CheerOptions.Add("incredible!");
-        CheerOptions.Add("wonderful!");
-        CheerOptions.Add("awesome!");
+        CheerOptions.Add("Incredible!");
+        CheerOptions.Add("Wonderful!");
+        CheerOptions.Add("Awesome!");
 
 
     }

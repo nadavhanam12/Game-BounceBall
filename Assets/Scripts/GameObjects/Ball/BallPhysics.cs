@@ -83,8 +83,10 @@ public class BallPhysics : MonoBehaviour
         //print("Ball OnCollusion: " + col.collider.name);
         if (col.gameObject.tag == "GameLowerBound")
             m_ballScript.BallFallen();
-        else
-            Physics2D.IgnoreCollision(m_collider, col.collider);
+        else if (col.gameObject.tag == "GameUpperBound")
+            return;
+        /*else
+            Physics2D.IgnoreCollision(m_collider, col.collider);*/
     }
 
     public void CheckBounds()

@@ -150,11 +150,10 @@ public class BallScript : MonoBehaviourPun
     }
 
 
-    public void OnHitPlay(float distanceX, bool burstParticles)
+    public void OnHitPlay(float multiplierX, bool burstParticles, float multiplierY)
     {
-        m_ballPhysics?.ApplyPhysics(new Vector2(distanceX, m_args.BallHitPowerY));
+        m_ballPhysics?.ApplyPhysics(new Vector2(multiplierX, multiplierY));
     }
-
 
     public void SetGamePause(bool isPause)
     {

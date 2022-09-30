@@ -1,4 +1,5 @@
 
+using System.Threading.Tasks;
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
@@ -175,6 +176,12 @@ public class GameCanvasScript : MonoBehaviourPun
         CheerObject.Activate(withTextAndInit);
         m_args.ConfettiManager.Activate();
         EventManager.Broadcast(EVENT.EventCombo);
+        CameraShake();
+    }
+    void CameraShake()
+    {
+        CameraVFX cameraVFX = FindObjectOfType<CameraVFX>();
+        cameraVFX.Shake();
     }
     public void CheerActivateSecondPlayer(bool withTextAndInit = true)
     {
@@ -188,8 +195,10 @@ public class GameCanvasScript : MonoBehaviourPun
             ScoreUIDelta.SetScore(scoreDelta, playerInLead);
     }
 
-    public void StartCountdown()
+    public async void StartCountdown()
     {
+        while (m_anim.GetCurrentAnimatorStateInfo(0).normalizedTime < 1)
+            await Task.Delay(200);
         CountdownUI.SetActive(true);
         m_anim.Play("Countdown", -1, 0f);
     }
@@ -233,6 +242,13 @@ public class GameCanvasScript : MonoBehaviourPun
         TurnsUI.Activate(isFirstPlayerTurn);
         if (IsMasterPvP())
             this.photonView.RPC("SwitchTurn", RpcTarget.Others, !isFirstPlayerTurn);
+    }
+    [PunRPC]
+    public void ActivateTimeEnd()
+    {
+        TurnsUI.ActivateTimeEnd();
+        if (IsMasterPvP())
+            this.photonView.RPC("ActivateTimeEnd", RpcTarget.Others);
     }
 
     [PunRPC]

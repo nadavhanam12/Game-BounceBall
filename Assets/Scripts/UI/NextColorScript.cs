@@ -224,8 +224,7 @@ public class NextColorScript : MonoBehaviour
         image.rectTransform.localScale = Vector3.one * 1f;
         LeanTween.scale(m_yellowHalo, Vector3.one * 2f, m_tweenTime)
        .setLoopPingPong(1)
-       .setEase(LeanTweenType.linear)
-        ;
+       .setEase(LeanTweenType.linear);
 
     }
     public void ScaleDown(RawImage image)
@@ -249,9 +248,9 @@ public class NextColorScript : MonoBehaviour
 
     private void EmitBallParticles(Color color)
     {
-        ParticleSystem.MainModule main = m_particleSystem.main;
+        /*ParticleSystem.MainModule main = m_particleSystem.main;
         main.startColor = color;
-        m_particleSystem.Emit(m_particlesAmount);
+        m_particleSystem.Emit(m_particlesAmount);*/
     }
 
 }

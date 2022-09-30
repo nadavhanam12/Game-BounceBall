@@ -14,6 +14,9 @@ public class BallHitVisual : MonoBehaviour
     [SerializeField] private float timeToPlay = 1f;
     [SerializeField] private float ScaleFactor = 1f;
     [SerializeField] private float IdleTime = 1f;
+    [SerializeField] private GameObject m_visual;
+    [SerializeField] private ParticleSystem m_particleSystem;
+    [SerializeField] private int m_particlesAmount;
 
 
     public void Init(Vector3 scale)
@@ -39,17 +42,24 @@ public class BallHitVisual : MonoBehaviour
         isActive = true;
         gameObject.SetActive(true);
         fadeIn();
-        LeanTween.rotateZ(gameObject, 2 * 360 + transform.rotation.z, timeToPlay + IdleTime / 2)
+        LeanTween.rotateZ(m_visual, 2 * 360 + transform.rotation.z, timeToPlay + IdleTime / 2)
         .setEase(LeanTweenType.easeOutCirc);
         LeanTween.scale(gameObject, m_initialScale * ScaleFactor, timeToPlay)
         .setOnComplete(fadeout);
+        EmitBallParticles(color);
+    }
 
+    private void EmitBallParticles(Color color)
+    {
+        ParticleSystem.MainModule main = m_particleSystem.main;
+        main.startColor = color;
+        m_particleSystem.Emit(m_particlesAmount);
     }
 
     void RandomAngle()
     {
         int rnd = Random.Range(0, 360);
-        transform.rotation = Quaternion.Euler(0, 0, rnd);
+        m_visual.transform.rotation = Quaternion.Euler(0, 0, rnd);
     }
     public void fadeIn()
     {

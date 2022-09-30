@@ -10,6 +10,7 @@ public class TurnsUI : MonoBehaviour
     [SerializeField] private TMP_Text m_lostTurnText;
     [SerializeField] private TMP_Text m_gravityIncreaseText;
     [SerializeField] private TMP_Text m_timeEnd;
+    [SerializeField] private TMP_Text m_lastBallText;
     private Vector3 m_initTextPosition;
 
     [SerializeField] private float m_playTime = 1.5f;
@@ -113,7 +114,6 @@ public class TurnsUI : MonoBehaviour
     private void InitValues(bool isPlayerTurn)
     {
         GameObject textObject = isPlayerTurn ? m_yourTurnText.gameObject : m_lostTurnText.gameObject;
-
         textObject.gameObject.transform.localPosition = m_initTextPosition;
     }
 
@@ -142,9 +142,8 @@ public class TurnsUI : MonoBehaviour
     {
         m_timeEnd.gameObject.SetActive(true);
         LeanTween.moveLocalX
-                    (m_timeEnd.gameObject, 0, m_playTime)
-                    //.setEase(animCurve)
-                    ;
+        (m_timeEnd.gameObject, -m_initTextPosition.x, m_playTime)
+        .setEase(animCurve);
     }
 
     private void InitTimeEnd()

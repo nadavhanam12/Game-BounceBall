@@ -23,7 +23,8 @@ public class AnalyticsManager
         Event_Retry_Button_Pressed,
         Event_Tutorial_Started,
         Event_Tutorial_Completed,
-        Event_Tutorial_Step
+        Event_Tutorial_Step,
+        Event_New_Best_score
     };
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]

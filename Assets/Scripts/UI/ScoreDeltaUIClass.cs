@@ -45,7 +45,7 @@ public class ScoreDeltaUIClass : MonoBehaviour
     int m_curBestCombo = 0;
     int m_prevBestCombo = 0;
 
-    Vector2 timePosOnSinglePlayerMode = new Vector2(300, 0);
+    Vector2 timePosOnSinglePlayerMode = new Vector2(315, 0);
     #endregion
 
     public void SetGamePause(bool isPause)
@@ -68,7 +68,7 @@ public class ScoreDeltaUIClass : MonoBehaviour
             if (m_gameType == GameType.PvE || m_gameType == GameType.PvP)
             {
                 InitNormalScore();
-                m_timeGameObject.anchoredPosition = Vector2.zero;
+                m_timeGameObject.anchoredPosition = new Vector2(55, -30);
             }
             else if (m_gameType == GameType.SinglePlayer)
             {

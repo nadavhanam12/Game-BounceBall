@@ -141,6 +141,8 @@ public class PlayerScript : MonoBehaviourPun
                 case (KickType.Special):
                     triggerName = "KickSpecial Trigger";
                     m_playerMovement.ToggleSlide(true);
+                    //testing special kick
+                    m_playerKicksManager.ReachHitPosition(kickType);
                     break;
 
                 default:

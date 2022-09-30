@@ -35,8 +35,6 @@ public class GameBallsManager : MonoBehaviourPun
     public float m_kickCooldown = 0.1f;
 
 
-
-
     #endregion
 
 
@@ -174,7 +172,7 @@ public class GameBallsManager : MonoBehaviourPun
 
     //Generate another ball with different color and direction
     //update the game manager for score and combo
-    protected virtual void OnHitPlay(PlayerIndex playerIndex, int ballIndex)
+    protected virtual void OnHitPlay(PlayerIndex playerIndex, int ballIndex, KickType kickType)
     {
         //print("OnHitPlay- playerIndex: " + playerIndex);
         BallScript ball = m_ballsArray[ballIndex];
@@ -220,11 +218,11 @@ public class GameBallsManager : MonoBehaviourPun
 
         UpdateNextBallColor(color1, true);
 
-        float distanceX = RandomDisX();
-        //print("distanceX: " + distanceX);
+        float multiplierX = m_args.BallArgs.BallHitPowerX;
+        float multiplierY = m_args.BallArgs.BallHitPowerY;
 
         Vector2 otherBallPos = ballPos;
-        if (distanceX > 0)
+        if (multiplierX > 0)
             otherBallPos.x -= 1f;
         else
             otherBallPos.x += 1f;
@@ -233,12 +231,18 @@ public class GameBallsManager : MonoBehaviourPun
 
         ball.ResetVelocity();
         otherBall.ResetVelocity();
-
-
-        ball.OnHitPlay(distanceX, true);
+        float multiplierY1 = multiplierY;
+        float multiplierY2 = multiplierY;
+        if (kickType == KickType.Special)
+        {
+            multiplierY1 = RandomMultiplierY();
+            multiplierY2 = RandomMultiplierY();
+            multiplierX = RandomMultiplierX();
+        }
+        ball.OnHitPlay(multiplierX, true, multiplierY1);
         ball.UpdateColor(color1);
 
-        otherBall.OnHitPlay((-1) * distanceX, false);
+        otherBall.OnHitPlay((-1) * multiplierX, false, multiplierY2);
         otherBall.UpdateColor(color2);
 
 
@@ -260,11 +264,16 @@ public class GameBallsManager : MonoBehaviourPun
         return color1;
     }
 
-    float RandomDisX()
+    float RandomMultiplierX()
     {
-        float rnd = Random.Range(m_args.BallArgs.BallMinimumHitPowerX, m_args.BallArgs.BallMaximumHitPowerX);
+        float rnd = Random.Range(m_args.BallArgs.BallSpecialKickPowerX / 1.5f, m_args.BallArgs.BallSpecialKickPowerX * 1.5f);
         if (FlipDistance())
             rnd *= (-1);
+        return rnd;
+    }
+    float RandomMultiplierY()
+    {
+        float rnd = Random.Range(m_args.BallArgs.BallSpecialKickPowerY / 1.5f, m_args.BallArgs.BallSpecialKickPowerY * 1.5f);
         return rnd;
     }
 
@@ -360,7 +369,7 @@ public class GameBallsManager : MonoBehaviourPun
         ball.OnNewBallInScene(color, disXMultiplier, startForceY);
     }
 
-    public virtual void ApplyKick(PlayerIndex playerIndex, List<BallScript> ballsHit)
+    public virtual void ApplyKick(PlayerIndex playerIndex, List<BallScript> ballsHit, KickType kickType)
     {
         BallScript correctBall = m_ballsArray[m_correctBallIndex];
         int ballIndex;
@@ -377,7 +386,7 @@ public class GameBallsManager : MonoBehaviourPun
         }
 
 
-        OnHitPlay(playerIndex, ballIndex);
+        OnHitPlay(playerIndex, ballIndex, kickType);
     }
 
     public bool ContainsCorrectBall(List<BallScript> ballsHit)

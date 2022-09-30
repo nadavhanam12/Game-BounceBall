@@ -29,6 +29,8 @@ public abstract class GameManagerAbstract : MonoBehaviourPunCallbacks
     protected ConfettiManager m_confettiManager;
     IinputManager m_inputManager;
 
+    CameraVFX m_cameraVFX;
+
     #endregion
 
     #region private
@@ -109,7 +111,7 @@ public abstract class GameManagerAbstract : MonoBehaviourPunCallbacks
         canvasArgs.PlayerImage2 = m_playerData2.Image;
         canvasArgs.ConfettiManager = m_confettiManager;
         m_gameCanvas.Init(canvasArgs);
-        m_gameCanvas.m_onTimeIsOver = () => m_timeIsOver = true;
+        m_gameCanvas.m_onTimeIsOver = TimeEnded;
         InitGameCanvasDelegates(m_playerData1);
     }
 
@@ -477,6 +479,11 @@ public abstract class GameManagerAbstract : MonoBehaviourPunCallbacks
     void OnDestroy()
     {
         RemoveListeners();
+    }
+    void TimeEnded()
+    {
+        m_gameCanvas.ActivateTimeEnd();
+        m_timeIsOver = true;
     }
 
 }

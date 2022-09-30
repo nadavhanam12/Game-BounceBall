@@ -152,11 +152,11 @@ public class GameBallsManagerPvP : GameBallsManager
     {
         base.UpdateCorrectBallIndex(nextBallIndex);
     }
-    protected override void OnHitPlay(PlayerIndex playerIndex, int ballIndex)
+    protected override void OnHitPlay(PlayerIndex playerIndex, int ballIndex, KickType kickType)
     {
         if (!PhotonNetwork.IsMasterClient)
             return;
-        base.OnHitPlay(playerIndex, ballIndex);
+        base.OnHitPlay(playerIndex, ballIndex, kickType);
     }
 
 
