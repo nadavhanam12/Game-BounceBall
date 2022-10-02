@@ -10,16 +10,31 @@ public abstract class AbstractTouchInputManager : IinputManager
     private float m_sensitivityY = 30;
     private Vector2 m_firstTouchPosition;
     protected Camera m_camera;
+    DateTime m_lastTouchDateTime;
+    int m_doubleTapIntervalMilliseconds = 500;
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     protected virtual void Start()
     {
         m_camera = Camera.main;
+        m_lastTouchDateTime = DateTime.Now;
     }
 
     protected void HandleInput(Touch touch)
     {
+
         if (touch.phase == TouchPhase.Began)
+        {
             m_firstTouchPosition = touch.position;
+            DateTime y = DateTime.Now;
+            //check for double tap
+            if (m_lastTouchDateTime > DateTime.Now)
+            {
+                //print("double tap");
+                OnDoubleTap();
+            }
+            m_lastTouchDateTime = DateTime.Now.AddMilliseconds(m_doubleTapIntervalMilliseconds);
+        }
         if (touch.phase == TouchPhase.Ended)
         {
             EndInput();
@@ -45,8 +60,8 @@ public abstract class AbstractTouchInputManager : IinputManager
         }
         if (delta.y > 0)
             OnJumpInput();
-        else
-            OnKickSpecialInput();
+        /*else
+            OnKickSpecialInput();*/
 
     }
 

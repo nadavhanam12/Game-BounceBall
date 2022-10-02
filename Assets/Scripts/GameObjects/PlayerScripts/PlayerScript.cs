@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Photon.Pun;
 using UnityEngine;
+using static GameManagerAbstract;
 
 public class PlayerScript : MonoBehaviourPun
 {
@@ -29,6 +30,10 @@ public class PlayerScript : MonoBehaviourPun
     protected PlayerMovement m_playerMovement;
     protected PlayerKick m_playerKicksManager;
     protected PlayerBomb m_playerBombsManager;
+    protected PlayerAuraCircle m_playerAuraCircle;
+
+
+    public bool IsAllowedSpecialKick { get; protected set; }
 
     #endregion
 
@@ -43,11 +48,17 @@ public class PlayerScript : MonoBehaviourPun
             m_halfFieldDistance = (m_args.Bounds.GameRightBound - m_args.Bounds.GameLeftBound) / 2f;
 
             m_initialized = true;
+            SetAllowedSpecialKick(false);
             InitPlayer();
+            if (m_args.Darker)
+                DarkerPlayer();
         }
     }
 
-
+    public PlayerIndex GetIndex()
+    {
+        return m_args.PlayerIndex;
+    }
     protected virtual void InitScripts()
     {
         m_playerAnimations = GetComponent<PlayerAnimations>();
@@ -62,6 +73,8 @@ public class PlayerScript : MonoBehaviourPun
         m_playerBombsManager = GetComponent<PlayerBomb>();
         m_playerBombsManager?.Init(m_args);
 
+        m_playerAuraCircle = GetComponentInChildren<PlayerAuraCircle>();
+        m_playerAuraCircle.Init();
     }
 
     // Update is called once per frame
@@ -77,11 +90,12 @@ public class PlayerScript : MonoBehaviourPun
 
     protected virtual void DetectBalls()
     {
-        if (!IsCurrentlyInTurn())
-            return;
-        List<BallScript> ballsHit = m_playerKicksManager.CheckBallInHitZone();
-        if (ballsHit.Count > 0)
-            OnKickPlay(KickType.Regular);
+        if (IsCurrentlyInTurn() && !m_playerKicksManager.InKickCooldown)
+        {
+            List<BallScript> ballsHit = m_playerKicksManager.CheckBallInHitZone();
+            if (ballsHit.Count > 0)
+                OnKickPlay(ballsHit);
+        }
     }
 
 
@@ -102,6 +116,7 @@ public class PlayerScript : MonoBehaviourPun
 
     public void Lose()
     {
+        m_playerAuraCircle.Disable();
         /*m_playerMovement.SetInParalyze(true);
         m_playerAnimations.LoseAnim();*/
     }
@@ -110,7 +125,6 @@ public class PlayerScript : MonoBehaviourPun
     public virtual void FinishAnimation()
     {
         m_playerMovement.SetInParalyze(false);
-        m_playerMovement.ToggleSlide(false);
         m_playerMovement.SetIsJumping(false);
         OnPlayIdle();
     }
@@ -126,36 +140,26 @@ public class PlayerScript : MonoBehaviourPun
         }
         FinishAnimation();
         ShowPlayer();
+        //SetAllowedSpecialKick(false);
     }
 
-    public void OnKickPlay(KickType kickType)
+    public void OnKickPlay(List<BallScript> ballsHit)
     {
-        if ((!isGamePaused) && (!m_playerMovement.InParalyze))
+        KickType kickType = KickType.Regular;
+        //kickType = KickType.Special;
+        string triggerName = "KickReg Trigger";
+        if (isGamePaused || m_playerMovement.InParalyze || m_args.BallsManager.IsInKickCooldown())
+            return;
+
+        if (m_playerKicksManager.IsNextKickIsSpecial)
         {
-            if (kickType == KickType.Special)
-                SendKickEventData(kickType);
-
-            string triggerName;
-            switch (kickType)
-            {
-                case (KickType.Special):
-                    triggerName = "KickSpecial Trigger";
-                    m_playerMovement.ToggleSlide(true);
-                    //testing special kick
-                    m_playerKicksManager.ReachHitPosition(kickType);
-                    break;
-
-                default:
-                    triggerName = "KickReg Trigger";
-                    m_playerKicksManager.ReachHitPosition(kickType);
-                    break;
-            }
-            if (!m_playerMovement.IsJumping)
-                m_playerAnimations.AnimSetTrigger(triggerName);
-
-            //anim.enabled = false;
-
+            kickType = KickType.Special;
+            //triggerName = "KickSpecial Trigger";
         }
+        m_playerKicksManager.ReachHitPosition(kickType, ballsHit);
+        if (!m_playerMovement.IsJumping)
+            m_playerAnimations.AnimSetTrigger(triggerName);
+
     }
 
 
@@ -194,7 +198,7 @@ public class PlayerScript : MonoBehaviourPun
 
     public void OnPlayIdle()
     {
-        if (!m_playerMovement.InParalyze && !m_playerMovement.InSlide)
+        if (!m_playerMovement.InParalyze)
             m_playerAnimations.OnPlayIdle();
     }
 
@@ -207,10 +211,33 @@ public class PlayerScript : MonoBehaviourPun
         m_playerMovement.MoveX(Vector2.left);
     }
 
-    public void OnTouchKickSpecial()
+    public virtual void OnTouchKickSpecial()
     {
-        OnKickPlay(KickType.Special);
+        //print("onTouchKickSpecial");
+        if (!IsAllowedSpecialKick)
+            return;
+        SetAllowedSpecialKick(false);
+        m_playerKicksManager.SetNextKickIsSpecial(true);
+        m_playerAuraCircle.ReadyAura();
     }
+
+    public void SetAllowedSpecialKick(bool isAllowed, bool initNextKickIsSpecial = false)
+    {
+        //print("SetAllowedSpecialKick " + isAllowed);
+        IsAllowedSpecialKick = isAllowed;
+        if (IsAllowedSpecialKick)
+            m_playerAuraCircle?.IdleAura();
+        else
+            m_playerAuraCircle?.Disable();
+
+        if (initNextKickIsSpecial)
+            m_playerKicksManager.SetNextKickIsSpecial(false);
+    }
+    public void ActivateAura()
+    {
+        m_playerAuraCircle.Activate();
+    }
+
 
     public virtual void LostTurn()
     {
@@ -239,29 +266,10 @@ public class PlayerScript : MonoBehaviourPun
                  { "PlayerIndex", m_args.PlayerIndex }
 
         });
-        m_playerMovement.ToggleSlide(false);
         m_playerMovement.SetInParalyze(true);
         m_playerAnimations.AnimSetTrigger("Die Trigger");
     }
 
-    public void Revive()
-    {
-        //print("Revive");
-        Invoke("ReviveAfterWait", 0.3f);
-    }
-
-    private void ReviveAfterWait()
-    {
-        print("ReviveAfterWait");
-        InitPlayer(true);
-    }
-
-
-
-    public bool IsOnSlide()
-    {
-        return m_playerMovement.InSlide;
-    }
 
     public bool IsOnJumpKick()
     {
@@ -277,7 +285,7 @@ public class PlayerScript : MonoBehaviourPun
         m_playerMovement.MovePlayerToPosition(position);
     }
 
-    protected virtual void SendKickEventData(KickType kickType)
+    public virtual void SendKickEventData(KickType kickType)
     {
         AnalyticsManager.AnalyticsEvents kickDataEvent = kickType ==
                 KickType.Regular ?
@@ -290,5 +298,12 @@ public class PlayerScript : MonoBehaviourPun
     internal bool IsCurrentlyInTurn()
     {
         return m_currentlyInTurn;
+    }
+    void DarkerPlayer()
+    {
+        SpriteRenderer sprite = GetComponent<SpriteRenderer>();
+        float valueColor = 175f / 255f;
+        sprite.color = new Color(valueColor, valueColor, valueColor);
+        sprite.sortingOrder = -1;
     }
 }

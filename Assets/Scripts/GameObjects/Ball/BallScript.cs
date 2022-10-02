@@ -132,10 +132,10 @@ public class BallScript : MonoBehaviourPun
         //print("Ball has fallen");
         if (this)
         {
-            m_ballPhysics?.AddForce(m_args.m_ballReflectPower);
+            //m_ballPhysics?.AddForce(m_args.m_ballReflectPower);
             BallHasFallen = true;
             //ResetVelocity();
-            await Task.Delay(150);
+            await Task.Delay(50);
             if (this)
             {
                 RemoveFromScene();

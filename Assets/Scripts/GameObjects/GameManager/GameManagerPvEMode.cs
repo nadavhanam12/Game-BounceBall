@@ -54,6 +54,7 @@ public class GameManagerPvEMode : GameManagerAbstract
         m_playerData2.PlayerScript = m_playerContainer.SpawnAutoPlayer();
         m_playerData2.PlayerScript.gameObject.SetActive(false);
         m_playerData2.AutoPlay = true;
+        m_playerData2.Darker = true;
         m_playerData2.PlayerScript.Init(m_playerData2);
 
     }
@@ -65,12 +66,15 @@ public class GameManagerPvEMode : GameManagerAbstract
         {
             playerData = m_playerData1;
             EventManager.Broadcast(EVENT.EventOnBallLost);
+            m_gameCanvas.SetSliderValue(0, m_gameArgs.ComboKicksAmount);
         }
         else
             playerData = m_playerData2;
 
-        playerData.CurComboIndex = -1;
+        playerData.ComboSinceSpecialKick = 0;
+
         playerData.CurCombo = 0;
+        playerData.PlayerScript.SetAllowedSpecialKick(false, true);
         m_gameCanvas.SetCombo(playerData.CurCombo);
 
         if (m_inTutorial)
@@ -101,6 +105,8 @@ public class GameManagerPvEMode : GameManagerAbstract
             return;
         else
             SwitchPlayerTurnAfterWait(false);
+        if (playerIndex == PlayerIndex.First)
+            CheckPlayerCombo(playerIndex);
 
     }
 

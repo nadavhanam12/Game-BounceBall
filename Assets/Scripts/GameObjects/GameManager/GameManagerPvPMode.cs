@@ -70,11 +70,18 @@ public class GameManagerPvPMode : GameManagerAbstract
         PlayerScript playerScript = playerGameObject.AddComponent<PlayerScriptPvP>();
 
         playerGameObject.gameObject.SetActive(false);
+        bool isMaster = PhotonNetwork.IsMasterClient;
         PlayerArgs playerData;
         if (playerIndex == PlayerIndex.First.ToString())
+        {
             playerData = m_playerData1;
+            playerData.Darker = !isMaster;
+        }
         else
+        {
             playerData = m_playerData2;
+            playerData.Darker = isMaster;
+        }
 
         playerData.PlayerScript = playerScript;
         m_playerContainer.SetPlayerParent(playerIndex, playerScript);
@@ -169,8 +176,11 @@ public class GameManagerPvPMode : GameManagerAbstract
         else
             playerData = m_playerData2;
 
-        playerData.CurComboIndex = -1;
+
+        playerData.ComboSinceSpecialKick = 0;
+        m_gameCanvas.SetSliderValue(0, m_gameArgs.ComboKicksAmount, m_curPlayerTurn);
         playerData.CurCombo = 0;
+        playerData.PlayerScript.SetAllowedSpecialKick(false, true);
         m_gameCanvas.SetCombo(0);
 
         playerData = playerData == m_playerData1 ? m_playerData2 : m_playerData1;
@@ -196,6 +206,7 @@ public class GameManagerPvPMode : GameManagerAbstract
         BroadcastKickType();
         m_gameCanvas.IncrementCombo();
         SwitchPlayerTurnAfterWait(false);
+        CheckPlayerCombo(playerIndex);
     }
 
 

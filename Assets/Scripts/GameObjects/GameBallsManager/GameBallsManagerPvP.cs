@@ -174,6 +174,16 @@ public class GameBallsManagerPvP : GameBallsManager
         hitVisual.Activate(color, position);
         m_hitVisualsQueue.Enqueue(hitVisual);
     }
+    protected override void CameraShake()
+    {
+        this.photonView.RPC("CameraShakeRPC", RpcTarget.All);
+    }
+    [PunRPC]
+    void CameraShakeRPC()
+    {
+        CameraVFX cameraVFX = FindObjectOfType<CameraVFX>();
+        cameraVFX.Shake();
+    }
 
 
     #region DataConvertor

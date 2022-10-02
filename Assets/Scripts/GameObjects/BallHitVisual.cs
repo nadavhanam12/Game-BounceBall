@@ -42,8 +42,10 @@ public class BallHitVisual : MonoBehaviour
         isActive = true;
         gameObject.SetActive(true);
         fadeIn();
+
         LeanTween.rotateZ(m_visual, 2 * 360 + transform.rotation.z, timeToPlay + IdleTime / 2)
         .setEase(LeanTweenType.easeOutCirc);
+
         LeanTween.scale(gameObject, m_initialScale * ScaleFactor, timeToPlay)
         .setOnComplete(fadeout);
         EmitBallParticles(color);

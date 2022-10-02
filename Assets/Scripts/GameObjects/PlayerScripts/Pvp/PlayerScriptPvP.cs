@@ -21,6 +21,9 @@ public class PlayerScriptPvP : PlayerScript
         m_playerBombsManager = GetComponent<PlayerBomb>();
         m_playerBombsManager?.Init(m_args);
 
+        m_playerAuraCircle = GetComponentInChildren<PlayerAuraCircle>();
+        m_playerAuraCircle.Init(true);
+
     }
     protected override void Update()
     {
@@ -92,6 +95,18 @@ public class PlayerScriptPvP : PlayerScript
         if (this.photonView.ViewID != viewId)
             return;
         base.LostTurn();
+    }
+    public override void OnTouchKickSpecial()
+    {
+        int viewId = this.photonView.ViewID;
+        this.photonView.RPC("OnTouchKickSpecialRPC", RpcTarget.MasterClient, viewId);
+    }
+    [PunRPC]
+    void OnTouchKickSpecialRPC(int viewId)
+    {
+        if (this.photonView.ViewID != viewId)
+            return;
+        base.OnTouchKickSpecial();
     }
 
 

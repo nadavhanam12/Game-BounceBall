@@ -54,7 +54,9 @@ public class GameManagerOnePlayerMode : GameManagerAbstract
             playerData = m_playerData2;
 
 
-        playerData.CurComboIndex = -1;
+        playerData.ComboSinceSpecialKick = 0;
+        m_gameCanvas.SetSliderValue(0, m_gameArgs.ComboKicksAmount);
+        playerData.PlayerScript.SetAllowedSpecialKick(false, true);
         playerData.CurCombo = 0;
         m_gameCanvas.SetCombo(playerData.CurCombo);
 
@@ -80,9 +82,7 @@ public class GameManagerOnePlayerMode : GameManagerAbstract
         m_gameCanvas.IncrementCombo();
         if (m_inTutorial && !m_tutorialManager.IsFreePlayMode())
             return;
-        else if (m_playerData1.CurScore % m_gameArgs.SinglePlayerCheerFrequency == 0)
-            m_gameCanvas.CheerActivate();
-
+        CheckPlayerCombo(playerIndex);
     }
 
     public override void GameIsOver()

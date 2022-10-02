@@ -17,7 +17,6 @@ public class PlayerStats
     [Range(0, 4f)] public float InitCooldown = 2f;
 
     public float PlayerBoundDistanceTrigger = 1f;
-    public float PlayerBoundDistanceSpawn = 1f;
 
 
 }

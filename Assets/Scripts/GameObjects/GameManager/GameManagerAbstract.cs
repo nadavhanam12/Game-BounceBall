@@ -486,4 +486,26 @@ public abstract class GameManagerAbstract : MonoBehaviourPunCallbacks
         m_timeIsOver = true;
     }
 
+    protected void CheckPlayerCombo(PlayerIndex playerIndex)
+    {
+        /*if (playerIndex != PlayerIndex.First)
+            return;*/
+
+        PlayerArgs playerArgs = playerIndex == PlayerIndex.First ? m_playerData1 : m_playerData2;
+        if (m_inTutorial)
+            return;
+        if (playerArgs.PlayerScript.IsAllowedSpecialKick)
+            return;
+
+        playerArgs.ComboSinceSpecialKick++;
+        m_gameCanvas.SetSliderValue(playerArgs.ComboSinceSpecialKick, m_gameArgs.ComboKicksAmount, playerIndex);
+        print("CheckPlayerCombo: playerIndex: " + playerIndex + "   Combo: " + playerArgs.ComboSinceSpecialKick);
+        if (playerArgs.ComboSinceSpecialKick == m_gameArgs.ComboKicksAmount)
+        {
+            playerArgs.PlayerScript.SetAllowedSpecialKick(true);
+            playerArgs.ComboSinceSpecialKick = 0;
+        }
+
+    }
+
 }

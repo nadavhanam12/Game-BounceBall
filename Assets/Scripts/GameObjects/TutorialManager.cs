@@ -155,7 +155,8 @@ public class TutorialManager : MonoBehaviour
                     }
                     break;
                 case StageInTutorial.PracticeSlideGamePlay:
-                    if (m_args.PlayerScript.IsOnSlide())
+                    //if (m_args.PlayerScript.IsOnSlide())
+                    if (true)
                     {
                         curCombo = 0;
                         m_args.GameCanvas.CheerActivate();

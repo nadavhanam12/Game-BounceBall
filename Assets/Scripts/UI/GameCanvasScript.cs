@@ -50,6 +50,8 @@ public class GameCanvasScript : MonoBehaviourPun
     private CurPlayerUI CurPlayerUI;
     private EndGameScreen EndGameScreen;
 
+    private SpeciakKickSliderUI SpeciakKickSliderUI;
+
     #endregion
 
     #region private
@@ -118,6 +120,7 @@ public class GameCanvasScript : MonoBehaviourPun
             ComboConterUI.Init();
             TurnsUI.Init(m_args.GameType);
             CurPlayerUI.Init(m_args.PlayerImage1, m_args.PlayerImage2);
+            SpeciakKickSliderUI.Init();
 
             EventManager.AddHandler(EVENT.EventOnTimeOver, OnTimeIsOver);
 
@@ -169,6 +172,7 @@ public class GameCanvasScript : MonoBehaviourPun
         RestartButton = GetComponentInChildren<RestartUI>(true);
         CurPlayerUI = GetComponentInChildren<CurPlayerUI>(true);
         EndGameScreen = GetComponentInChildren<EndGameScreen>(true);
+        SpeciakKickSliderUI = GetComponentInChildren<SpeciakKickSliderUI>(true);
     }
     [PunRPC]
     public void CheerActivate(bool withTextAndInit = true)
@@ -176,13 +180,9 @@ public class GameCanvasScript : MonoBehaviourPun
         CheerObject.Activate(withTextAndInit);
         m_args.ConfettiManager.Activate();
         EventManager.Broadcast(EVENT.EventCombo);
-        CameraShake();
+        //CameraShake();
     }
-    void CameraShake()
-    {
-        CameraVFX cameraVFX = FindObjectOfType<CameraVFX>();
-        cameraVFX.Shake();
-    }
+
     public void CheerActivateSecondPlayer(bool withTextAndInit = true)
     {
         this.photonView.RPC("CheerActivate", RpcTarget.Others, withTextAndInit);
@@ -396,5 +396,20 @@ public class GameCanvasScript : MonoBehaviourPun
     {
         return (m_args?.GameType == GameType.PvP) && PhotonNetwork.IsMasterClient;
     }
+
+    public void SetSliderValue(int amount, int maxAmount, PlayerIndex playerIndex = PlayerIndex.First)
+    {
+        if (playerIndex == PlayerIndex.First)
+            SetSliderValueRPC(amount, maxAmount);
+        else if (IsMasterPvP())
+            this.photonView.RPC("SetSliderValueRPC", RpcTarget.Others, amount, maxAmount);
+    }
+
+    [PunRPC]
+    public void SetSliderValueRPC(int amount, int maxAmount)
+    {
+        SpeciakKickSliderUI.SetSliderValue(amount, maxAmount);
+    }
+
 
 }

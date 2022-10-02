@@ -55,9 +55,7 @@ public class PlayerAutoScript : PlayerScript
             {
                 List<BallScript> ballsHit = m_playerKicksManager.CheckBallInHitZone();
                 if (ballsHit.Count > 0)
-                {
-                    OnKickPlay(KickType.Regular);
-                }
+                    OnKickPlay(ballsHit);
             }
         }
 
@@ -69,7 +67,7 @@ public class PlayerAutoScript : PlayerScript
         m_playerKicksManager.StartKickCoolDown();
     }
 
-    protected override void SendKickEventData(KickType kickType)
+    public override void SendKickEventData(KickType kickType)
     {
         //no need to send data on Auto Play player
     }

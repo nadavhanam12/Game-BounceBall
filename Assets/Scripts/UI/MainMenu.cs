@@ -300,7 +300,6 @@ public class MainMenu : MonoBehaviourPunCallbacks
     void ApplyArgs()
     {
         m_gameSceneSetUpScript = FindObjectOfType<GameSceneSetUp>(true);
-
         if (m_gameSceneSetUpScript != null)
         {
             GameArgs gameArgs = CreateGameArgs(m_gameType);

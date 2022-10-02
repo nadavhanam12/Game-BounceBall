@@ -122,7 +122,8 @@ public class GameBallsManager : MonoBehaviourPun
     protected virtual void OnBallLost(int ballIndex)
     {
         RemoveBallFromScene(ballIndex, false);
-        if (!IsBallsInPLay())
+        //if ((m_correctBallIndex == ballIndex) || (!IsBallsInPLay()))
+        if (m_correctBallIndex == ballIndex)
         {
             GameManagerOnTurnLost();
             m_curCombo = 0;
@@ -218,7 +219,7 @@ public class GameBallsManager : MonoBehaviourPun
 
         UpdateNextBallColor(color1, true);
 
-        float multiplierX = m_args.BallArgs.BallHitPowerX;
+        float multiplierX = RandomDirectionX();
         float multiplierY = m_args.BallArgs.BallHitPowerY;
 
         Vector2 otherBallPos = ballPos;
@@ -238,6 +239,7 @@ public class GameBallsManager : MonoBehaviourPun
             multiplierY1 = RandomMultiplierY();
             multiplierY2 = RandomMultiplierY();
             multiplierX = RandomMultiplierX();
+            CameraShake();
         }
         ball.OnHitPlay(multiplierX, true, multiplierY1);
         ball.UpdateColor(color1);
@@ -247,6 +249,11 @@ public class GameBallsManager : MonoBehaviourPun
 
 
         UpdateCurCombo();
+    }
+    protected virtual void CameraShake()
+    {
+        CameraVFX cameraVFX = FindObjectOfType<CameraVFX>();
+        cameraVFX.Shake();
     }
 
     //is called when a ball is split
@@ -263,17 +270,24 @@ public class GameBallsManager : MonoBehaviourPun
         ColorsQueue.Enqueue(GenerateRandomColor(lastColorInQueue));
         return color1;
     }
+    float RandomDirectionX()
+    {
+        float rnd = m_args.BallArgs.BallHitPowerX;
+        if (FlipDistance())
+            rnd *= (-1);
+        return rnd;
+    }
 
     float RandomMultiplierX()
     {
-        float rnd = Random.Range(m_args.BallArgs.BallSpecialKickPowerX / 1.5f, m_args.BallArgs.BallSpecialKickPowerX * 1.5f);
+        float rnd = Random.Range(m_args.BallArgs.BallSpecialKickPowerX, m_args.BallArgs.BallSpecialKickPowerX * 1.5f);
         if (FlipDistance())
             rnd *= (-1);
         return rnd;
     }
     float RandomMultiplierY()
     {
-        float rnd = Random.Range(m_args.BallArgs.BallSpecialKickPowerY / 1.5f, m_args.BallArgs.BallSpecialKickPowerY * 1.5f);
+        float rnd = Random.Range(m_args.BallArgs.BallSpecialKickPowerY, m_args.BallArgs.BallSpecialKickPowerY);
         return rnd;
     }
 
@@ -300,8 +314,8 @@ public class GameBallsManager : MonoBehaviourPun
 
     bool FlipDistance()
     {
-        int rnd = Random.Range(0, 10);
-        return rnd <= 4;
+        int rnd = Random.Range(0, 2);
+        return rnd == 0;
     }
 
     protected Color GenerateRandomColor(Color forbiddenColor)
@@ -340,7 +354,7 @@ public class GameBallsManager : MonoBehaviourPun
     {
         if (m_ballsArray[m_correctBallIndex].IsInScene())
         {
-            print("correct ball is in scene");
+            //print("correct ball is in scene");
             return;
         }
         UpdateCorrectBallIndex(m_nextBallIndex);
@@ -374,17 +388,12 @@ public class GameBallsManager : MonoBehaviourPun
         BallScript correctBall = m_ballsArray[m_correctBallIndex];
         int ballIndex;
 
-        if (ballsHit.Contains(correctBall)) //kick correct ball if in range
-        {
-            //print(" contains");
+        if (ballsHit.Contains(correctBall))
+            //kick correct ball if in range
             ballIndex = m_correctBallIndex;
-        }
-        else //kick closest ball if in range
-        {
-            //print("not contains");
+        else
+            //kick closest ball if in range
             ballIndex = ballsHit[0].GetIndex();
-        }
-
 
         OnHitPlay(playerIndex, ballIndex, kickType);
     }
@@ -424,6 +433,10 @@ public class GameBallsManager : MonoBehaviourPun
         yield return new WaitForSeconds(m_kickCooldown);
         m_inKickCooldown = false;
         //print("m_inKickCooldown = false");
+    }
+    public bool IsInKickCooldown()
+    {
+        return m_inKickCooldown;
     }
 
 }

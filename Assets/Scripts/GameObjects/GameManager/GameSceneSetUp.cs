@@ -22,6 +22,7 @@ public class GameSceneSetUp : MonoBehaviour
         m_mainMenu = FindObjectOfType<MainMenu>(true);
         if (!m_mainMenu)
         {//runs as solo scene
+            //Debug.Log("GameSceneSetUp: !m_mainMenu");
             SetGameSceneArgs(m_gameArgs);
             PlayGameScene();
         }
@@ -29,12 +30,15 @@ public class GameSceneSetUp : MonoBehaviour
 
     public void SetGameSceneArgs(GameArgs gameArgs)
     {
+        //Debug.Log("SetGameSceneArgs");
         m_gameArgs = gameArgs;
         CreateGameManager();
     }
 
     void CreateGameManager()
-    {//should create game manager per game mode and SetGameArgs() it with game args
+    {
+        //should create game manager per game mode and SetGameArgs() it with game args
+        //Debug.Log("CreateGameManager");
         switch (m_gameArgs.GameType)
         {
             case (GameType.SinglePlayer):
@@ -63,7 +67,7 @@ public class GameSceneSetUp : MonoBehaviour
 
     public void PlayGameScene()
     {
-        Debug.Log("PlayGameScene");
+        //Debug.Log("PlayGameScene");
         if (m_gameManagerScript.GetType() == typeof(GameManagerPvPMode))
             m_helperPvPMode.ReadyToStartGameScene();
         else

@@ -9,7 +9,7 @@ public class PlayerKick : MonoBehaviour
     public bool InKickCooldown { get; private set; } = false;
     PlayerScript m_player;
     PlayerArgs m_args;
-    public bool NextKickIsSpecial { get; private set; } = false;
+    public bool IsNextKickIsSpecial { get; private set; } = false;
 
     public void Init(PlayerScript player, PlayerArgs args)
     {
@@ -18,12 +18,13 @@ public class PlayerKick : MonoBehaviour
 
         m_hitZone = gameObject.GetComponent<CircleCollider2D>();
         m_hitZone.radius = m_args.playerStats.m_hitZoneRadius;
-        NextKickIsSpecial = false;
+        SetNextKickIsSpecial(false);
     }
 
     public void SetNextKickIsSpecial(bool isSpecial)
     {
-        NextKickIsSpecial = isSpecial;
+        //print("SetNextKickIsSpecial " + isSpecial);
+        IsNextKickIsSpecial = isSpecial;
     }
 
     public void StartKickCoolDown()
@@ -37,18 +38,22 @@ public class PlayerKick : MonoBehaviour
         InKickCooldown = false;
     }
 
-    public void ReachHitPosition(KickType kickType)
+    public void ReachHitPosition(KickType kickType, List<BallScript> ballsHit)
     {
         if (m_player.IsCurrentlyInTurn() && !InKickCooldown)
         {
-            List<BallScript> ballsHit = CheckBallInHitZone();
-            //print("ballsHit.Count " + ballsHit.Count);
-            if (ballsHit.Count > 0)
+            //print("ReachHitPosition " + m_player.GetIndex() + " " + kickType);
+            if (m_args.BallsManager.ContainsCorrectBall(ballsHit))
             {
-                if (m_args.BallsManager.ContainsCorrectBall(ballsHit))
-                    StartKickCoolDown();
-                m_args.BallsManager.ApplyKick(m_args.PlayerIndex, ballsHit, kickType);
+                StartKickCoolDown();
+                if (kickType == KickType.Special)
+                {
+                    SetNextKickIsSpecial(false);
+                    m_player.SendKickEventData(kickType);
+                    m_player.ActivateAura();
+                }
             }
+            m_args.BallsManager.ApplyKick(m_args.PlayerIndex, ballsHit, kickType);
         }
     }
 

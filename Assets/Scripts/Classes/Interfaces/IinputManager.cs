@@ -30,6 +30,10 @@ public abstract class IinputManager : MonoBehaviour
     {
         m_gameCanvas.OnJumpInput();
     }
+    protected void OnDoubleTap()
+    {
+        OnKickSpecialInput();
+    }
     protected void MovePlayerToPosition(Vector2 position)
     {
         m_gameCanvas.MovePlayerToPosition(position);

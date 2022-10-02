@@ -22,7 +22,7 @@ public class GameArgs
     public float CountDownDelay = 1f;
     public bool ShouldPlayTutorial = false;
     public bool ShouldPlayCountdown = false;
-    public int SinglePlayerCheerFrequency = 5;
+    public int ComboKicksAmount = 3;
 
     public GameArgs(GameType gameType)
     {
