@@ -44,6 +44,12 @@ public class GameManagerOnePlayerMode : GameManagerAbstract
 
     public override void onTurnLost()
     {
+        if (m_inTutorial)
+        {
+            onTurnLostTutorial();
+            return;
+        }
+
         PlayerArgs playerData;
         if (m_curPlayerTurn == PlayerIndex.First)
         {
@@ -60,9 +66,8 @@ public class GameManagerOnePlayerMode : GameManagerAbstract
         playerData.CurCombo = 0;
         m_gameCanvas.SetCombo(playerData.CurCombo);
 
-        if (m_inTutorial)
-            onTurnLostTutorial();
-        else if (m_timeIsOver)
+
+        if (m_timeIsOver)
             MatchEnd();
         else
         {
@@ -71,10 +76,10 @@ public class GameManagerOnePlayerMode : GameManagerAbstract
         }
     }
 
-    public override void OnBallHit(PlayerIndex playerIndex)
+    public override void OnBallHit(PlayerIndex playerIndex, KickType kickType)
     {
         if (m_inTutorial)
-            m_tutorialManager.OnBallHit();
+            m_tutorialManager.OnBallHit(kickType);
 
         BroadcastKickType();
 

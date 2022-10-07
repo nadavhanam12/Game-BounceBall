@@ -13,15 +13,18 @@ public class MultiPlayerRoom : MonoBehaviourPunCallbacks
     [SerializeField] RoomPlayer roomPlayerPrefab;
     List<RoomPlayer> roomPlayerList = new List<RoomPlayer>();
     [SerializeField] Transform contentTransform;
+    bool m_withLobby;
 
     bool loadingScene = false;
-    public void Activate(string roomName)
+    public void Activate(string roomName, bool withLobby = true)
     {
         gameObject.SetActive(true);
-        foreach (Transform child in contentTransform.transform)
+        m_withLobby = withLobby;
+        RoomPlayer[] roomPlayers = GetComponentsInChildren<RoomPlayer>();
+        foreach (RoomPlayer child in roomPlayers)
             GameObject.Destroy(child.gameObject);
 
-        m_roomNameText.text = "Room Name: " + roomName;
+        //m_roomNameText.text = "Room Name: " + roomName;
         UpdatePlayerList();
         loadingScene = false;
     }
@@ -32,7 +35,8 @@ public class MultiPlayerRoom : MonoBehaviourPunCallbacks
 
     public override void OnPlayerLeftRoom(Player newPlayer)
     {
-        UpdatePlayerList();
+        //UpdatePlayerList();
+        OnClickedBack();
     }
     public void OnClickedBack()
     {
@@ -48,7 +52,10 @@ public class MultiPlayerRoom : MonoBehaviourPunCallbacks
     public override void OnLeftRoom()
     {
         gameObject.SetActive(false);
-        m_multiplayerLobby.Activate();
+        if (m_withLobby)
+            m_multiplayerLobby.Activate();
+        else
+            m_mainMenu.OpenMenuGameOptions();
     }
 
 
@@ -71,14 +78,14 @@ public class MultiPlayerRoom : MonoBehaviourPunCallbacks
 
         if (playerMaster != null)
         {
-            RoomPlayer roomPlayer = Instantiate(roomPlayerPrefab, contentTransform);
+            RoomPlayer roomPlayer = Instantiate(roomPlayerPrefab, contentTransform.transform.GetChild(0));
             roomPlayer.SetRoomPlayer(this, playerMaster);
             roomPlayerList.Add(roomPlayer);
         }
 
         if (playerClient != null)
         {
-            RoomPlayer roomPlayer = Instantiate(roomPlayerPrefab, contentTransform);
+            RoomPlayer roomPlayer = Instantiate(roomPlayerPrefab, contentTransform.transform.GetChild(1));
             roomPlayer.SetRoomPlayer(this, playerClient);
             roomPlayerList.Add(roomPlayer);
         }
@@ -92,12 +99,12 @@ public class MultiPlayerRoom : MonoBehaviourPunCallbacks
         if (PhotonNetwork.IsMasterClient)
         {
             foreach (RoomPlayer GetPlayer in roomPlayerList)
-                if (!(bool)GetPlayer.GetPlayer().CustomProperties["IsReady"])
+                if (!(bool)GetPlayer?.GetPlayer()?.CustomProperties["IsReady"])
                     return;
             if (PhotonNetwork.CurrentRoom.PlayerCount != 2)
                 return;
 
-            LoadScene();
+            Invoke("LoadScene", 3f);
         }
 
     }

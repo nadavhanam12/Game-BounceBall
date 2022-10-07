@@ -36,7 +36,7 @@ public class GameBallsManagerPvP : GameBallsManager
         {
             GameObject ballGameObject = PhotonNetwork.Instantiate("Ball/Ball", Vector3.zero, Quaternion.identity);
             int ballViewId = ballGameObject.GetComponent<PhotonView>().ViewID;
-            this.photonView.RPC("InitBallsArray", RpcTarget.All, ballViewId, i);
+            this.photonView.RPC("InitBallsArray", RpcTarget.AllBuffered, ballViewId, i);
         }
     }
 

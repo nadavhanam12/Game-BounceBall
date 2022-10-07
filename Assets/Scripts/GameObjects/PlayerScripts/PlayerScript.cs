@@ -251,11 +251,11 @@ public class PlayerScript : MonoBehaviourPun
     }
     public void ShowPlayer()
     {
-        playerSprite.gameObject.SetActive(true);
+        playerSprite?.gameObject.SetActive(true);
     }
     public void HidePlayer()
     {
-        playerSprite.gameObject.SetActive(false);
+        playerSprite?.gameObject.SetActive(false);
     }
 
     public void PlayerHitByBomb()

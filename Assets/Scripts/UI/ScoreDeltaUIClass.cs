@@ -76,6 +76,7 @@ public class ScoreDeltaUIClass : MonoBehaviour
                 m_timeGameObject.anchoredPosition = timePosOnSinglePlayerMode;
                 InitBestCombo();
             }
+            gameObject.SetActive(false);
         }
     }
 

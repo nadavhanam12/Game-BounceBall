@@ -12,6 +12,7 @@ public class RoomPlayer : MonoBehaviourPunCallbacks
     [SerializeField] TMP_Text m_nameText;
     [SerializeField] Image m_playerImage;
     [SerializeField] List<Sprite> m_charactersImages;
+    [SerializeField] List<string> m_charactersIdles;
     Player m_player;
     MultiPlayerRoom m_multiPlayerRoom;
     ExitGames.Client.Photon.Hashtable playerProperties = new ExitGames.Client.Photon.Hashtable();
@@ -29,9 +30,17 @@ public class RoomPlayer : MonoBehaviourPunCallbacks
         else
             m_selectedCharacterIndex = 1;
 
-        m_playerImage.sprite = m_charactersImages[m_selectedCharacterIndex];
+        //m_playerImage.sprite = m_charactersImages[m_selectedCharacterIndex];
+        if (m_selectedCharacterIndex == 1)
+        {
+            m_playerImage.rectTransform.localScale = new Vector3(1, 1.1f, 1);
+            m_playerImage.rectTransform.anchoredPosition = new Vector2(40, -300);
+        }
+
+        GetComponent<Animator>().Play(m_charactersIdles[m_selectedCharacterIndex]);
         playerProperties["IsReady"] = false;
         PhotonNetwork.SetPlayerCustomProperties(playerProperties);
+        Invoke("OnClickedReady", 1.5f);
     }
 
     public void OnClickedReady()
@@ -52,6 +61,7 @@ public class RoomPlayer : MonoBehaviourPunCallbacks
                 Debug.Log("Is Ready");
         }
     }
+
 
     public Player GetPlayer() { return m_player; }
 }

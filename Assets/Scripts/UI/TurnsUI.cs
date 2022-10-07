@@ -11,11 +11,9 @@ public class TurnsUI : MonoBehaviour
     [SerializeField] private TMP_Text m_gravityIncreaseText;
     [SerializeField] private TMP_Text m_timeEnd;
     [SerializeField] private TMP_Text m_lastBallText;
-    private Vector3 m_initTextPosition;
+    private Vector2 m_initTextPosition;
 
     [SerializeField] private float m_playTime = 1.5f;
-
-    private float m_MoveTextX = 300;
     public AnimationCurve animCurve;
 
 
@@ -48,11 +46,10 @@ public class TurnsUI : MonoBehaviour
     public void Init(GameType gameType)
     {
         m_gameType = gameType;
-        m_initTextPosition = m_yourTurnText.gameObject.transform.localPosition;
-        m_lostTurnText.gameObject.transform.localPosition = m_initTextPosition;
+        m_initTextPosition = m_yourTurnText.rectTransform.anchoredPosition;
+        m_lostTurnText.rectTransform.anchoredPosition = m_initTextPosition;
         m_gravityIncreaseText.gameObject.SetActive(false);
 
-        m_MoveTextX = (m_initTextPosition.x * 2);
         InitYourTurnOptions();
         InitLostTurnOptions();
         InitTimeEnd();
@@ -89,7 +86,7 @@ public class TurnsUI : MonoBehaviour
             }
 
             LeanTween.moveLocalX
-                    (m_yourTurnText.gameObject, -m_initTextPosition.x, m_playTime)
+                    (m_yourTurnText.gameObject, -m_initTextPosition.x * 2, m_playTime)
                     .setEase(animCurve)
                     .setOnComplete(() => Deactivate(true));
         }
@@ -105,7 +102,7 @@ public class TurnsUI : MonoBehaviour
                 m_lostTurnText.text = GetRandomLostTurnText();
             }
             LeanTween.moveLocalX
-                    (m_lostTurnText.gameObject, -m_initTextPosition.x, m_playTime)
+                    (m_lostTurnText.gameObject, -m_initTextPosition.x * 2, m_playTime)
                     .setEase(animCurve)
                     .setOnComplete(() => Deactivate(false));
         }
@@ -113,8 +110,8 @@ public class TurnsUI : MonoBehaviour
 
     private void InitValues(bool isPlayerTurn)
     {
-        GameObject textObject = isPlayerTurn ? m_yourTurnText.gameObject : m_lostTurnText.gameObject;
-        textObject.gameObject.transform.localPosition = m_initTextPosition;
+        TMP_Text textObject = isPlayerTurn ? m_yourTurnText : m_lostTurnText;
+        textObject.rectTransform.anchoredPosition = m_initTextPosition;
     }
 
 

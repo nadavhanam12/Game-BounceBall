@@ -24,7 +24,7 @@ public class BallHitVisual : MonoBehaviour
         gameObject.SetActive(false);
         m_initialScale = scale * ScaleDownFromOriginalScale;
         gameObject.transform.localScale = m_initialScale;
-        m_spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        m_spriteRenderer = GetComponentInChildren<SpriteRenderer>(true);
         //m_anim = GetComponent<Animator>();
         //m_anim.speed = 1 / timeToPlay;
 

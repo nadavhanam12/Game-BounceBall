@@ -18,10 +18,11 @@ public class GameArgs
 {
     public GameType GameType;
     public Texture Background;
-    public int MatchTime = 180;
+    public int MatchTime = 5;
     public float CountDownDelay = 1f;
     public bool ShouldPlayTutorial = false;
     public bool ShouldPlayCountdown = false;
+    public bool WithKeyboard = true;
     public int ComboKicksAmount = 3;
 
     public GameArgs(GameType gameType)

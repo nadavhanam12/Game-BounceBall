@@ -13,7 +13,7 @@ public class GameBallsManager : MonoBehaviourPun
     public delegate void onTurnLost();
     public onTurnLost GameManagerOnTurnLost;
 
-    public delegate void onBallHit(PlayerIndex index);
+    public delegate void onBallHit(PlayerIndex index, KickType kickType);
     public onBallHit GameManagerOnBallHit;
 
     #endregion
@@ -33,6 +33,9 @@ public class GameBallsManager : MonoBehaviourPun
 
     public float m_highKickHight = 0;
     public float m_kickCooldown = 0.1f;
+    public float m_hitLowerBoundDistance = 2f;
+
+
 
 
     #endregion
@@ -193,8 +196,14 @@ public class GameBallsManager : MonoBehaviourPun
         }
 
         if (m_curRequiredColor != ball.GetColor())
-        {//not correct color
+        {
             //print("OnHitPlay- not correct color " + ball.GetIndex());
+            RemoveBallFromScene(ballIndex, true);
+            return;
+        }
+        if (IsNearLowerBound(ball))
+        {
+            print("OnHitPlay- ball.IsNearLowerBound() " + ball.GetIndex());
             RemoveBallFromScene(ballIndex, true);
             return;
         }
@@ -205,7 +214,7 @@ public class GameBallsManager : MonoBehaviourPun
         }
 
         StartCoroutine(KickCooldown());
-        GameManagerOnBallHit(playerIndex);
+        GameManagerOnBallHit(playerIndex, kickType);
 
         BallScript otherBall = GetNextBall();
         if (otherBall == null)
@@ -250,6 +259,7 @@ public class GameBallsManager : MonoBehaviourPun
 
         UpdateCurCombo();
     }
+
     protected virtual void CameraShake()
     {
         CameraVFX cameraVFX = FindObjectOfType<CameraVFX>();
@@ -437,6 +447,16 @@ public class GameBallsManager : MonoBehaviourPun
     public bool IsInKickCooldown()
     {
         return m_inKickCooldown;
+    }
+
+    private bool IsNearLowerBound(BallScript ball)
+    {
+        float yPos = ball.transform.position.y;
+        float yPosBound = m_args.BallArgs.Bounds.GameLowerBound;
+        //print("-------------------------------------");
+        //print("yPos = " + yPos);
+        return yPos <= yPosBound + m_hitLowerBoundDistance;
+
     }
 
 }

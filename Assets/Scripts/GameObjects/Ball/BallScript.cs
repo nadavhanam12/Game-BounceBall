@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Photon.Pun;
 using UnityEngine;
@@ -202,5 +203,8 @@ public class BallScript : MonoBehaviourPun
         this.gameObject.SetActive(false);
     }
 
-
+    internal bool IsNearLowerBound()
+    {
+        throw new NotImplementedException();
+    }
 }

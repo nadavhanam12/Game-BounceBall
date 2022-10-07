@@ -131,7 +131,6 @@ public class GameCanvasScript : MonoBehaviourPun
             if (m_args?.GameType == GameType.PvP)
                 RestartButton.DisableButton();
 
-
         }
     }
     private void OnTimeIsOver()
@@ -409,6 +408,11 @@ public class GameCanvasScript : MonoBehaviourPun
     public void SetSliderValueRPC(int amount, int maxAmount)
     {
         SpeciakKickSliderUI.SetSliderValue(amount, maxAmount);
+    }
+
+    public void ToggleSliderBarFilling(bool activate)
+    {
+        SpeciakKickSliderUI.ActivateFillingAnim(activate);
     }
 
 

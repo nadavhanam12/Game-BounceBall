@@ -30,12 +30,18 @@ public class MultiplayerLobby : MonoBehaviourPunCallbacks
         foreach (AvailableMatch availableMatch in availableMatchList)
             Destroy(availableMatch.gameObject);
         availableMatchList.Clear();
+
+        OnJoinedLobby();
     }
 
     public override void OnConnectedToMaster()
     {
         if (!PhotonNetwork.InLobby)
             PhotonNetwork.JoinLobby();
+    }
+    public override void OnJoinedLobby()
+    {
+        print("MultiplayerLobby: OnJoinedLobby");
     }
 
     public void OnClickCreate()
@@ -75,6 +81,8 @@ public class MultiplayerLobby : MonoBehaviourPunCallbacks
 
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
+        print("OnRoomListUpdate " + roomList.Count);
+        if (roomList.Count == 0) return;
         if (Time.time >= m_nextUpdateTime)
         {
             UpdateRoomList(roomList);
@@ -84,6 +92,7 @@ public class MultiplayerLobby : MonoBehaviourPunCallbacks
 
     void UpdateRoomList(List<RoomInfo> roomList)
     {
+        print("RoomListUpdate " + roomList.Count);
         foreach (AvailableMatch availableMatch in availableMatchList)
             Destroy(availableMatch.gameObject);
         availableMatchList.Clear();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using static GameManagerAbstract;
+using static PlayerScript;
 
 public enum StageInTutorial
 {
@@ -16,10 +17,11 @@ public enum StageInTutorial
     JumpExplanationText,
     PracticeJumpGamePlay,
     PracticeJumpFinishText,
-    SlideIntroductionText,
-    SlideExplanationText,
-    PracticeSlideGamePlay,
-    PracticeSlideFinishText,
+    SpecialKickIntroductionText,
+    SpecialKickExplanationText,
+    PracticeSpecialKickGamePlay,
+    SpecialKickActivationGamePlay,
+    PracticeSpecialKickFinishText,
     OpponentAppears,
     TurnsExplanationText,
     TurnsUIExplanationText,
@@ -52,13 +54,13 @@ public class TutorialManager : MonoBehaviour
 
     private TutorialArgs m_args;
 
-    Dictionary<string, int> m_panels = new Dictionary<string, int>();
-
     private int curCombo = 0;
 
     private bool m_onCoolDown = false;
     private bool m_freePlayMode = false;
     [SerializeField] int m_firstComboLength = 2;
+    [SerializeField] int m_specialKickComboLength = 3;
+
     [SerializeField] int m_FreePlayComboLength = 2;
     [SerializeField][Range(0, 3)] float m_cooldownLength = 0.5f;
 
@@ -132,7 +134,7 @@ public class TutorialManager : MonoBehaviour
     }
 
     //player hit the ball on tutorial
-    public void OnBallHit()
+    public void OnBallHit(KickType kickType)
     {
         curCombo++;
         if (m_curStageTutorial != StageInTutorial.PracticeOpponentGamePlay)
@@ -148,20 +150,12 @@ public class TutorialManager : MonoBehaviour
                     if (curCombo < m_firstComboLength)
                     {
                         //TODO: should update how much kick left
+                        if (curCombo >= 2)
+                            m_args.TutorialUI.StopHandGesture();
                     }
                     else if (curCombo == m_firstComboLength)
                     {
                         m_args.GameCanvas.CheerActivate();
-                    }
-                    break;
-                case StageInTutorial.PracticeSlideGamePlay:
-                    //if (m_args.PlayerScript.IsOnSlide())
-                    if (true)
-                    {
-                        curCombo = 0;
-                        m_args.GameCanvas.CheerActivate();
-                        Invoke("NextPanel", 0.75f);
-                        Invoke("PauseGame", 0.75f);
                     }
                     break;
                 case StageInTutorial.PracticeJumpGamePlay:
@@ -173,8 +167,27 @@ public class TutorialManager : MonoBehaviour
                         Invoke("PauseGame", 0.75f);
                     }
                     break;
+                case StageInTutorial.PracticeSpecialKickGamePlay:
+                    m_args.GameCanvas.SetSliderValue(curCombo, m_specialKickComboLength);
+                    if (curCombo == m_specialKickComboLength)
+                    {
+                        curCombo = 0;
+                        m_args.GameCanvas.CheerActivate();
+                        /*Invoke("NextPanel", 0.75f);
+                        Invoke("PauseGame", 0.25f);*/
+                        m_args.PlayerScript.SetAllowedSpecialKick(true);
+                        NextPanel();
+                    }
+                    break;
+                case StageInTutorial.SpecialKickActivationGamePlay:
+                    if (kickType != KickType.Special)
+                        return;
+                    m_args.GameCanvas.CheerActivate();
+                    float waitDuration = 3f;
+                    Invoke("NextPanel", waitDuration);
+                    Invoke("PauseGame", waitDuration);
+                    break;
             }
-
         }
         else
         {
@@ -197,9 +210,10 @@ public class TutorialManager : MonoBehaviour
                     NextPanel();
                 }
                 break;
-            case StageInTutorial.PracticeSlideGamePlay:
-                onInitPlayers();
-                //m_args.GameCanvas.ToggleSingleInput("Slide", true);
+            case StageInTutorial.PracticeSpecialKickGamePlay:
+                //onInitPlayers();
+                print("PracticeSpecialKickGamePlay init slider");
+                m_args.GameCanvas.SetSliderValue(0, m_specialKickComboLength);
                 break;
 
             case StageInTutorial.PracticeOpponentGamePlay:
@@ -296,27 +310,29 @@ public class TutorialManager : MonoBehaviour
                     });
                 NextPanel();
                 m_args.GameCanvas.ToggleAllInput(false);
+                m_args.GameCanvas.ToggleSliderBarFilling(true);
                 break;
-            case StageInTutorial.SlideIntroductionText:
+            case StageInTutorial.SpecialKickIntroductionText:
                 NextPanel();
                 onRemoveAllBalls();
-                onInitPlayers();
+                //onInitPlayers();
                 break;
-            case StageInTutorial.SlideExplanationText:
+            case StageInTutorial.SpecialKickExplanationText:
                 NextPanel();
                 ResumeGame();
                 StartCoroutine(GenerateBallWithDelay(1f, false, Vector2Int.right));
                 //m_args.GameCanvas.ActiveOnlySlideButton();
                 m_args.GameCanvas.ToggleAllInput(true);
+                m_args.GameCanvas.ToggleSliderBarFilling(false);
                 break;
-            case StageInTutorial.PracticeSlideFinishText:
+            case StageInTutorial.PracticeSpecialKickFinishText:
                 m_args.GameCanvas.ToggleAllInput(false);
                 onRemoveAllBalls();
                 m_args.GameCanvas.ActiveButtons();
                 AnalyticsManager.Instance().CommitData(
                        AnalyticsManager.AnalyticsEvents.Event_Tutorial_Step,
                        new Dictionary<string, object> {
-                 { "TutorialStage", "slide_example" }
+                 { "TutorialStage", "SpecialKick_example" }
                     });
 
                 //check if its a solo player tutorial
@@ -338,7 +354,7 @@ public class TutorialManager : MonoBehaviour
                 break;
             case StageInTutorial.TurnsUIExplanationText:
                 Invoke("ResumeGame", 1.5f);
-                StartCoroutine(GenerateBallWithDelay(1.5f, true, Vector2Int.zero));
+                StartCoroutine(GenerateBallWithDelay(1f, true, Vector2Int.zero));
                 m_freePlayMode = true;
                 NextPanel();
                 break;
@@ -381,9 +397,7 @@ public class TutorialManager : MonoBehaviour
     void Update()
     {
         if (Input.GetKeyDown("space"))
-        {
             OnTouchScreen();
-        }
     }
 
 

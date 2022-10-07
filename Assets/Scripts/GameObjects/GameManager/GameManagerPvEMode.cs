@@ -61,6 +61,12 @@ public class GameManagerPvEMode : GameManagerAbstract
 
     public override void onTurnLost()
     {
+        if (m_inTutorial)
+        {
+            onTurnLostTutorial();
+            return;
+        }
+
         PlayerArgs playerData;
         if (m_curPlayerTurn == PlayerIndex.First)
         {
@@ -77,27 +83,23 @@ public class GameManagerPvEMode : GameManagerAbstract
         playerData.PlayerScript.SetAllowedSpecialKick(false, true);
         m_gameCanvas.SetCombo(playerData.CurCombo);
 
-        if (m_inTutorial)
-            onTurnLostTutorial();
-        else
-        {
-            playerData = playerData == m_playerData1 ? m_playerData2 : m_playerData1;
-            playerData.CurScore++;
-            if (playerData == m_playerData1)
-                m_gameCanvas.CheerActivate();
 
-            m_gameCanvas.SetNormalScore(m_playerData1.CurScore, m_playerData2.CurScore);
-            if (m_timeIsOver)
-                MatchEnd();
-            else
-                SwitchPlayerTurn(false);
-        }
+        playerData = playerData == m_playerData1 ? m_playerData2 : m_playerData1;
+        playerData.CurScore++;
+        if (playerData == m_playerData1)
+            m_gameCanvas.CheerActivate();
+
+        m_gameCanvas.SetNormalScore(m_playerData1.CurScore, m_playerData2.CurScore);
+        if (m_timeIsOver)
+            MatchEnd();
+        else
+            SwitchPlayerTurn(false);
     }
 
-    public override void OnBallHit(PlayerIndex playerIndex)
+    public override void OnBallHit(PlayerIndex playerIndex, KickType kickType)
     {
         if (m_inTutorial)
-            m_tutorialManager.OnBallHit();
+            m_tutorialManager.OnBallHit(kickType);
         BroadcastKickType();
 
         m_gameCanvas.IncrementCombo();

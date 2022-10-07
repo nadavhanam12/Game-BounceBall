@@ -23,6 +23,8 @@ public class MainMenu : MonoBehaviourPunCallbacks
     [SerializeField] private TMP_InputField m_nameTMP;
     [SerializeField] private GameObject m_ballName;
     [SerializeField] private GameObject m_pleasePlaySinglePlayerObject;
+    [SerializeField] private GameObject m_playerAndBallAnim;
+
 
     #endregion
 
@@ -48,11 +50,12 @@ public class MainMenu : MonoBehaviourPunCallbacks
     void Awake()
     {
         Application.targetFrameRate = 60;
-
+        if (PhotonNetwork.IsConnectedAndReady) PhotonNetwork.Disconnect();
         AnalyticsManager.Instance().CommitData(
                     AnalyticsManager.AnalyticsEvents.Event_App_Launched);
 
         m_anim = GetComponent<Animator>();
+        m_playerAndBallAnim.SetActive(true);
         m_camera = Camera.main;
         m_eventSystem = EventSystem.current;
         backgroundsList = Resources.LoadAll<Texture2D>(backgroundsPath);
@@ -146,6 +149,7 @@ public class MainMenu : MonoBehaviourPunCallbacks
 
         //ChooseRandomBackground();
         m_userChoosen = false;
+        m_playerAndBallAnim.SetActive(true);
         m_StartGame.SetActive(true);
         m_gameOption.SetActive(false);
         ToggleMenu(true);
@@ -195,6 +199,8 @@ public class MainMenu : MonoBehaviourPunCallbacks
             m_gameOption.SetActive(false);
             m_Player1.SetActive(false);
             m_Player2.SetActive(false);
+            m_playerAndBallAnim.SetActive(false);
+
         }
     }
 
@@ -214,7 +220,10 @@ public class MainMenu : MonoBehaviourPunCallbacks
     public void AdvanceMenuName()
     {
         if (PlayerPrefs.GetString("PlayerName") == "Player")
+        {
             m_gameName.SetActive(true);
+            //m_nameTMP.Select();
+        }
         else
             m_gameOption.SetActive(true);
 
@@ -229,6 +238,7 @@ public class MainMenu : MonoBehaviourPunCallbacks
         m_Player1.SetActive(true);
         m_Player2.SetActive(true);
         m_userChoosen = false;
+        m_playerAndBallAnim.SetActive(true);
     }
 
 

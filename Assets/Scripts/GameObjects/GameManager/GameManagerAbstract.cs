@@ -92,6 +92,7 @@ public abstract class GameManagerAbstract : MonoBehaviourPunCallbacks
 
     void InitRefs()
     {
+        m_mainMenu = FindObjectOfType<MainMenu>(true);
         m_gameCanvas = GetComponentInChildren<GameCanvasScript>();
         m_ballsManager = GetComponentInChildren<GameBallsManager>();
         m_comboDataContainer = GetComponentInChildren<ComboDataContainer>();
@@ -129,10 +130,19 @@ public abstract class GameManagerAbstract : MonoBehaviourPunCallbacks
     {
         m_inputManager = gameObject.AddComponent<MobileInputManager>();
         m_inputManager.Init(m_gameCanvas);
+        if (m_gameArgs.WithKeyboard)
+        {
+            m_inputManager = gameObject.AddComponent<KeyboardManager>();
+            m_inputManager.Init(m_gameCanvas);
+        }
+        else
+        {
 #if !UNITY_EDITOR
         m_inputManager = gameObject.AddComponent<KeyboardManager>();
         m_inputManager.Init(m_gameCanvas);
 #endif
+        }
+
     }
 
     private void InitConfettiManager()
@@ -250,7 +260,7 @@ public abstract class GameManagerAbstract : MonoBehaviourPunCallbacks
         InitScoreAndCombo();
         m_curPlayerTurn = PlayerIndex.First;
         m_gameCanvas.SetCurPlayerUI(m_curPlayerTurn == PlayerIndex.First);
-
+        m_gameCanvas.SetSliderValue(0, 1);
         UpdatePlayerPrefsCompletedTutorial();
         AfterTutorial();
     }
@@ -329,26 +339,32 @@ public abstract class GameManagerAbstract : MonoBehaviourPunCallbacks
 
     public abstract void onTurnLost();
 
-    public abstract void OnBallHit(PlayerIndex playerIndex);
+    public abstract void OnBallHit(PlayerIndex playerIndex, KickType kickType);
 
     protected void onTurnLostTutorial()
     {
         m_tutorialManager.OnBallLost();
 
-        if (m_tutorialManager.GetCurStage() == StageInTutorial.FirstKickGamePlay ||
-            m_tutorialManager.GetCurStage() == StageInTutorial.PracticeSlideGamePlay)
+        if (m_tutorialManager.GetCurStage() == StageInTutorial.FirstKickGamePlay)
         {
             m_ballsManager.OnNewBallInScene(false, Vector2Int.right);
             return;
         }
+
         if (m_tutorialManager.GetCurStage() == StageInTutorial.PracticeKickGamePlay ||
-            m_tutorialManager.GetCurStage() == StageInTutorial.PracticeJumpGamePlay)
+            m_tutorialManager.GetCurStage() == StageInTutorial.PracticeJumpGamePlay ||
+            m_tutorialManager.GetCurStage() == StageInTutorial.PracticeSpecialKickGamePlay ||
+            m_tutorialManager.GetCurStage() == StageInTutorial.SpecialKickActivationGamePlay)
         {
             m_ballsManager.OnNewBallInScene();
             return;
         }
+
         if (m_tutorialManager.GetCurStage() == StageInTutorial.PracticeOpponentGamePlay)
-            SwitchPlayerTurn(false);
+            //SwitchPlayerTurn(false);
+            //to avoid the delay, jumped to after delay function
+            //notice its without the win/lose anims
+            SwitchPlayerTurnAfterWait(true, false);
 
     }
 
@@ -417,6 +433,7 @@ public abstract class GameManagerAbstract : MonoBehaviourPunCallbacks
             FinishedTutorial();
         else
         {
+            if (m_isGamePause) return;
             PlayerIndex winner = m_playerData1.CurScore > m_playerData2.CurScore ? PlayerIndex.First : PlayerIndex.Second;
             SendDataRetryButtonPressed(winner);
             m_playerData1.PlayerScript?.HidePlayer();
@@ -499,7 +516,7 @@ public abstract class GameManagerAbstract : MonoBehaviourPunCallbacks
 
         playerArgs.ComboSinceSpecialKick++;
         m_gameCanvas.SetSliderValue(playerArgs.ComboSinceSpecialKick, m_gameArgs.ComboKicksAmount, playerIndex);
-        print("CheckPlayerCombo: playerIndex: " + playerIndex + "   Combo: " + playerArgs.ComboSinceSpecialKick);
+        //print("CheckPlayerCombo: playerIndex: " + playerIndex + "   Combo: " + playerArgs.ComboSinceSpecialKick);
         if (playerArgs.ComboSinceSpecialKick == m_gameArgs.ComboKicksAmount)
         {
             playerArgs.PlayerScript.SetAllowedSpecialKick(true);

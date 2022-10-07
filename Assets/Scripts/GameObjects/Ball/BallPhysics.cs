@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
 
 public class BallPhysics : MonoBehaviour
@@ -11,6 +12,7 @@ public class BallPhysics : MonoBehaviour
     BallArgs m_args;
     BallScript m_ballScript;
     bool isGamePaused;
+    bool m_isPvPAndNotMaster = true;
     public void Init(BallScript ballScript, BallArgs args)
     {
         m_args = args;
@@ -19,6 +21,7 @@ public class BallPhysics : MonoBehaviour
         m_collider = GetComponent<CircleCollider2D>();
 
         m_rigidBody.gravityScale = m_args.m_gravity;
+        m_isPvPAndNotMaster = IsPvPAndNotMaster();
     }
 
     public Vector2 GetVelocity()
@@ -28,10 +31,14 @@ public class BallPhysics : MonoBehaviour
 
     public void ToggleSimulate(bool simulate)
     {
+        if (m_isPvPAndNotMaster) return;
+
         m_rigidBody.simulated = simulate;
     }
     public void ApplyPhysics(Vector2 force)
     {
+        if (m_isPvPAndNotMaster) return;
+
         ToggleSimulate(true);
         if (isGamePaused)
         {
@@ -45,6 +52,8 @@ public class BallPhysics : MonoBehaviour
     }
     public void AddForce(float ballReflectPower)
     {
+        if (m_isPvPAndNotMaster) return;
+
         m_rigidBody.AddForce(new Vector2(0, ballReflectPower));
 
     }
@@ -65,21 +74,29 @@ public class BallPhysics : MonoBehaviour
     }
     public void ResetVelocity()
     {
+        if (m_isPvPAndNotMaster) return;
+
         m_rigidBody.velocity = Vector2.zero;
         m_rigidBody.angularVelocity = 0;
     }
     public void InitGravity()
     {
+        if (m_isPvPAndNotMaster) return;
+
         m_rigidBody.gravityScale = m_args.m_gravity;
     }
     public void AddToGravity(float gravityAdded)
     {
+        if (m_isPvPAndNotMaster) return;
+
         if (m_rigidBody.gravityScale <= m_args.BallMaxGravity)
             m_rigidBody.gravityScale += gravityAdded;
     }
 
     private void OnCollisionEnter2D(Collision2D col)
     {
+        if (m_isPvPAndNotMaster) return;
+
         //print("Ball OnCollusion: " + col.collider.name);
         if (col.gameObject.tag == "GameLowerBound")
             m_ballScript.BallFallen();
@@ -91,6 +108,8 @@ public class BallPhysics : MonoBehaviour
 
     public void CheckBounds()
     {
+        if (m_isPvPAndNotMaster) return;
+
         Vector3 ballPosition = this.gameObject.transform.position;
         if ((ballPosition.x - m_args.BallBoundDistanceTrigger < m_args.Bounds.GameLeftBound) && (m_rigidBody.velocity.x < 0))
         {
@@ -116,5 +135,13 @@ public class BallPhysics : MonoBehaviour
         }
         else
             m_ballScript.EmitBallTrail(true);
+    }
+
+    bool IsPvPAndNotMaster()
+    {
+        if (PhotonNetwork.IsConnectedAndReady && !PhotonNetwork.IsMasterClient)
+            return true;
+        return false;
+
     }
 }

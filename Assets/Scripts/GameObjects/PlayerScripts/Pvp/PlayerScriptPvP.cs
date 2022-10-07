@@ -45,8 +45,10 @@ public class PlayerScriptPvP : PlayerScript
     }
     public override void InitPlayer(bool initPos = true)
     {
+        if (!this) return;
+        if (!this.photonView) return;
         int viewId = this.photonView.ViewID;
-        this.photonView.RPC("InitPlayerRPC", RpcTarget.All, viewId, initPos);
+        this.photonView.RPC("InitPlayerRPC", RpcTarget.AllBuffered, viewId, initPos);
     }
     [PunRPC]
     void InitPlayerRPC(int viewId, bool initPos = true)

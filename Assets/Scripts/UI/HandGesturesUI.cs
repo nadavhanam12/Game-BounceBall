@@ -5,11 +5,11 @@ using UnityEngine;
 
 public class HandGesturesUI : MonoBehaviour
 {
-    public enum State { None, RegularKickGesture, SlideKickGesture, JumpGesture }
+    public enum State { None, RegularKickGesture, SpecialKickGesture, JumpGesture }
     Animator m_anim;
     State m_curState;
     public GameObject m_regKickHighlightCircle;
-    public GameObject m_slideHighlightCircle;
+    public GameObject m_specialKickHighlightCircle;
 
     public GameObject m_jumpHighlightCircle;
 
@@ -25,11 +25,11 @@ public class HandGesturesUI : MonoBehaviour
         StartHighlightCircle(m_regKickHighlightCircle);
         m_anim.SetTrigger("RegKickGestureTrigger");
     }
-    public void PlaySlideKickGesture()
+    public void PlaySpecialKickGesture()
     {
-        m_curState = State.SlideKickGesture;
-        StartHighlightCircle(m_slideHighlightCircle);
-        m_anim.SetTrigger("SlideGestureTrigger");
+        m_curState = State.SpecialKickGesture;
+        StartHighlightCircle(m_specialKickHighlightCircle);
+        m_anim.SetTrigger("SpecialKickGestureTrigger");
 
     }
     public void PlayJumpGesture()
@@ -52,8 +52,8 @@ public class HandGesturesUI : MonoBehaviour
             case State.RegularKickGesture:
                 activeCircle = m_regKickHighlightCircle;
                 break;
-            case State.SlideKickGesture:
-                activeCircle = m_slideHighlightCircle;
+            case State.SpecialKickGesture:
+                activeCircle = m_specialKickHighlightCircle;
                 break;
             case State.JumpGesture:
                 activeCircle = m_jumpHighlightCircle;

@@ -4,6 +4,7 @@ using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
 using System;
+using static PlayerScript;
 
 public class GameManagerPvPMode : GameManagerAbstract
 {
@@ -201,7 +202,7 @@ public class GameManagerPvPMode : GameManagerAbstract
 
     }
 
-    public override void OnBallHit(PlayerIndex playerIndex)
+    public override void OnBallHit(PlayerIndex playerIndex, KickType kickType)
     {
         BroadcastKickType();
         m_gameCanvas.IncrementCombo();
