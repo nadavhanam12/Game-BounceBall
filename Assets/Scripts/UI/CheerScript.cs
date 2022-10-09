@@ -9,14 +9,13 @@ public class CheerScript : MonoBehaviour
     [SerializeField] private TMP_Text m_cheerText;
     private bool m_isRunning = false;
 
-    private Vector3 m_initTextPosition;
+    private Vector2 m_initTextPosition;
     private Vector3 m_initCrowdLeftPosition;
     private Vector3 m_initCrowdRightPosition;
 
     [SerializeField] private float m_playTime = 1.5f;
     [SerializeField] private int m_crowdMoveDistance = 480;
 
-    private float m_MoveTextX = 300;
     public AnimationCurve animCurve;
 
     [SerializeField] private GameObject CrowdLeft;
@@ -43,10 +42,9 @@ public class CheerScript : MonoBehaviour
     public void Init(GameType gameType)
     {
         m_gameType = gameType;
-        m_initTextPosition = m_cheerText.gameObject.transform.localPosition;
+        m_initTextPosition = m_cheerText.rectTransform.anchoredPosition;
         m_initCrowdLeftPosition = CrowdLeft.gameObject.transform.localPosition;
         m_initCrowdRightPosition = CrowdRight.gameObject.transform.localPosition;
-        m_MoveTextX = (m_initTextPosition.x * 2);
         InitCheerTextOptions();
 
         if (m_gameType == GameType.PvE || m_gameType == GameType.PvP)
@@ -91,7 +89,7 @@ public class CheerScript : MonoBehaviour
             {
                 m_cheerText.text = GetRandomCheerText();
                 LeanTween.moveLocalX
-                           (m_cheerText.gameObject, -m_initTextPosition.x, m_playTime)
+                           (m_cheerText.gameObject, -m_initTextPosition.x * 2, m_playTime)
                            .setEase(animCurve)
                            .setOnComplete(
                                () => Deactivate());
@@ -108,7 +106,7 @@ public class CheerScript : MonoBehaviour
 
     private void InitValues()
     {
-        m_cheerText.gameObject.transform.localPosition = m_initTextPosition;
+        m_cheerText.rectTransform.anchoredPosition = m_initTextPosition;
         CrowdLeft.gameObject.transform.localPosition = m_initCrowdLeftPosition;
         CrowdRight.gameObject.transform.localPosition = m_initCrowdRightPosition;
 

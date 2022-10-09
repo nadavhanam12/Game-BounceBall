@@ -17,6 +17,7 @@ public class MainMenu : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject m_gameName;
     [SerializeField] private GameObject m_gameOption;
     [SerializeField] private GameObject m_gameCredits;
+    [SerializeField] private GameObject m_gameTutorials;
     [SerializeField] private RawImage m_background;
     [SerializeField] private GameObject m_Player1;
     [SerializeField] private GameObject m_Player2;
@@ -24,6 +25,7 @@ public class MainMenu : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject m_ballName;
     [SerializeField] private GameObject m_pleasePlaySinglePlayerObject;
     [SerializeField] private GameObject m_playerAndBallAnim;
+    [SerializeField] private Animator m_titleAnimator;
 
 
     #endregion
@@ -35,6 +37,7 @@ public class MainMenu : MonoBehaviourPunCallbacks
     const string backgroundsPath = "BackGround";
     private bool m_userChoosen = false;
     private GameType m_gameType;
+    private bool m_playTutorial;
     private Camera m_camera;
     private EventSystem m_eventSystem;
     private string m_gameSceneName = "GameScene";
@@ -70,6 +73,8 @@ public class MainMenu : MonoBehaviourPunCallbacks
         m_gameOption.SetActive(false);
         m_gameName.SetActive(false);
         m_gameCredits.SetActive(false);
+        m_gameTutorials.SetActive(false);
+
         InitMultiPlayerPanels();
         if (m_testingPvP)
         {
@@ -121,6 +126,8 @@ public class MainMenu : MonoBehaviourPunCallbacks
     {
         //Debug.Log("StartGameScene");
         m_eventSystem.gameObject.SetActive(false);
+        m_playerAndBallAnim.SetActive(false);
+        m_titleAnimator.enabled = false;
 
         if (m_gameType == GameType.PvP)
             this.photonView.RPC("LoadScenePvP", RpcTarget.All);
@@ -150,8 +157,12 @@ public class MainMenu : MonoBehaviourPunCallbacks
         //ChooseRandomBackground();
         m_userChoosen = false;
         m_playerAndBallAnim.SetActive(true);
-        m_StartGame.SetActive(true);
-        m_gameOption.SetActive(false);
+        m_playTutorial = false;
+        m_titleAnimator.enabled = true;
+
+        m_StartGame.SetActive(false);
+        m_gameOption.SetActive(true);
+        m_gameTutorials.SetActive(false);
         ToggleMenu(true);
         if (PhotonNetwork.IsConnected)
             PhotonNetwork.Disconnect();
@@ -239,6 +250,8 @@ public class MainMenu : MonoBehaviourPunCallbacks
         m_Player2.SetActive(true);
         m_userChoosen = false;
         m_playerAndBallAnim.SetActive(true);
+        m_playTutorial = false;
+        m_titleAnimator.enabled = true;
     }
 
 
@@ -258,6 +271,23 @@ public class MainMenu : MonoBehaviourPunCallbacks
         m_gameOption.SetActive(!toShow);
         m_Player1.SetActive(!toShow);
         m_Player2.SetActive(!toShow);
+    }
+    public void OnTutorialsPage(bool toShow)
+    {
+        m_gameTutorials.SetActive(toShow);
+        m_gameOption.SetActive(!toShow);
+        /*m_Player1.SetActive(!toShow);
+        m_Player2.SetActive(!toShow);*/
+    }
+    public void PlaySinglePlayerTutorial()
+    {
+        m_playTutorial = true;
+        OnSinglePlayer();
+    }
+    public void PlayMultiPlayerTutorial()
+    {
+        m_playTutorial = true;
+        OnPvE();
     }
 
 
@@ -313,6 +343,8 @@ public class MainMenu : MonoBehaviourPunCallbacks
         if (m_gameSceneSetUpScript != null)
         {
             GameArgs gameArgs = CreateGameArgs(m_gameType);
+            if (!gameArgs.ShouldPlayTutorial)
+                gameArgs.ShouldPlayTutorial = m_playTutorial;
             m_gameSceneSetUpScript.SetGameSceneArgs(gameArgs);
         }
         else

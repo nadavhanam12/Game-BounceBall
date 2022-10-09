@@ -68,7 +68,7 @@ public class TutorialUI : MonoBehaviour
         JumpBtn.SetActive(false);
     }
 
-    void DisablePanels()
+    public void DisablePanels()
     {
         for (int i = 0; i < Panels.Count; i++)
         {

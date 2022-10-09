@@ -497,7 +497,7 @@ public abstract class GameManagerAbstract : MonoBehaviourPunCallbacks
     {
         RemoveListeners();
     }
-    void TimeEnded()
+    protected void TimeEnded()
     {
         m_gameCanvas.ActivateTimeEnd();
         m_timeIsOver = true;

@@ -139,7 +139,7 @@ public class TurnsUI : MonoBehaviour
     {
         m_timeEnd.gameObject.SetActive(true);
         LeanTween.moveLocalX
-        (m_timeEnd.gameObject, -m_initTextPosition.x, m_playTime)
+        (m_timeEnd.gameObject, -m_initTextPosition.x * 2, m_playTime)
         .setEase(animCurve);
     }
 

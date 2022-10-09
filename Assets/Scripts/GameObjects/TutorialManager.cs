@@ -64,6 +64,8 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] int m_FreePlayComboLength = 2;
     [SerializeField][Range(0, 3)] float m_cooldownLength = 0.5f;
 
+    bool m_hitSpecialKick = false;
+
     private StageInTutorial m_curStageTutorial;
 
     public void Init(TutorialArgs args)
@@ -72,6 +74,8 @@ public class TutorialManager : MonoBehaviour
         m_freePlayMode = false;
         m_args.TutorialUI.Init(m_args.GameCanvas);
         m_args.TutorialUI.OnTouchScreen = OnTouchScreen;
+        m_args.GameCanvas.m_OnTouchKickSpecial += TutorialOnTouchKickSpecial;
+        m_hitSpecialKick = false;
         TurnOff();
     }
     public bool IsFreePlayMode()
@@ -173,15 +177,17 @@ public class TutorialManager : MonoBehaviour
                     {
                         curCombo = 0;
                         m_args.GameCanvas.CheerActivate();
-                        /*Invoke("NextPanel", 0.75f);
-                        Invoke("PauseGame", 0.25f);*/
+                        Invoke("NextPanel", 0.25f);
+                        Invoke("PauseGame", 0.25f);
                         m_args.PlayerScript.SetAllowedSpecialKick(true);
-                        NextPanel();
                     }
                     break;
                 case StageInTutorial.SpecialKickActivationGamePlay:
                     if (kickType != KickType.Special)
                         return;
+                    if (m_hitSpecialKick)
+                        return;
+                    m_hitSpecialKick = true;
                     m_args.GameCanvas.CheerActivate();
                     float waitDuration = 3f;
                     Invoke("NextPanel", waitDuration);
@@ -398,6 +404,15 @@ public class TutorialManager : MonoBehaviour
     {
         if (Input.GetKeyDown("space"))
             OnTouchScreen();
+    }
+
+    void TutorialOnTouchKickSpecial()
+    {
+        //print("Tutorial OnTouchKickSpecial");
+        if (m_curStageTutorial != StageInTutorial.SpecialKickActivationGamePlay)
+            return;
+        Invoke("ResumeGame", 0.25f);
+        m_args.TutorialUI.DisablePanels();
     }
 
 

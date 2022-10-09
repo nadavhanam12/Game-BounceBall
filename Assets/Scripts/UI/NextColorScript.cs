@@ -34,7 +34,7 @@ public class NextColorScript : MonoBehaviour
     [Range(0, 1f)] public float m_completeBallAlpha;
     [SerializeField] int m_particlesAmount;
 
-    [SerializeField] private int initStartBall = 3;
+    [SerializeField] private int initStartBall = 1;
     [SerializeField] private GameObject m_yellowHalo;
     private Color m_nextColor;
     private ParticleSystem m_particleSystem;

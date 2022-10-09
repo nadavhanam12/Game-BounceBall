@@ -70,7 +70,13 @@ public class GameBallsManagerPvP : GameBallsManager
         if (!PhotonNetwork.IsMasterClient)
             return;
         object[] dataColor = ColorToArray(color);
-        object[] dataColorsArray = ColorsArrayToData(ColorsQueue.ToArray());
+
+        m_nextColorArray = ColorsQueue.ToArray();
+        Color[] colorsArray = new Color[2];
+        System.Array.Copy(m_nextColorArray, 0, colorsArray, 0, 2);
+
+        object[] dataColorsArray = ColorsArrayToData(colorsArray);
+
         this.photonView.RPC("UpdateNextBallColorRPC", RpcTarget.All, dataColor, dataColorsArray, shouldEmitParticles);
     }
 
@@ -79,8 +85,8 @@ public class GameBallsManagerPvP : GameBallsManager
     {
         //print("UpdateNextBallColorRPC");
         m_curRequiredColor = ArrayToColor(dataColor);
-        m_nextColorArray = DataToColorsArray(dataColorsArray);
-        m_args.GameCanvas.UpdateNextBallColor(m_curRequiredColor, m_nextColorArray, shouldEmitParticles);
+        Color[] colorsArray = DataToColorsArray(dataColorsArray);
+        m_args.GameCanvas.UpdateNextBallColor(m_curRequiredColor, colorsArray, shouldEmitParticles);
     }
 
     public override void SetGamePause(bool isPause)
@@ -185,6 +191,15 @@ public class GameBallsManagerPvP : GameBallsManager
         cameraVFX.Shake();
     }
 
+    public override void Destroy()
+    {
+        foreach (BallScript ball in m_ballsArray)
+            if (ball)
+                PhotonNetwork.Destroy(ball.GetComponent<PhotonView>());
+        //RemoveBallFromScene(ball.GetIndex());
+        //Destroy(this);
+    }
+
 
     #region DataConvertor
     object[] ColorsArrayToData(Color[] ColorsQueue)
@@ -219,25 +234,6 @@ public class GameBallsManagerPvP : GameBallsManager
         color.b = (float)objects[2];
         color.a = (float)objects[3];
         return color;
-    }
-
-    int[] BallScriptsToBallIndexes(List<BallScript> balls)
-    {
-        int[] ballsIndexes = new int[balls.Count];
-        int index = 0;
-        foreach (BallScript ballScript in balls)
-        {
-            ballsIndexes[index] = (ballScript.GetIndex());
-            index++;
-        }
-        return ballsIndexes;
-    }
-    List<BallScript> BallIndexesToBallScripts(int[] balls)
-    {
-        List<BallScript> ballsScript = new List<BallScript>();
-        foreach (int ballIndex in balls)
-            ballsScript.Add(m_ballsArray[ballIndex]);
-        return ballsScript;
     }
 
     #endregion

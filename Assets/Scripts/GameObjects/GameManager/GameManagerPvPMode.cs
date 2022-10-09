@@ -36,7 +36,7 @@ public class GameManagerPvPMode : GameManagerAbstract
         canvasArgs.PlayerImage2 = m_playerData2.Image;
         canvasArgs.ConfettiManager = m_confettiManager;
         m_gameCanvas.Init(canvasArgs);
-        m_gameCanvas.m_onTimeIsOver = () => m_timeIsOver = true;
+        m_gameCanvas.m_onTimeIsOver = TimeEnded;
 
         PlayerArgs playerData;
         if (PhotonNetwork.IsMasterClient)
@@ -219,13 +219,14 @@ public class GameManagerPvPMode : GameManagerAbstract
             SetGamePause(true);
             m_ballsManager.TimeIsOver();//should turn off the balls
             m_gameCanvas.OnPvPEnd(m_playerData1.CurScore, m_playerData2.CurScore);
-            this.photonView.RPC("HidePlayersRPC", RpcTarget.Others);
+            this.photonView.RPC("EndGameRPC", RpcTarget.Others);
         }
     }
 
     [PunRPC]
-    void HidePlayersRPC()
+    void EndGameRPC()
     {
+        SetGamePause(true);
         m_playerData1.PlayerScript?.HidePlayer();
         m_playerData2.PlayerScript?.HidePlayer();
     }

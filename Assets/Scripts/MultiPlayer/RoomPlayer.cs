@@ -33,8 +33,8 @@ public class RoomPlayer : MonoBehaviourPunCallbacks
         //m_playerImage.sprite = m_charactersImages[m_selectedCharacterIndex];
         if (m_selectedCharacterIndex == 1)
         {
-            m_playerImage.rectTransform.localScale = new Vector3(1, 1.1f, 1);
-            m_playerImage.rectTransform.anchoredPosition = new Vector2(40, -300);
+            m_playerImage.rectTransform.localScale = new Vector3(-0.8f, 1.1f, 1);
+            m_playerImage.rectTransform.anchoredPosition = new Vector2(0, -300);
         }
 
         GetComponent<Animator>().Play(m_charactersIdles[m_selectedCharacterIndex]);

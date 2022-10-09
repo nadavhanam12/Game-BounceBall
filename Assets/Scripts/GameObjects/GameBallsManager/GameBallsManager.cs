@@ -149,7 +149,7 @@ public class GameBallsManager : MonoBehaviourPun
             RemoveBallFromScene(i);
     }
 
-    public void Destroy()
+    public virtual void Destroy()
     {
         foreach (BallScript ball in m_ballsArray)
             Destroy(ball);
@@ -312,7 +312,9 @@ public class GameBallsManager : MonoBehaviourPun
     {
         m_curRequiredColor = color;
         m_nextColorArray = ColorsQueue.ToArray();
-        m_args.GameCanvas.UpdateNextBallColor(color, m_nextColorArray, shouldEmitParticles);
+        Color[] colorsArray = new Color[2];
+        System.Array.Copy(m_nextColorArray, 0, colorsArray, 0, 2);
+        m_args.GameCanvas.UpdateNextBallColor(color, colorsArray, shouldEmitParticles);
     }
 
     protected virtual void ActivateBallHitVisual(Color color, Vector3 position)
