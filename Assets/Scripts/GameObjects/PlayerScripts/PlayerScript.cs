@@ -164,7 +164,7 @@ public class PlayerScript : MonoBehaviourPun
 
 
 
-    private void OnJump()
+    protected void OnJump()
     {
         if (m_playerMovement.InParalyze)
             return;
@@ -214,11 +214,12 @@ public class PlayerScript : MonoBehaviourPun
     public virtual void OnTouchKickSpecial()
     {
         //print("onTouchKickSpecial");
+        /*
         if (!IsAllowedSpecialKick)
             return;
         SetAllowedSpecialKick(false);
         m_playerKicksManager.SetNextKickIsSpecial(true);
-        m_playerAuraCircle.ReadyAura();
+        m_playerAuraCircle.ReadyAura();*/
     }
 
     public void SetAllowedSpecialKick(bool isAllowed, bool initNextKickIsSpecial = false)
@@ -226,7 +227,12 @@ public class PlayerScript : MonoBehaviourPun
         //print("SetAllowedSpecialKick " + isAllowed);
         IsAllowedSpecialKick = isAllowed;
         if (IsAllowedSpecialKick)
-            m_playerAuraCircle?.IdleAura();
+        {
+            SetAllowedSpecialKick(false);
+            m_playerKicksManager.SetNextKickIsSpecial(true);
+            m_playerAuraCircle.ReadyAura();
+            //m_playerAuraCircle?.IdleAura();
+        }
         else
             m_playerAuraCircle?.Disable();
 

@@ -14,17 +14,18 @@ public class MultiPlayerRoom : MonoBehaviourPunCallbacks
     List<RoomPlayer> roomPlayerList = new List<RoomPlayer>();
     [SerializeField] Transform contentTransform;
     bool m_withLobby;
-
     bool loadingScene = false;
-    public void Activate(string roomName, bool withLobby = true)
+    bool m_assignAutoPlayer;
+    public void Activate(string roomName, bool assignAutoPlayer, bool withLobby = true)
     {
+        //print("MultiPlayerRoom Activating assignAutoPlayer: " + assignAutoPlayer);
         gameObject.SetActive(true);
         m_withLobby = withLobby;
         RoomPlayer[] roomPlayers = GetComponentsInChildren<RoomPlayer>();
         foreach (RoomPlayer child in roomPlayers)
             GameObject.Destroy(child.gameObject);
-
         //m_roomNameText.text = "Room Name: " + roomName;
+        m_assignAutoPlayer = assignAutoPlayer;
         UpdatePlayerList();
         loadingScene = false;
     }
@@ -89,6 +90,12 @@ public class MultiPlayerRoom : MonoBehaviourPunCallbacks
             roomPlayer.SetRoomPlayer(this, playerClient);
             roomPlayerList.Add(roomPlayer);
         }
+        else if (m_assignAutoPlayer)
+        {
+            RoomPlayer roomPlayer = Instantiate(roomPlayerPrefab, contentTransform.transform.GetChild(1));
+            roomPlayer.SetRoomPlayer(this, null);
+            roomPlayerList.Add(roomPlayer);
+        }
 
 
     }
@@ -98,22 +105,31 @@ public class MultiPlayerRoom : MonoBehaviourPunCallbacks
             return;
         if (PhotonNetwork.IsMasterClient)
         {
+            if (m_assignAutoPlayer)
+            {
+                Invoke("LoadScene", 2f);
+                return;
+            }
             foreach (RoomPlayer GetPlayer in roomPlayerList)
-                if (!(bool)GetPlayer?.GetPlayer()?.CustomProperties["IsReady"])
+            {
+                if (GetPlayer?.GetPlayer()?.CustomProperties["IsReady"] != null && !(bool)GetPlayer?.GetPlayer()?.CustomProperties["IsReady"])
                     return;
+            }
             if (PhotonNetwork.CurrentRoom.PlayerCount != 2)
                 return;
-
-            Invoke("LoadScene", 3f);
+            Invoke("LoadScene", 2f);
         }
-
     }
 
     void LoadScene()
     {
         if (loadingScene)
             return;
+
         loadingScene = true;
-        m_mainMenu.StartPvP();
+        if (m_assignAutoPlayer)
+            m_mainMenu.StartPvE();
+        else
+            m_mainMenu.StartPvP();
     }
 }

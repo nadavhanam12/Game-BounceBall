@@ -139,7 +139,7 @@ public class BallScript : MonoBehaviourPun
             await Task.Delay(50);
             if (this)
             {
-                RemoveFromScene();
+                //RemoveFromScene();
                 m_onBallLost(m_ballIndex);
             }
         }

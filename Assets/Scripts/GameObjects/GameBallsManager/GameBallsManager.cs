@@ -125,14 +125,34 @@ public class GameBallsManager : MonoBehaviourPun
     protected virtual void OnBallLost(int ballIndex)
     {
         RemoveBallFromScene(ballIndex, false);
-        //if ((m_correctBallIndex == ballIndex) || (!IsBallsInPLay()))
-        if (m_correctBallIndex == ballIndex)
+        if (m_correctBallIndex != ballIndex) return;
+        if (!IsThereNewBallTarget())
         {
             GameManagerOnTurnLost();
             m_curCombo = 0;
             foreach (BallScript ball in m_ballsArray)
                 ball.InitGravity();
         }
+    }
+    bool IsThereNewBallTarget()
+    {
+        Color colorTarget = m_ballsArray[m_correctBallIndex].GetColor();
+        BallScript ball;
+        for (int i = 0; i < m_ballsArray.Length; i++)
+        {
+            ball = m_ballsArray[i];
+            if (!ball.BallHasFallen && ball.IsInScene())
+            {
+                if (ball.GetColor() == colorTarget)
+                {
+                    m_correctBallIndex = ball.GetIndex();
+                    print("IsThereNewBallTarget new index : " + m_correctBallIndex);
+                    return true;
+                }
+            }
+        }
+        print("IsThereNewBallTarget no new target");
+        return false;
     }
     private bool IsBallsInPLay()
     {

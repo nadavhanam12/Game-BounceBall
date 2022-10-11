@@ -81,6 +81,7 @@ public class EndGameScreen : MonoBehaviour
         m_twoPlayerGameLoseText.gameObject.SetActive(!victory);
         m_curScore1 = 0;
         m_curScore2 = 0;
+        m_resetButton.gameObject.SetActive(false);
         gameObject.SetActive(true);
         StartCoroutine(ScoreCoroutine2(playerOneScore, playerTwoScore));
     }

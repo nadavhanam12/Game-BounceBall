@@ -5,6 +5,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using Photon.Pun;
+using System;
 
 public class RoomPlayer : MonoBehaviourPunCallbacks
 {
@@ -18,14 +19,23 @@ public class RoomPlayer : MonoBehaviourPunCallbacks
     ExitGames.Client.Photon.Hashtable playerProperties = new ExitGames.Client.Photon.Hashtable();
 
     int m_selectedCharacterIndex;
-
+    string[] m_randomNamesArray =
+    {"Nadav66","Tal12","Maria99","Omer","Yafit33","Alon44","Itay15","Yali","Guy31","Naor","Ariel87","Yuval","Dor55","Tomer09","Kimchi88"
+    ,"Taichi77","Eran","Amit","Ohad","Omri","Larisa33","Andrew12","Rotem32" };
 
     public void SetRoomPlayer(MultiPlayerRoom multiPlayerRoom, Player player)
     {
         m_multiPlayerRoom = multiPlayerRoom;
         m_player = player;
-        m_nameText.text = m_player.NickName;
-        if (player.IsMasterClient)
+
+        if (m_player != null)
+            m_nameText.text = m_player.NickName;
+        else
+        {
+            m_nameText.text = GenerateRandomName();
+        }
+
+        if (m_player != null && m_player.IsMasterClient)
             m_selectedCharacterIndex = 0;
         else
             m_selectedCharacterIndex = 1;
@@ -41,6 +51,12 @@ public class RoomPlayer : MonoBehaviourPunCallbacks
         playerProperties["IsReady"] = false;
         PhotonNetwork.SetPlayerCustomProperties(playerProperties);
         Invoke("OnClickedReady", 1.5f);
+    }
+
+    private string GenerateRandomName()
+    {
+        int rnd = UnityEngine.Random.Range(0, m_randomNamesArray.Length);
+        return m_randomNamesArray[rnd];
     }
 
     public void OnClickedReady()

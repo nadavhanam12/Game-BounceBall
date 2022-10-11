@@ -415,5 +415,10 @@ public class GameCanvasScript : MonoBehaviourPun
         SpeciakKickSliderUI.ActivateFillingAnim(activate);
     }
 
+    public void TutorialToggleSwitchTurns(bool active)
+    {
+        CurPlayerUI.ActivateTutorialSwitchTurns(active);
+    }
+
 
 }

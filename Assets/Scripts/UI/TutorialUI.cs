@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +28,8 @@ public class TutorialUI : MonoBehaviour
     HandGesturesUI m_handGestures;
 
     public TMP_Text m_welcomeText;
+    public TMP_Text m_pvETurnUIPanel;
+
 
     public void Init(GameCanvasScript gameCanvas)
     {
@@ -116,7 +119,7 @@ public class TutorialUI : MonoBehaviour
                 m_gameCanvas.ToggleSingleInput("RegKick", true);
                 Panels[1].SetActive(true);
                 m_AnimSpeechBubble.SetTrigger("NextStage");
-                m_handGestures.PlayRegularKickGesture();
+                //m_handGestures.PlayRegularKickGesture();
                 break;
             case StageInTutorial.PracticeKickFinishText:
                 m_gameCanvas.ToggleAllInput(false);
@@ -171,17 +174,21 @@ public class TutorialUI : MonoBehaviour
                 break;
             case StageInTutorial.TurnsExplanationText:
                 m_AnimSpeechBubble.SetTrigger("NextStage");
-
+                HighlightBtn(NextPlayerIcon.transform.position);
+                m_gameCanvas.TutorialToggleSwitchTurns(true);
                 break;
             case StageInTutorial.TurnsUIExplanationText:
-                HighlightBtn(NextPlayerIcon.transform.position);
                 m_AnimSpeechBubble.SetTrigger("NextStage");
-
+                //should stop on pumpkin head turn image
+                m_gameCanvas.TutorialToggleSwitchTurns(false);
                 break;
-            case StageInTutorial.PracticeOpponentGamePlay:
-                m_gameCanvas.ToggleAllInput(true);
+            case StageInTutorial.PracticeOpponentGamePlayPhase1:
+                m_gameCanvas.ToggleAllInput(false);
                 m_AnimSpeechBubble.SetTrigger("NextStage");
                 Panels[5].SetActive(true);
+                break;
+            case StageInTutorial.PracticeOpponentGamePlayPhase2:
+                m_gameCanvas.ToggleAllInput(true);
                 break;
             case StageInTutorial.PointsMechanismText:
                 m_gameCanvas.ToggleAllInput(false);
@@ -206,6 +213,22 @@ public class TutorialUI : MonoBehaviour
         }
 
 
+    }
+
+    internal void SwitchPvETurnUI()
+    {
+        string curText = m_pvETurnUIPanel.text;
+        if (curText == "Pumpkin head turn")
+            m_pvETurnUIPanel.text = "Your turn !";
+        else
+            m_pvETurnUIPanel.text = "Pumpkin head turn";
+
+        ScaleUp();
+    }
+    private void ScaleUp()
+    {
+        LeanTween.scale(m_pvETurnUIPanel.gameObject, Vector3.one * 2, 0.2f)
+                 .setLoopPingPong(1);
     }
 
     public List<GameObject> GetPanels()

@@ -70,4 +70,25 @@ public class CurPlayerUI : MonoBehaviour
         m_curTweenId = -1;
     }
 
+    public void ActivateTutorialSwitchTurns(bool active)
+    {
+        if (active)
+            StartCoroutine("TutorialSwitchTurns");
+        else
+        {
+            StopCoroutine("TutorialSwitchTurns");
+            SetImage(false);
+        }
+    }
+    IEnumerator TutorialSwitchTurns()
+    {
+        while (true)
+        {
+            SetImage(false);
+            yield return new WaitForSeconds((m_timeToTween * 2) + 0.2f);
+            SetImage(true);
+            yield return new WaitForSeconds((m_timeToTween * 2) + 0.2f);
+        }
+    }
+
 }

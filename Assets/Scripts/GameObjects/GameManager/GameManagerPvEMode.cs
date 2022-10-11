@@ -7,11 +7,33 @@ using static PlayerScript;
 public class GameManagerPvEMode : GameManagerAbstract
 {
 
+
+    protected override void StartTutorial()
+    {
+        m_inTutorial = true;
+        InitGameMood(false);
+        //m_playerData2.PlayerScript?.HidePlayer();
+        Invoke("PlayTutorial", 1f);
+        m_gameCanvas.ActivateTimer(false);
+    }
     protected override void InitGameMood(bool throwNewBall = true)
     {
-        m_curPlayerTurn = PlayerIndex.First;
-        m_playerData1.PlayerScript.StartTurn(throwNewBall);
-        m_playerData2.PlayerScript?.LostTurn();
+        if (m_inTutorial)
+        {
+            print("InitGameMood PvE: m_inTutorial");
+            m_curPlayerTurn = PlayerIndex.Second;
+            m_playerData2.PlayerScript.StartTurn(throwNewBall);
+            m_playerData2.PlayerScript.OnPlayIdle();
+            m_playerData1.PlayerScript?.LostTurn();
+
+        }
+        else
+        {
+            m_curPlayerTurn = PlayerIndex.First;
+            m_playerData1.PlayerScript.StartTurn(throwNewBall);
+            m_playerData2.PlayerScript?.LostTurn();
+        }
+
     }
 
     protected override void FinishedTutorial()
@@ -107,9 +129,8 @@ public class GameManagerPvEMode : GameManagerAbstract
             return;
         else
             SwitchPlayerTurnAfterWait(false);
-        if (playerIndex == PlayerIndex.First)
-            CheckPlayerCombo(playerIndex);
-
+        //if (playerIndex == PlayerIndex.First)
+        CheckPlayerCombo(playerIndex);
     }
 
 

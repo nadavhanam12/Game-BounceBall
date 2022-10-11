@@ -69,7 +69,7 @@ public class MultiplayerLobby : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         gameObject.SetActive(false);
-        m_multiPlayerRoom.Activate(PhotonNetwork.CurrentRoom.Name);
+        m_multiPlayerRoom.Activate(PhotonNetwork.CurrentRoom.Name, false);
     }
 
 

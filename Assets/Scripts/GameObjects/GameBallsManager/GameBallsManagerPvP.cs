@@ -195,8 +195,8 @@ public class GameBallsManagerPvP : GameBallsManager
     {
         foreach (BallScript ball in m_ballsArray)
             if (ball)
-                PhotonNetwork.Destroy(ball.GetComponent<PhotonView>());
-        //RemoveBallFromScene(ball.GetIndex());
+                //PhotonNetwork.Destroy(ball.GetComponent<PhotonView>());
+                RemoveBallFromScene(ball.GetIndex());
         //Destroy(this);
     }
 

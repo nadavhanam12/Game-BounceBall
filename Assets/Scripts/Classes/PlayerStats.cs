@@ -9,9 +9,10 @@ public class PlayerStats
     public float m_movingSpeed = 0.5f;
     public float m_jumpSpeed = 0.5f;
     public float m_maxHeight = 2;
-    [Range(0, 20)]
+    [Range(0, 100)]
     public int m_autoPlayDifficult = 50;
     public float AutoPlayBallDistance = 2f;
+    public float AutoPlayMovementDelay = 0.5f;
     [Range(0, 4f)] public float KickCooldown = 0.5f;
     [Range(1, 2)] public float SlideSpeed;
     [Range(0, 4f)] public float InitCooldown = 2f;

@@ -44,8 +44,6 @@ public class HandGesturesUI : MonoBehaviour
     {
         //should change the hand to good gesture and tween it up and down and disapear
         m_anim.SetTrigger("IdleTrigger");
-
-
         GameObject activeCircle = m_regKickHighlightCircle;
         switch (m_curState)
         {

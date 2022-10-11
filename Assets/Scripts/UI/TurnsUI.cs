@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -147,7 +148,6 @@ public class TurnsUI : MonoBehaviour
     {
         m_timeEnd.gameObject.SetActive(false);
     }
-
 
 }
 

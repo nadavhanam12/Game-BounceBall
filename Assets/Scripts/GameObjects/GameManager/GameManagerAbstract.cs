@@ -218,6 +218,8 @@ public abstract class GameManagerAbstract : MonoBehaviourPunCallbacks
         tutorialArgs.GameType = m_gameArgs.GameType;
         tutorialArgs.TutorialUI = m_gameCanvas.GetTutorialUI();
         tutorialArgs.PlayerScript = m_playerData1.PlayerScript;
+        tutorialArgs.PlayerScriptSecond = m_playerData2.PlayerScript;
+
 
         m_tutorialManager.Init(tutorialArgs);
         m_tutorialManager.Pause = SetGamePause;
@@ -240,7 +242,7 @@ public abstract class GameManagerAbstract : MonoBehaviourPunCallbacks
 
     #endregion
 
-    void StartTutorial()
+    protected virtual void StartTutorial()
     {
         InitGameMood(false);
         m_playerData2.PlayerScript?.HidePlayer();
@@ -248,6 +250,7 @@ public abstract class GameManagerAbstract : MonoBehaviourPunCallbacks
         Invoke("PlayTutorial", 1f);
         m_gameCanvas.ActivateTimer(false);
     }
+
     void PlayTutorial()
     {
         m_tutorialManager.Play();
@@ -258,8 +261,8 @@ public abstract class GameManagerAbstract : MonoBehaviourPunCallbacks
         m_ballsManager.RemoveAllBalls();
         m_tutorialManager.TurnOff();
         InitScoreAndCombo();
-        m_curPlayerTurn = PlayerIndex.First;
-        m_gameCanvas.SetCurPlayerUI(m_curPlayerTurn == PlayerIndex.First);
+        //m_curPlayerTurn = PlayerIndex.First;
+        //m_gameCanvas.SetCurPlayerUI(m_curPlayerTurn == PlayerIndex.First);
         m_gameCanvas.SetSliderValue(0, 1);
         UpdatePlayerPrefsCompletedTutorial();
         AfterTutorial();
@@ -360,7 +363,8 @@ public abstract class GameManagerAbstract : MonoBehaviourPunCallbacks
             return;
         }
 
-        if (m_tutorialManager.GetCurStage() == StageInTutorial.PracticeOpponentGamePlay)
+        if (m_tutorialManager.GetCurStage() == StageInTutorial.PracticeOpponentGamePlayPhase1
+             || m_tutorialManager.GetCurStage() == StageInTutorial.PracticeOpponentGamePlayPhase2)
             //SwitchPlayerTurn(false);
             //to avoid the delay, jumped to after delay function
             //notice its without the win/lose anims
@@ -511,6 +515,7 @@ public abstract class GameManagerAbstract : MonoBehaviourPunCallbacks
         PlayerArgs playerArgs = playerIndex == PlayerIndex.First ? m_playerData1 : m_playerData2;
         if (m_inTutorial)
             return;
+
         if (playerArgs.PlayerScript.IsAllowedSpecialKick)
             return;
 

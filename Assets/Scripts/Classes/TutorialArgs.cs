@@ -9,6 +9,8 @@ public class TutorialArgs
     public TutorialUI TutorialUI;
     public GameCanvasScript GameCanvas;
     public PlayerScript PlayerScript;
+    public PlayerScript PlayerScriptSecond;
+
 
 
 

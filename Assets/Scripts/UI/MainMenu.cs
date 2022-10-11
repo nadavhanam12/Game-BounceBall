@@ -22,8 +22,14 @@ public class MainMenu : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject m_Player1;
     [SerializeField] private GameObject m_Player2;
     [SerializeField] private TMP_InputField m_nameTMP;
-    [SerializeField] private GameObject m_ballName;
     [SerializeField] private GameObject m_pleasePlaySinglePlayerObject;
+    [SerializeField] private GameObject m_pleasePlayMultiPlayerObject;
+    [SerializeField] private GameObject m_pleasePlayMultiPlayerObject2;
+    [SerializeField] private GameObject m_pleasePlayPvP1;
+    [SerializeField] private GameObject m_pleasePlayPvP2;
+
+
+
     [SerializeField] private GameObject m_playerAndBallAnim;
     [SerializeField] private Animator m_titleAnimator;
 
@@ -74,6 +80,7 @@ public class MainMenu : MonoBehaviourPunCallbacks
         m_gameName.SetActive(false);
         m_gameCredits.SetActive(false);
         m_gameTutorials.SetActive(false);
+        DisableTutorialPanels();
 
         InitMultiPlayerPanels();
         if (m_testingPvP)
@@ -138,7 +145,7 @@ public class MainMenu : MonoBehaviourPunCallbacks
     GameArgs CreateGameArgs(GameType m_gameType)
     {
         GameArgs args = new GameArgs(m_gameType);
-        args.ShouldPlayTutorial = !PlayerPrefsHasCompletedTutorial(m_gameType);
+        args.ShouldPlayTutorial = m_playTutorial;
         args.ShouldPlayCountdown = true;
         return args;
     }
@@ -162,10 +169,22 @@ public class MainMenu : MonoBehaviourPunCallbacks
 
         m_StartGame.SetActive(false);
         m_gameOption.SetActive(true);
+
+        DisableTutorialPanels();
+        InitMultiPlayerPanels();
         m_gameTutorials.SetActive(false);
         ToggleMenu(true);
         if (PhotonNetwork.IsConnected)
             PhotonNetwork.Disconnect();
+    }
+
+    private void DisableTutorialPanels()
+    {
+        m_pleasePlaySinglePlayerObject.SetActive(false);
+        m_pleasePlayMultiPlayerObject.SetActive(false);
+        m_pleasePlayMultiPlayerObject2.SetActive(false);
+        m_pleasePlayPvP1.SetActive(false);
+        m_pleasePlayPvP2.SetActive(false);
     }
 
     private void ToggleMenu(bool activateMenu)
@@ -181,6 +200,11 @@ public class MainMenu : MonoBehaviourPunCallbacks
         print("OnSinglePlayer");
         if (!m_userChoosen)
         {
+            if (!Convert.ToBoolean(PlayerPrefs.GetInt("CompletedSinglePlayerTutorial")) && !m_playTutorial)
+            {
+                m_pleasePlaySinglePlayerObject.SetActive(true);
+                return;
+            }
             m_userChoosen = true;
             m_gameType = GameType.SinglePlayer;
             OnActivateBallTween();
@@ -191,9 +215,14 @@ public class MainMenu : MonoBehaviourPunCallbacks
     {
         if (!m_userChoosen)
         {
-            if (!Convert.ToBoolean(PlayerPrefs.GetInt("CompletedSinglePlayerTutorial")))
+            if (!Convert.ToBoolean(PlayerPrefs.GetInt("CompletedSinglePlayerTutorial")) && !m_playTutorial)
             {
-                m_pleasePlaySinglePlayerObject.SetActive(true);
+                m_pleasePlayMultiPlayerObject2.SetActive(true);
+                return;
+            }
+            if (!Convert.ToBoolean(PlayerPrefs.GetInt("CompletedTalTalTutorial")) && !m_playTutorial)
+            {
+                m_pleasePlayMultiPlayerObject.SetActive(true);
                 return;
             }
             m_userChoosen = true;
@@ -205,19 +234,40 @@ public class MainMenu : MonoBehaviourPunCallbacks
     {
         if (!m_userChoosen)
         {
-            m_userChoosen = true;
-            m_loadingPanel.Activate();
-            m_gameOption.SetActive(false);
-            m_Player1.SetActive(false);
-            m_Player2.SetActive(false);
-            m_playerAndBallAnim.SetActive(false);
+            if (!Convert.ToBoolean(PlayerPrefs.GetInt("CompletedSinglePlayerTutorial")) && !m_playTutorial)
+            {
+                m_pleasePlayPvP1.SetActive(true);
+                return;
+            }
+            if (!Convert.ToBoolean(PlayerPrefs.GetInt("CompletedTalTalTutorial")) && !m_playTutorial)
+            {
+                m_pleasePlayPvP2.SetActive(true);
+                return;
+            }
 
+            SkipTutorialToPvP();
         }
+    }
+    public void SkipTutorialToPvP()
+    {
+        m_userChoosen = true;
+        m_loadingPanel.Activate();
+        m_gameOption.SetActive(false);
+        m_Player1.SetActive(false);
+        m_Player2.SetActive(false);
+        m_playerAndBallAnim.SetActive(false);
     }
 
     public void StartPvP()
     {
+        m_playTutorial = false;
         m_gameType = GameType.PvP;
+        PhotonNetwork.CurrentRoom.IsVisible = false;
+        StartGameScene();
+    }
+    public void StartPvE()
+    {
+        m_gameType = GameType.PvE;
         PhotonNetwork.CurrentRoom.IsVisible = false;
         StartGameScene();
     }
@@ -252,6 +302,8 @@ public class MainMenu : MonoBehaviourPunCallbacks
         m_playerAndBallAnim.SetActive(true);
         m_playTutorial = false;
         m_titleAnimator.enabled = true;
+
+        DisableTutorialPanels();
     }
 
 
@@ -282,12 +334,28 @@ public class MainMenu : MonoBehaviourPunCallbacks
     public void PlaySinglePlayerTutorial()
     {
         m_playTutorial = true;
-        OnSinglePlayer();
+        m_userChoosen = true;
+        m_gameType = GameType.SinglePlayer;
+        OnActivateBallTween();
+    }
+    public void SkipSinglePlayerTutorial()
+    {
+        m_playTutorial = false;
+        m_userChoosen = true;
+        m_gameType = GameType.SinglePlayer;
+        OnActivateBallTween();
     }
     public void PlayMultiPlayerTutorial()
     {
         m_playTutorial = true;
         OnPvE();
+    }
+    public void SkipMultiPlayerTutorial()
+    {
+        m_playTutorial = false;
+        m_userChoosen = true;
+        m_gameType = GameType.PvE;
+        OnActivateBallTween();
     }
 
 
@@ -343,8 +411,6 @@ public class MainMenu : MonoBehaviourPunCallbacks
         if (m_gameSceneSetUpScript != null)
         {
             GameArgs gameArgs = CreateGameArgs(m_gameType);
-            if (!gameArgs.ShouldPlayTutorial)
-                gameArgs.ShouldPlayTutorial = m_playTutorial;
             m_gameSceneSetUpScript.SetGameSceneArgs(gameArgs);
         }
         else
