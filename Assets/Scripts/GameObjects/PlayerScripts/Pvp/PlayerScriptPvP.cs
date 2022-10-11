@@ -57,7 +57,10 @@ public class PlayerScriptPvP : PlayerScript
             return;
 
         if (this.photonView.IsMine)
+        {
             base.InitPlayer(initPos);
+            base.InitPosY();
+        }
 
         ShowPlayer();
     }

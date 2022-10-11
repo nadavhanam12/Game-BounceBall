@@ -209,7 +209,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 200
+  m_fontSize: 193.9
   m_fontSizeBase: 125
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -13536,7 +13536,7 @@ MonoBehaviour:
   m_mainMenu: {fileID: 7652562759993747914}
   withLobby: 0
   m_assignPvEAfterWaitTime: 1
-  m_waitTime: 7
+  m_waitTime: 3
   m_text: {fileID: 1779657822}
 --- !u!1 &1390261399
 GameObject:

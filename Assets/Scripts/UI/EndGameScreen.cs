@@ -102,4 +102,8 @@ public class EndGameScreen : MonoBehaviour
         gameObject.SetActive(true);
         StartCoroutine(ScoreCoroutine2(playerOneScore, playerTwoScore));
     }
+    public void StopAnim()
+    {
+        GetComponent<Animator>().enabled = false;
+    }
 }

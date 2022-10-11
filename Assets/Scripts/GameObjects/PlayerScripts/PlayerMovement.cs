@@ -33,8 +33,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (!this) return;
         gameObject.transform.rotation = m_initialRotation;
-        Vector3 positionUpper = m_initialPosition;
-        gameObject.transform.position = positionUpper;
+        gameObject.transform.position = m_initialPosition;
         gameObject.transform.localScale = m_initialScale;
 
         SetInParalyze(false);
@@ -156,6 +155,16 @@ public class PlayerMovement : MonoBehaviour
             else
                 IsJumping = false;
         }
+    }
+
+    internal void InitPosY()
+    {
+        IsJumpingDown = false;
+        IsJumpingUp = false;
+        IsJumping = false;
+        Vector3 pos = gameObject.transform.position;
+        pos.y = m_initialPosition.y;
+        gameObject.transform.position = pos;
     }
 
     internal void SetIsJumping(bool v)

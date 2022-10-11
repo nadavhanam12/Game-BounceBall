@@ -142,6 +142,11 @@ public class PlayerScript : MonoBehaviourPun
         ShowPlayer();
         //SetAllowedSpecialKick(false);
     }
+    protected void InitPosY()
+    {
+        m_playerMovement.InitPosY();
+        FinishAnimation();
+    }
 
     public void OnKickPlay(List<BallScript> ballsHit)
     {
