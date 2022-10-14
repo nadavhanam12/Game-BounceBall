@@ -47,6 +47,8 @@ public class GameManagerOnePlayerMode : GameManagerAbstract
         if (m_inTutorial)
         {
             onTurnLostTutorial();
+            m_playerData1.CurCombo = 0;
+            m_gameCanvas.SetCombo(m_playerData1.CurCombo);
             return;
         }
 

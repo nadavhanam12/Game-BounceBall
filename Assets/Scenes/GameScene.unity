@@ -78913,11 +78913,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_gameArgs:
-    GameType: 1
+    GameType: 0
     Background: {fileID: 0}
     MatchTime: 500
     CountDownDelay: 1
-    ShouldPlayTutorial: 0
+    ShouldPlayTutorial: 1
     ShouldPlayCountdown: 0
     WithKeyboard: 1
     ComboKicksAmount: 3
@@ -94710,7 +94710,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e8f0113683340e46a1791f867f8b694, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_firstComboLength: 1
+  m_firstComboLength: 4
   m_specialKickComboLength: 3
   m_FreePlayComboLength: 4
   m_cooldownLength: 1.5
