@@ -13536,7 +13536,7 @@ MonoBehaviour:
   m_mainMenu: {fileID: 7652562759993747914}
   withLobby: 0
   m_assignPvEAfterWaitTime: 1
-  m_waitTime: 3
+  m_waitTime: 7
   m_text: {fileID: 1779657822}
 --- !u!1 &1390261399
 GameObject:
@@ -24006,7 +24006,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03d4e2fd39604044cb8b9a9d074e6ffa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_testingPvP: 1
+  m_testingPvP: 0
   m_StartGame: {fileID: 1765729745077497273}
   m_gameName: {fileID: 2327680393886540292}
   m_gameOption: {fileID: 4534745394190183468}
