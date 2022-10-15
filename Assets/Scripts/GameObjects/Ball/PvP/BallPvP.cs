@@ -10,12 +10,23 @@ public class BallPvP : BallScript
     public override void Init(BallArgs args, int ballIndex)
     {
         base.Init(args, ballIndex);
+        //set theSetBallPhysicsPvP(args);
         if (!PhotonNetwork.IsMasterClient)
         {
             /*m_ballPhysics = null;
             Destroy(GetComponent<Rigidbody2D>());*/
             //Destroy(GetComponent<CircleCollider2D>());
         }
+    }
+
+    void SetBallPhysicsPvP(BallArgs args)
+    {
+        m_ballPhysics = GetComponent<BallPhysics>();
+        Destroy(m_ballPhysics);
+        BallPhysicsPvP ballPhysicsPvP = gameObject.AddComponent<BallPhysicsPvP>();
+        m_ballPhysics = ballPhysicsPvP;
+        ballPhysicsPvP.SetViewId(photonView.ViewID);
+        m_ballPhysics.Init(this, args);
     }
 
     public override void UpdateColor(Color color)

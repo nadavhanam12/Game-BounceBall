@@ -18,7 +18,7 @@ public class GameArgs
 {
     public GameType GameType;
     public Texture Background;
-    public int MatchTime = 60;
+    public int MatchTime = 600;
     public float CountDownDelay = 1f;
     public bool ShouldPlayTutorial = false;
     public bool ShouldPlayCountdown = false;

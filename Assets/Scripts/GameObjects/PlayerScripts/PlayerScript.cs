@@ -182,11 +182,12 @@ public class PlayerScript : MonoBehaviourPun
         {
             if (!m_args.AutoPlay)
                 AnalyticsManager.Instance().CommitData(AnalyticsManager.AnalyticsEvents.Event_Jump);
-            m_playerMovement.SetIsJumping(true);
-            m_playerMovement.SetIsJumpingUp(true);
-
-            m_playerAnimations.AnimSetTrigger("Jump Trigger");
+            m_playerMovement.StartJump();
         }
+    }
+    public void PlayJumpAnim()
+    {
+        m_playerAnimations.AnimSetTrigger("Jump Trigger");
     }
 
     public virtual void SetGamePause(bool isPause)
@@ -209,11 +210,11 @@ public class PlayerScript : MonoBehaviourPun
 
     public void MoveRight()
     {
-        m_playerMovement.MoveX(Vector2.right);
+        m_playerMovement.MoveX(Vector2Int.right);
     }
     public void MoveLeft()
     {
-        m_playerMovement.MoveX(Vector2.left);
+        m_playerMovement.MoveX(Vector2Int.left);
     }
 
     public virtual void OnTouchKickSpecial()

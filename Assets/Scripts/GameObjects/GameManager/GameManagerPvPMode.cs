@@ -104,6 +104,46 @@ public class GameManagerPvPMode : GameManagerAbstract
             m_playerData1.PlayerScript = playerScript;
     }
 
+    protected override void InitData()
+    {
+        base.InitData();
+        float[] bounds = new float[5];
+        bounds[0] = m_gameBounds.GameUpperBound;
+        bounds[1] = m_gameBounds.GameLowerBound;
+        bounds[2] = m_gameBounds.GameLeftBound;
+        bounds[3] = m_gameBounds.GameRightBound;
+        bounds[4] = m_gameBounds.GamePlayGroundLowerBound;
+
+        this.photonView.RPC("UpdateBoundsPvP", RpcTarget.AllBuffered, bounds);
+    }
+
+    [PunRPC]
+    void UpdateBoundsPvP(float[] bounds)
+    {
+        //print("UpdateBoundsPvP");
+        if (bounds[0] <= m_gameBounds.GameUpperBound)
+            m_gameBounds.GameUpperBound = bounds[0];
+
+        if (bounds[1] >= m_gameBounds.GameLowerBound)
+            m_gameBounds.GameLowerBound = bounds[1];
+
+        if (bounds[2] >= m_gameBounds.GameLeftBound)
+            m_gameBounds.GameLeftBound = bounds[2];
+
+        if (bounds[3] <= m_gameBounds.GameRightBound)
+            m_gameBounds.GameRightBound = bounds[3];
+
+        if (bounds[4] <= m_gameBounds.GamePlayGroundLowerBound)
+            m_gameBounds.GamePlayGroundLowerBound = bounds[4];
+
+        /*print(m_gameBounds.GameUpperBound);
+        print(m_gameBounds.GameLowerBound);
+        print(m_gameBounds.GameLeftBound);
+        print(m_gameBounds.GameRightBound);
+        print(m_gameBounds.GamePlayGroundLowerBound);*/
+
+        m_gameBoundsData.ChangeBoundsPvP(m_gameBounds);
+    }
 
     public override void StartGameScene()
     {

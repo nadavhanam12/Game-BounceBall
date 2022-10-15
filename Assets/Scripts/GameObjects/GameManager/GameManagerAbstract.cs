@@ -18,7 +18,7 @@ public abstract class GameManagerAbstract : MonoBehaviourPunCallbacks
     #endregion
 
     #region Refs
-    GameBoundsData m_gameBoundsData;
+    protected GameBoundsData m_gameBoundsData;
     protected PlayerContainer m_playerContainer;
     protected GameCanvasScript m_gameCanvas;
     protected ComboDataContainer m_comboDataContainer;
@@ -34,7 +34,7 @@ public abstract class GameManagerAbstract : MonoBehaviourPunCallbacks
     #endregion
 
     #region private
-    GameBounds m_gameBounds;
+    protected GameBounds m_gameBounds;
     protected PlayerArgs m_playerData1;
     protected PlayerArgs m_playerData2;
     int m_curPlayersScoreDelta;
@@ -198,15 +198,14 @@ public abstract class GameManagerAbstract : MonoBehaviourPunCallbacks
         m_playerData1.ToggleBombUI = m_gameCanvas.ShowBombUI;
     }
 
-    void InitData()
+    protected virtual void InitData()
     {
         m_playerData1 = m_playersDataContainer.PlayerData1;
         m_playerData2 = m_playersDataContainer.PlayerData2;
 
         m_gameBoundsData = FindObjectOfType<GameBoundsData>(true);
         m_gameBounds = m_gameBoundsData.GenerateBounds(Camera.main);
-        m_gameBoundsData.gameObject.SetActive(false);
-
+        //m_gameBoundsData.gameObject.SetActive(false);
     }
 
     protected abstract void InitGameMood(bool throwNewBall = true);

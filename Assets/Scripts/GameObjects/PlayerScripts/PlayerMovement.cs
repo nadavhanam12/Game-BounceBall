@@ -1,9 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : MonoBehaviourPun
 {
     bool isGamePaused;
     public bool InParalyze { get; private set; }
@@ -44,33 +45,35 @@ public class PlayerMovement : MonoBehaviour
         InParalyze = isParalyze;
     }
 
-    public void OnMoveX(Vector2 direction, bool withAnimation = true)
+    public void OnMoveX(Vector2Int direction)
     {
         if (isGamePaused)
             return;
         if (IsJumping)
             return;
-        if (CheckPlayerInBounds(direction))
+        if (CheckPlayerInBounds(direction.x))
+            MoveToDirection(direction);
+    }
+    protected virtual void MoveToDirection(Vector2Int direction)
+    {
+        if (CheckPlayerInBounds(direction.x))
         {
-            if (withAnimation)
-                m_playerScript.PlayRunAnim();
-
-            SpinPlayerToDirection(direction);
-            transform.Translate(direction * m_args.playerStats.m_movingSpeed, Space.World);
+            m_playerScript.PlayRunAnim();
+            SpinPlayerToDirection(direction.x);
+            transform.Translate(direction.x * m_args.playerStats.m_movingSpeed, 0, 0, Space.World);
         }
-
     }
 
-    void SpinPlayerToDirection(Vector3 direction)
+    void SpinPlayerToDirection(int direction)
     {
-        if ((direction == Vector3.left) && (transform.localScale.x > 0))
+        if ((direction == -1) && (transform.localScale.x > 0))
         {
             Vector3 scale = transform.localScale;
             scale.x *= -1;
             transform.localScale = scale;
 
         }
-        else if ((direction == Vector3.right) && (transform.localScale.x < 0))
+        else if ((direction == 1) && (transform.localScale.x < 0))
         {
             Vector3 scale = transform.localScale;
             scale.x *= -1;
@@ -92,25 +95,25 @@ public class PlayerMovement : MonoBehaviour
         //print(playerPosition + "   " + position);
         if ((Math.Abs(playerPosition.x - position.x) > m_minimumDistanceToMove))
             if (playerPosition.x < position.x)
-                OnMoveX(Vector2.right);
+                OnMoveX(Vector2Int.right);
             else
-                OnMoveX(Vector2.left);
+                OnMoveX(Vector2Int.left);
         else
             m_playerScript.OnPlayIdle();
     }
 
     //for keyboard control
-    public void MoveX(Vector2 dir)
+    public void MoveX(Vector2Int dir)
     {
         if (InParalyze)
             return;
         OnMoveX(dir);
     }
 
-    private bool CheckPlayerInBounds(Vector3 direction)
+    private bool CheckPlayerInBounds(int direction)
     {
         Vector3 playerPos = transform.position;
-        if (direction.x <= 0)
+        if (direction <= 0)
         {//he is moving left
             if (playerPos.x - m_args.playerStats.PlayerBoundDistanceTrigger < m_args.Bounds.GameLeftBound)
                 return false;
@@ -120,17 +123,21 @@ public class PlayerMovement : MonoBehaviour
             return false;
         return true;
     }
-
+    public void StartJump()
+    {
+        SetIsJumping(true);
+        SetIsJumpingUp(true);
+        m_playerScript.PlayJumpAnim();
+    }
     ///Jumping
     public void GetJump()
     {
-
         if (IsJumping)
         {
             if (IsJumpingUp)
             {
                 if (transform.position.y < m_args.playerStats.m_maxHeight)
-                    transform.Translate(Vector3.up * m_args.playerStats.m_jumpSpeed, Space.World);
+                    ApplyJump(1);
                 else
                 {
                     IsJumpingUp = false;
@@ -141,20 +148,27 @@ public class PlayerMovement : MonoBehaviour
             {
                 if (transform.position.y > m_initialPosition.y)
                 {
-                    transform.Translate(Vector3.down * m_args.playerStats.m_jumpSpeed, Space.World);
-                    if (transform.position.y < m_initialPosition.y)
-                    {
-                        Vector3 curPos = transform.position;
-                        curPos.y = m_initialPosition.y;
-                        transform.position = curPos;
-                    }
+                    ApplyJump(-1);
                 }
                 else
-                    IsJumpingDown = false;
+                    InitialAfterJump();
             }
             else
-                IsJumping = false;
+                InitialAfterJump();
         }
+        else if (gameObject.transform.position.y != m_initialPosition.y)
+            InitialAfterJump();
+
+    }
+
+    protected virtual void InitialAfterJump()
+    {
+        InitPosY();
+    }
+
+    protected virtual void ApplyJump(int movY)
+    {
+        transform.Translate(0, movY * m_args.playerStats.m_jumpSpeed, 0, Space.World);
     }
 
     internal void InitPosY()
@@ -165,6 +179,7 @@ public class PlayerMovement : MonoBehaviour
         Vector3 pos = gameObject.transform.position;
         pos.y = m_initialPosition.y;
         gameObject.transform.position = pos;
+        m_playerScript.OnPlayIdle();
     }
 
     internal void SetIsJumping(bool v)

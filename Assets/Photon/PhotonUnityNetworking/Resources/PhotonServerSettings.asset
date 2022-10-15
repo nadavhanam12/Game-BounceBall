@@ -75,6 +75,17 @@ MonoBehaviour:
   - CameraShakeRPC
   - OnTouchKickSpecialRPC
   - EndGameRPC
+  - MoveToDirectionRPC
+  - StartJumpRPC
+  - ApplyJumpRPC
+  - InitialAfterJumpRPC
+  - UpdateBoundsPvP
+  - AddForceRPC
+  - AddToGravityRPC
+  - AddTorqueRPC
+  - InitGravityRPC
+  - ResetVelocityRPC
+  - ToggleSimulateRPC
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

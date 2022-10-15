@@ -5,15 +5,8 @@ public class PlayerScriptPvP : PlayerScript
 {
     protected override void InitScripts()
     {
-        m_playerAnimations = GetComponent<PlayerAnimations>();
-        Destroy(m_playerAnimations);
-        PlayerAnimationsPvP playerAnimationsPvP = gameObject.AddComponent<PlayerAnimationsPvP>();
-        m_playerAnimations = playerAnimationsPvP;
-        playerAnimationsPvP.Init();
-        playerAnimationsPvP.SetViewId(photonView.ViewID);
-
-        m_playerMovement = GetComponent<PlayerMovement>();
-        m_playerMovement.Init(this, m_args);
+        SetPlayerAnimationsPvP();
+        SetPlayerMovementPvP();
 
         m_playerKicksManager = GetComponent<PlayerKick>();
         m_playerKicksManager.Init(this, m_args);
@@ -24,6 +17,24 @@ public class PlayerScriptPvP : PlayerScript
         m_playerAuraCircle = GetComponentInChildren<PlayerAuraCircle>();
         m_playerAuraCircle.Init(true);
 
+    }
+    void SetPlayerAnimationsPvP()
+    {
+        m_playerAnimations = GetComponent<PlayerAnimations>();
+        Destroy(m_playerAnimations);
+        PlayerAnimationsPvP playerAnimationsPvP = gameObject.AddComponent<PlayerAnimationsPvP>();
+        m_playerAnimations = playerAnimationsPvP;
+        playerAnimationsPvP.Init();
+        playerAnimationsPvP.SetViewId(photonView.ViewID);
+    }
+    void SetPlayerMovementPvP()
+    {
+        m_playerMovement = GetComponent<PlayerMovement>();
+        Destroy(m_playerMovement);
+        PlayerMovementPvP playerMovementPvP = gameObject.AddComponent<PlayerMovementPvP>();
+        m_playerMovement = playerMovementPvP;
+        playerMovementPvP.Init(this, m_args);
+        playerMovementPvP.SetViewId(photonView.ViewID);
     }
     protected override void Update()
     {
@@ -56,11 +67,11 @@ public class PlayerScriptPvP : PlayerScript
         if (this.photonView.ViewID != viewId)
             return;
 
-        if (this.photonView.IsMine)
-        {
-            base.InitPlayer(initPos);
-            base.InitPosY();
-        }
+        /*if (this.photonView.IsMine)
+        {*/
+        base.InitPlayer(initPos);
+        base.InitPosY();
+        //}
 
         ShowPlayer();
     }

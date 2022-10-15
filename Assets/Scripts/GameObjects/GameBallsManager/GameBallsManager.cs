@@ -151,7 +151,7 @@ public class GameBallsManager : MonoBehaviourPun
                 }
             }
         }
-        print("IsThereNewBallTarget no new target");
+        //print("IsThereNewBallTarget no new target");
         return false;
     }
     private bool IsBallsInPLay()

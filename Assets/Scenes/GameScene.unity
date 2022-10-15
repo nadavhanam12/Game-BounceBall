@@ -78913,11 +78913,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_gameArgs:
-    GameType: 0
+    GameType: 1
     Background: {fileID: 0}
     MatchTime: 500
     CountDownDelay: 1
-    ShouldPlayTutorial: 1
+    ShouldPlayTutorial: 0
     ShouldPlayCountdown: 0
     WithKeyboard: 1
     ComboKicksAmount: 3

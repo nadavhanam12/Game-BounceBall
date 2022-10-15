@@ -46,9 +46,9 @@ public class PlayerAutoScript : PlayerScript
             if (Mathf.Abs(deltaX) > m_args.playerStats.AutoPlayBallDistance)
             {
                 if (deltaX > 0)
-                    m_playerMovement.OnMoveX(Vector3.right);
+                    m_playerMovement.OnMoveX(Vector2Int.right);
                 else
-                    m_playerMovement.OnMoveX(Vector3.left);
+                    m_playerMovement.OnMoveX(Vector2Int.left);
             }
         }
         else
@@ -83,11 +83,11 @@ public class PlayerAutoScript : PlayerScript
         }
         else if (rnd <= 0.75)
         {
-            m_playerMovement.OnMoveX(Vector3.left);
+            m_playerMovement.OnMoveX(Vector2Int.left);
         }
         else
         {
-            m_playerMovement.OnMoveX(Vector3.right);
+            m_playerMovement.OnMoveX(Vector2Int.right);
         }
     }
 

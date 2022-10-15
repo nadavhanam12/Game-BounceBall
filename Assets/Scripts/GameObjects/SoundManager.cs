@@ -122,7 +122,7 @@ public class SoundManager : MonoBehaviour
             }
             m_effectsSource.Stop();
             m_effectsSource.clip = clipToPlay;
-            m_effectsSource.Play();
+            // m_effectsSource.Play();
             m_availableForUpdate = true;
         }
 
@@ -134,7 +134,7 @@ public class SoundManager : MonoBehaviour
         //print("PlayMusic " + onMenu);
         m_musicSource.Stop();
         m_musicSource.clip = onMenu ? m_menuBGMusic : m_gameBGMusic;
-        m_musicSource.Play();
+        //m_musicSource.Play();
     }
 
     private void EventPlayMenuBGMusic() { PlayBGMusic(true); }

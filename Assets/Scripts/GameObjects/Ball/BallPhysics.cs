@@ -108,7 +108,7 @@ public class BallPhysics : MonoBehaviour
 
     public void CheckBounds()
     {
-        if (m_isPvPAndNotMaster) return;
+        //if (m_isPvPAndNotMaster) return;
 
         Vector3 ballPosition = this.gameObject.transform.position;
         if ((ballPosition.x - m_args.BallBoundDistanceTrigger < m_args.Bounds.GameLeftBound) && (m_rigidBody.velocity.x < 0))

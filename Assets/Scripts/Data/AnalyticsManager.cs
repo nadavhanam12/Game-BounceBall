@@ -44,7 +44,7 @@ public class AnalyticsManager
         try
         {
             var options = new InitializationOptions();
-            options.SetEnvironmentName("production");
+            options.SetEnvironmentName("development");
             await UnityServices.InitializeAsync(options);
             List<string> consentIdentifiers = await AnalyticsService.Instance.CheckForRequiredConsents();
             //Debug.Log("Init AnalyticsService");
