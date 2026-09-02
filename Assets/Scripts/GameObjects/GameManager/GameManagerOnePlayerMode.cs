@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using static PlayerScript;
 
@@ -20,10 +20,10 @@ public class GameManagerOnePlayerMode : GameManagerAbstract
             m_gameCanvas.SwitchTurn(m_curPlayerTurn != PlayerIndex.First);
         shouldSwitchTurn = false;
 
-        await Task.Delay(2000);
+        await UniTask.Delay(2000);
         InitPlayersStatus();
 
-        await Task.Delay(1000);
+        await UniTask.Delay(1000);
         SwitchPlayerTurnAfterWait(true, shouldSwitchTurn);
     }
 

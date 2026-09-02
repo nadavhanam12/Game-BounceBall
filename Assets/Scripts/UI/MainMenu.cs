@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
@@ -124,7 +125,7 @@ public class MainMenu : MonoBehaviourPunCallbacks
         AsyncOperation operation = SceneManager.UnloadSceneAsync(m_gameSceneName);
         while (!operation.isDone)
         {
-            await Task.Delay(30);
+            await UniTask.Delay(30);
         }
         StartGameScene();
     }
@@ -159,7 +160,7 @@ public class MainMenu : MonoBehaviourPunCallbacks
         print("BackToMenu");
         AsyncOperation operation = SceneManager.UnloadSceneAsync(m_gameSceneName);
         while (!operation.isDone)
-            await Task.Delay(30);
+            await UniTask.Delay(30);
 
         //ChooseRandomBackground();
         m_userChoosen = false;
@@ -390,7 +391,7 @@ public class MainMenu : MonoBehaviourPunCallbacks
         AsyncOperation operation = SceneManager.LoadSceneAsync(m_gameSceneName, LoadSceneMode.Additive);
         //operation.allowSceneActivation = false;
         while (!operation.isDone)
-            await Task.Delay(30);
+            await UniTask.Delay(30);
 
         ApplyArgs();
     }
@@ -400,7 +401,7 @@ public class MainMenu : MonoBehaviourPunCallbacks
         AsyncOperation operation = SceneManager.LoadSceneAsync(m_gameSceneName, LoadSceneMode.Additive);
         //operation.allowSceneActivation = false;
         while (!operation.isDone)
-            await Task.Delay(30);
+            await UniTask.Delay(30);
 
         ApplyArgs();
     }

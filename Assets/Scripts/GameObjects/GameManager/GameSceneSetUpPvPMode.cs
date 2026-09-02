@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
@@ -29,7 +29,7 @@ public class GameSceneSetUpPvPMode : MonoBehaviour, IOnEventCallback
     {
         //Debug.Log("ReadyToStartGameScene");
         PhotonNetwork.IsMessageQueueRunning = true;
-        await Task.Delay(1000);
+        await UniTask.Delay(1000);
         m_mainMenu?.UnloadMenu();
         PvPEventsService.Instance.SendEventToMaster
             (PvPEventsService.Event_PlayerReady, PhotonNetwork.LocalPlayer);

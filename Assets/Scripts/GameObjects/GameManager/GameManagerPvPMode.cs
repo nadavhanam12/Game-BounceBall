@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using ExitGames.Client.Photon;
 using Photon.Pun;
@@ -193,10 +193,10 @@ public class GameManagerPvPMode : GameManagerAbstract
             m_playerData2.PlayerScript?.Win();
         }
 
-        await Task.Delay(2000);
+        await UniTask.Delay(2000);
         InitPlayersStatus();
 
-        await Task.Delay(1000);
+        await UniTask.Delay(1000);
         SwitchPlayerTurnAfterWait(true, shouldSwitchTurn);
     }
 

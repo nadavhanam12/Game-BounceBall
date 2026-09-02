@@ -2,7 +2,7 @@ using System.Collections;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using TMPro;
 
 public class LoadingPage : MonoBehaviourPunCallbacks
@@ -89,7 +89,7 @@ public class LoadingPage : MonoBehaviourPunCallbacks
     async void SwitchToRoomScreen(bool assignAutoPlayer = false)
     {
         m_text.text = "Joining Room...";
-        await Task.Delay(2000);
+        await UniTask.Delay(2000);
         gameObject.SetActive(false);
         m_multiPlayerRoom.Activate(PhotonNetwork.CurrentRoom.Name, assignAutoPlayer, withLobby);
     }
@@ -104,7 +104,7 @@ public class LoadingPage : MonoBehaviourPunCallbacks
     async void SwitchToLobby()
     {
         //print("SwitchToLobby 1");
-        await Task.Delay(2000);
+        await UniTask.Delay(2000);
         //print("SwitchToLobby 2");
         gameObject.SetActive(false);
         m_multiplayerLobby.Activate();

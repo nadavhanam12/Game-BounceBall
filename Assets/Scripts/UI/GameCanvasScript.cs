@@ -1,5 +1,5 @@
 
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
@@ -197,7 +197,7 @@ public class GameCanvasScript : MonoBehaviourPun
     public async void StartCountdown()
     {
         while (m_anim.GetCurrentAnimatorStateInfo(0).normalizedTime < 1)
-            await Task.Delay(200);
+            await UniTask.Delay(200);
         CountdownUI.SetActive(true);
         m_anim.Play("Countdown", -1, 0f);
     }

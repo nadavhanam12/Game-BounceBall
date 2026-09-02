@@ -1,5 +1,5 @@
 using System;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Photon.Pun;
 using UnityEngine;
 using static PlayerScript;
@@ -136,7 +136,7 @@ public class BallScript : MonoBehaviourPun
             //m_ballPhysics?.AddForce(m_args.m_ballReflectPower);
             BallHasFallen = true;
             //ResetVelocity();
-            await Task.Delay(50);
+            await UniTask.Delay(50);
             if (this)
             {
                 //RemoveFromScene();
